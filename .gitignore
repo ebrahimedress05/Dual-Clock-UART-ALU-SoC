@@ -1,0 +1,23 @@
+# Simulation
+*.vcd
+*.fsdb
+*.wlf
+*.shm/
+*.vpd
+transcript
+work/
+*.log
+
+# Synthesis / P&R tool junk
+*.db
+*.ddc
+*.svf
+*.mr
+*.mr.pvl
+*.pvl
+*.chk
+*.rpt.bak
+
+# OS / editor
+.DS_Store
+*.swp
