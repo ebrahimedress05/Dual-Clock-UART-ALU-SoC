@@ -46,7 +46,7 @@ rtl/
 │   ├── uart_tx/        ✅  Serializes result frames out to the master (TX_OUT)
 │   ├── uart_rx/        ✅  Deserializes incoming command frames from the master (RX_IN)
 │   ├── pulse_gen/      ⏳  Converts UART_TX's Busy (level) signal into a single-cycle pulse
-│   └── clock_divider/  ⏳  Generates the bit-rate clock for TX/RX from UART_CLK (two instances, one per interface)
+│   └── clock_divider/  ✅  Generates the bit-rate clock for TX/RX from UART_CLK (two instances, one per interface)
 │
 ├── sync/                → Clock Domain Crossing (CDC) logic between domain 1 and domain 2
 │   ├── rst_sync/       ⏳  Active-low async reset synchronizer (one instance per domain)
@@ -57,6 +57,13 @@ rtl/
 ```
 
 **Why two domains?** The core datapath (RegFile + ALU) runs at the fast 50 MHz reference clock for quick command execution, while the UART interface runs at the much slower 3.6864 MHz clock required for standard UART bit timing. The `sync/` blocks are what safely move resets, data, and control pulses between these two asynchronous clocks.
+
+### Clock Divider (`rtl/clock_domain2/clock_divider/`)
+
+| File | Role |
+|---|---|
+| `ClkDiv.v` | Programmable clock divider (`ClkDiv`). Divides `i_ref_clk` by `i_div_ratio` to produce `o_div_clk`, handling both even and odd division ratios (dual positive/negative-edge counters combined for odd ratios). Passes the reference clock through unchanged when `i_clk_en` is low or the ratio is 0/1. Asynchronous, active-low reset (`i_rst_n`). |
+| `Clk_Div_Mux.v` | Prescale-to-division-ratio decoder (`Clk_Div_Mux`). Maps the 6-bit `prescale` configuration value (from RegFile) to the 4-bit `Div_Ratio` fed into `ClkDiv`. |
 
 ### Data_Sync (`rtl/sync/data_sync/`)
 
@@ -111,4 +118,4 @@ Three PVT (Process/Voltage/Temperature) corners are provided for the standard-ce
 
 ## Status
 
-🚧 **In progress** — system specification (`docs/specs/`), TSMC13 technology library (`lib/`), the UART_TX / UART_RX RTL (`rtl/clock_domain2/`), and the Data_Sync CDC block (`rtl/sync/data_sync/`) have been added. Remaining RTL blocks and flow stages will follow in subsequent commits.
+🚧 **In progress** — system specification (`docs/specs/`), TSMC13 technology library (`lib/`), the UART_TX / UART_RX RTL, the Clock Divider RTL (`rtl/clock_domain2/`), and the Data_Sync CDC block (`rtl/sync/data_sync/`) have been added. Remaining RTL blocks and flow stages will follow in subsequent commits.
