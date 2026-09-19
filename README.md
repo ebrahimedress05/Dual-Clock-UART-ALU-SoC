@@ -38,7 +38,7 @@ The RTL is organized by **clock domain**, so it's immediately clear which clock 
 rtl/
 ├── clock_domain1/      → Driven by REF_CLK (50 MHz)
 │   ├── regfile/       ⏳  8x16 Register File — holds operands, config, and general data
-│   ├── alu/            ⏳  Executes the arithmetic/logic operations
+│   ├── alu/            ✅  Executes the arithmetic/logic operations
 │   ├── clock_gating/   ⏳  Gates REF_CLK into the ALU (enabled by SYS_CTRL)
 │   └── sys_ctrl/       ⏳  Main controller — decodes commands, drives RegFile/ALU, talks to UART via the synchronizers
 │
@@ -57,6 +57,12 @@ rtl/
 ```
 
 **Why two domains?** The core datapath (RegFile + ALU) runs at the fast 50 MHz reference clock for quick command execution, while the UART interface runs at the much slower 3.6864 MHz clock required for standard UART bit timing. The `sync/` blocks are what safely move resets, data, and control pulses between these two asynchronous clocks.
+
+### ALU (`rtl/clock_domain1/alu/`)
+
+| File | Role |
+|---|---|
+| `ALU.v` | Arithmetic/logic unit (`ALU`, parameterized `OPER_WIDTH`, output width = 2×`OPER_WIDTH`). Registers `ALU_OUT`/`OUT_VALID` on `CLK` when `EN` is asserted, decoding `ALU_FUN` to select the operation: Add, Sub, Mul, Div, AND, OR, NAND, NOR, XOR, XNOR, Compare (A=B), Compare (A>B), Compare (A<B), Shift Right (A>>1), Shift Left (A<<1). Synchronous reset clears the output and valid flag. |
 
 ### RST_SYNC (`rtl/sync/rst_sync/`)
 
@@ -140,4 +146,4 @@ Three PVT (Process/Voltage/Temperature) corners are provided for the standard-ce
 
 ## Status
 
-🚧 **In progress** — system specification (`docs/specs/`), TSMC13 technology library (`lib/`), the UART_TX / UART_RX RTL, PULSE_GEN, the Clock Divider RTL (`rtl/clock_domain2/`), and all CDC synchronizers — RST_SYNC, Data_Sync, ASYNC_FIFO (`rtl/sync/`) — have been added. Remaining Clock Domain 1 blocks (RegFile, ALU, Clock Gating, SYS_CTRL) and top-level integration, plus the rest of the flow, will follow in subsequent commits.
+🚧 **In progress** — system specification (`docs/specs/`), TSMC13 technology library (`lib/`), the ALU (`rtl/clock_domain1/alu/`), the UART_TX / UART_RX RTL, PULSE_GEN, the Clock Divider RTL (`rtl/clock_domain2/`), and all CDC synchronizers — RST_SYNC, Data_Sync, ASYNC_FIFO (`rtl/sync/`) — have been added. Remaining Clock Domain 1 blocks (RegFile, Clock Gating, SYS_CTRL) and top-level integration, plus the rest of the flow, will follow in subsequent commits.
