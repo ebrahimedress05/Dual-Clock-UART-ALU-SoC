@@ -50,13 +50,19 @@ rtl/
 │
 ├── sync/                → Clock Domain Crossing (CDC) logic between domain 1 and domain 2
 │   ├── rst_sync/       ⏳  Active-low async reset synchronizer (one instance per domain)
-│   ├── data_sync/      ⏳  Synchronizes UART_RX's parallel output data into the REF_CLK domain
+│   ├── data_sync/      ✅  Synchronizes UART_RX's parallel output data into the REF_CLK domain
 │   └── async_fifo/     ⏳  Dual-clock FIFO carrying TX data from REF_CLK (write side) to UART_CLK (read side)
 │
 └── top/                 ⏳  SYS_TOP — top-level integration of both clock domains and all synchronizers
 ```
 
 **Why two domains?** The core datapath (RegFile + ALU) runs at the fast 50 MHz reference clock for quick command execution, while the UART interface runs at the much slower 3.6864 MHz clock required for standard UART bit timing. The `sync/` blocks are what safely move resets, data, and control pulses between these two asynchronous clocks.
+
+### Data_Sync (`rtl/sync/data_sync/`)
+
+| File | Role |
+|---|---|
+| `Data_Sync.v` | Multi-bit CDC synchronizer (`DATA_SYNC`, parameterized `BUS_WIDTH`/`NUM_STAGES`). Uses a multi-flip-flop synchronizer chain to detect a `bus_enable` pulse on the destination clock, captures `unsync_bus` into `sync_bus` once the pulse is detected, and issues a one-cycle `enable_pulse` marking the new data as valid. Reset is active-low and asynchronous. |
 
 ### UART_TX (`rtl/clock_domain2/uart_tx/`)
 
@@ -105,4 +111,4 @@ Three PVT (Process/Voltage/Temperature) corners are provided for the standard-ce
 
 ## Status
 
-🚧 **In progress** — system specification (`docs/specs/`), TSMC13 technology library (`lib/`), and the UART_TX / UART_RX RTL (`rtl/clock_domain2/uart_tx/`, `rtl/clock_domain2/uart_rx/`) have been added. Remaining RTL blocks and flow stages will follow in subsequent commits.
+🚧 **In progress** — system specification (`docs/specs/`), TSMC13 technology library (`lib/`), the UART_TX / UART_RX RTL (`rtl/clock_domain2/`), and the Data_Sync CDC block (`rtl/sync/data_sync/`) have been added. Remaining RTL blocks and flow stages will follow in subsequent commits.
