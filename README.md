@@ -45,7 +45,7 @@ rtl/
 ├── clock_domain2/      → Driven by UART_CLK (3.6864 MHz)
 │   ├── uart_tx/        ✅  Serializes result frames out to the master (TX_OUT)
 │   ├── uart_rx/        ✅  Deserializes incoming command frames from the master (RX_IN)
-│   ├── pulse_gen/      ⏳  Converts UART_TX's Busy (level) signal into a single-cycle pulse
+│   ├── pulse_gen/      ✅  Converts UART_TX's Busy (level) signal into a single-cycle pulse
 │   └── clock_divider/  ✅  Generates the bit-rate clock for TX/RX from UART_CLK (two instances, one per interface)
 │
 ├── sync/                → Clock Domain Crossing (CDC) logic between domain 1 and domain 2
@@ -57,6 +57,12 @@ rtl/
 ```
 
 **Why two domains?** The core datapath (RegFile + ALU) runs at the fast 50 MHz reference clock for quick command execution, while the UART interface runs at the much slower 3.6864 MHz clock required for standard UART bit timing. The `sync/` blocks are what safely move resets, data, and control pulses between these two asynchronous clocks.
+
+### PULSE_GEN (`rtl/clock_domain2/pulse_gen/`)
+
+| File | Role |
+|---|---|
+| `PULSE_GEN.v` | Level-to-pulse converter (`PULSE_GEN`). Delays `LVL_SIG` by one clock cycle and generates a single-cycle `PULSE_SIG` on its rising edge (rising-edge detector). Used to turn UART_TX's `Busy` level signal into a one-cycle read-enable pulse for the ASYNC_FIFO. Asynchronous, active-low reset. |
 
 ### Clock Divider (`rtl/clock_domain2/clock_divider/`)
 
@@ -118,4 +124,4 @@ Three PVT (Process/Voltage/Temperature) corners are provided for the standard-ce
 
 ## Status
 
-🚧 **In progress** — system specification (`docs/specs/`), TSMC13 technology library (`lib/`), the UART_TX / UART_RX RTL, the Clock Divider RTL (`rtl/clock_domain2/`), and the Data_Sync CDC block (`rtl/sync/data_sync/`) have been added. Remaining RTL blocks and flow stages will follow in subsequent commits.
+🚧 **In progress** — system specification (`docs/specs/`), TSMC13 technology library (`lib/`), the UART_TX / UART_RX RTL, PULSE_GEN, the Clock Divider RTL (`rtl/clock_domain2/`), and the Data_Sync CDC block (`rtl/sync/data_sync/`) have been added. Remaining RTL blocks and flow stages will follow in subsequent commits.
