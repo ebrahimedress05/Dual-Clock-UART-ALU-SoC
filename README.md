@@ -49,14 +49,30 @@ rtl/
 │   └── clock_divider/  ✅  Generates the bit-rate clock for TX/RX from UART_CLK (two instances, one per interface)
 │
 ├── sync/                → Clock Domain Crossing (CDC) logic between domain 1 and domain 2
-│   ├── rst_sync/       ⏳  Active-low async reset synchronizer (one instance per domain)
+│   ├── rst_sync/       ✅  Active-low async reset synchronizer (one instance per domain)
 │   ├── data_sync/      ✅  Synchronizes UART_RX's parallel output data into the REF_CLK domain
-│   └── async_fifo/     ⏳  Dual-clock FIFO carrying TX data from REF_CLK (write side) to UART_CLK (read side)
+│   └── async_fifo/     ✅  Dual-clock FIFO carrying TX data from REF_CLK (write side) to UART_CLK (read side)
 │
 └── top/                 ⏳  SYS_TOP — top-level integration of both clock domains and all synchronizers
 ```
 
 **Why two domains?** The core datapath (RegFile + ALU) runs at the fast 50 MHz reference clock for quick command execution, while the UART interface runs at the much slower 3.6864 MHz clock required for standard UART bit timing. The `sync/` blocks are what safely move resets, data, and control pulses between these two asynchronous clocks.
+
+### RST_SYNC (`rtl/sync/rst_sync/`)
+
+| File | Role |
+|---|---|
+| `RST_SYNC.v` | Asynchronous-reset, synchronous-release reset synchronizer (`RST_SYNC`, parameterized `NUM_STAGES`). Asserts `SYNC_RST` immediately when `RST` goes low, and releases it synchronously with `CLK` through a multi-flip-flop chain, avoiding metastability on reset de-assertion. One instance is used per clock domain (`RST_SYNC_1` for REF_CLK, `RST_SYNC_2` for UART_CLK). |
+
+### ASYNC_FIFO (`rtl/sync/async_fifo/`)
+
+| File | Role |
+|---|---|
+| `ASYNC_FIFO.v` | Top-level dual-clock FIFO (`ASYNC_FIFO`). Integrates the memory, pointer, and Gray-code synchronizer sub-modules below to safely move write-side data (REF_CLK domain) to the read side (UART_CLK domain). |
+| `FIFO_MEM_CNTRL.v` | Dual-port memory array. Writes `W_data` on `W_CLK` when enabled and not full; continuously outputs `R_data` from `R_addr`. |
+| `FIFO_wptr.v` | Write-pointer logic. Increments the write address on `W_CLK`, converts it to Gray code, and generates the `W_full` flag by comparing against the synchronized read pointer. |
+| `FIFO_rptr.v` | Read-pointer logic. Increments the read address on `R_CLK`, converts it to Gray code, and generates the `R_empty` flag by comparing against the synchronized write pointer. |
+| `DF_SYNC.v` | Generic multi-bit Gray-code pointer synchronizer (`DF_SYNC`, parameterized `data_width`/`NUM_STAGES`). Used twice inside `ASYNC_FIFO` to cross the write pointer into the read clock domain and vice versa. |
 
 ### PULSE_GEN (`rtl/clock_domain2/pulse_gen/`)
 
@@ -124,4 +140,4 @@ Three PVT (Process/Voltage/Temperature) corners are provided for the standard-ce
 
 ## Status
 
-🚧 **In progress** — system specification (`docs/specs/`), TSMC13 technology library (`lib/`), the UART_TX / UART_RX RTL, PULSE_GEN, the Clock Divider RTL (`rtl/clock_domain2/`), and the Data_Sync CDC block (`rtl/sync/data_sync/`) have been added. Remaining RTL blocks and flow stages will follow in subsequent commits.
+🚧 **In progress** — system specification (`docs/specs/`), TSMC13 technology library (`lib/`), the UART_TX / UART_RX RTL, PULSE_GEN, the Clock Divider RTL (`rtl/clock_domain2/`), and all CDC synchronizers — RST_SYNC, Data_Sync, ASYNC_FIFO (`rtl/sync/`) — have been added. Remaining Clock Domain 1 blocks (RegFile, ALU, Clock Gating, SYS_CTRL) and top-level integration, plus the rest of the flow, will follow in subsequent commits.
