@@ -1,4 +1,4 @@
-module FSM (
+module FSM_TX (
     input wire Data_Valid ,
     input wire PAR_EN ,
     input wire ser_done ,

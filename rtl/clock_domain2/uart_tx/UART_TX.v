@@ -17,7 +17,7 @@ wire ser_data ;
 wire Par_bit ;
 
 // Modules Instantiation
-FSM FSM (.Data_Valid(Data_Valid) , .PAR_EN(PAR_EN) , .ser_done(ser_done) , 
+FSM_TX FSM_TX (.Data_Valid(Data_Valid) , .PAR_EN(PAR_EN) , .ser_done(ser_done) , 
         .CLK(CLK) , .RST(RST) , .ser_en(ser_en) , .mux_sel(mux_sel) , .busy(Busy) ) ;  
 
 serializer serializer (.P_DATA(P_DATA) , .ser_en(ser_en) , .RST(RST) , .CLK(CLK) , .Data_Valid(Data_Valid) , 

@@ -1,4 +1,4 @@
-module FSM (
+module FSM_RX (
     input wire RX_IN ,
     input wire PAR_EN ,
     input wire [5:0] edge_cnt ,

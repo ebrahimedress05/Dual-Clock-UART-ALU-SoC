@@ -22,7 +22,7 @@ module UART_RX (
     wire sampled_bit ;
     
     
-FSM FSM (.RX_IN(RX_IN) , .PAR_EN(PAR_EN) , .edge_cnt(edge_cnt) , .bit_cnt(bit_cnt) , .par_err(parity_error) ,
+FSM_RX FSM_RX (.RX_IN(RX_IN) , .PAR_EN(PAR_EN) , .edge_cnt(edge_cnt) , .bit_cnt(bit_cnt) , .par_err(parity_error) ,
 .strt_glitch(strt_glitch) , .stp_err(stop_error) , .prescale(prescale) , .CLK(CLK) ,
 .RST(RST) , .dat_samp_en(dat_samp_en) , .enable(enable) , .deser_en(deser_en) ,
 .par_chk_en(par_chk_en) , .strt_chk_en(strt_chk_en) , .stp_chk_en(stp_chk_en) ,
