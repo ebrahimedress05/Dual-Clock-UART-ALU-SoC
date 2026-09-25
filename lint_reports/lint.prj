@@ -1,0 +1,60 @@
+#!SPYGLASS_PROJECT_FILE
+#!VERSION 3.0
+#  -------------------------------------------------------------------
+#  This is a software generated project file. Manual edits to this file could be lost during the next save operation
+#  Copyright Synopsys Inc.
+#  Last Updated By: SpyGlass SpyGlass_vL-2016.06
+#  Last Updated On Fri Sep 25 11:48:03 2026
+#
+#  -------------------------------------------------------------------
+
+##Data Import Section
+
+read_file -type verilog ../rtl/ALU.v
+read_file -type verilog ../rtl/ASYNC_FIFO.v
+read_file -type verilog ../rtl/edge_bit_counter.v
+read_file -type verilog ../rtl/FIFO_MEM_CNTRL.v
+read_file -type verilog ../rtl/FIFO_rptr.v
+read_file -type verilog ../rtl/FIFO_wptr.v
+read_file -type verilog ../rtl/FSM_RX.sv
+read_file -type verilog ../rtl/FSM_TX.sv
+read_file -type verilog ../rtl/MUX.v
+read_file -type verilog ../rtl/Final_System.v
+read_file -type verilog ../rtl/Clk_Div_Mux.v
+read_file -type verilog ../rtl/CLK_GATE.v
+read_file -type verilog ../rtl/Data_Sync.v
+read_file -type verilog ../rtl/ClkDiv.v
+read_file -type verilog ../rtl/data_sampling.v
+read_file -type verilog ../rtl/deserializer.v
+read_file -type verilog ../rtl/DF_SYNC.v
+read_file -type verilog ../rtl/NOT.v
+read_file -type verilog ../rtl/SYS_CTRL.sv
+read_file -type verilog ../rtl/strt_check.v
+read_file -type verilog ../rtl/stop_check.v
+read_file -type verilog ../rtl/serializer.v
+read_file -type verilog ../rtl/RST_SYNC.v
+read_file -type verilog ../rtl/Register_File.v
+read_file -type verilog ../rtl/PULSE_GEN.v
+read_file -type verilog ../rtl/parity_check.v
+read_file -type verilog ../rtl/Parity_calc.v
+read_file -type verilog ../rtl/UART_TX.v
+read_file -type verilog ../rtl/UART_RX.v
+
+##Common Options Section
+
+set_option projectwdir .
+set_option language_mode mixed
+set_option designread_enable_synthesis no
+set_option designread_disable_flatten no
+set_option enableSV yes
+set_option active_methodology $SPYGLASS_HOME/GuideWare/latest/block/rtl_handoff
+
+
+##Goal Setup Section
+
+current_methodology $SPYGLASS_HOME/GuideWare/latest/block/rtl_handoff
+
+
+current_goal lint/lint_rtl -alltop
+read_file -type awl ./spyglass-1/lint/lint_rtl/spyglass-1_waiver_file.awl
+set_goal_option default_waiver_file ./spyglass-1/lint/lint_rtl/spyglass-1_waiver_file.awl

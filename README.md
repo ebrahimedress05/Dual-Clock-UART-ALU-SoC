@@ -2,7 +2,7 @@
 
 A small SoC that receives commands from a master device over **UART**, executes them using an **ALU** (arithmetic/logic operations) or a **Register File** (read/write), and sends the result back to the master over UART. The design spans **two independent clock domains** bridged by dedicated CDC (Clock Domain Crossing) synchronizers, and is carried in this repository through the full digital ASIC flow — from RTL to synthesis, physical implementation, and final GDSII signoff.
 
-> **Current stage:** the full RTL — both clock domains, all CDC synchronizers, the system controller (`SYS_CTRL`), and the top-level integration (`Final_System`) — is in place, and a self-checking ModelSim testbench (`tb/top_tb/`) has passed its full suite end-to-end: RegFile read/write, three ALU operations, and both UART error-injection paths (parity/framing) — **9/9 checks passing**. Additional command sequences and edge cases will continue to be added to `tb/top_tb/` for further coverage. Synthesis, DFT, STA, physical design, signoff, and GDS will follow once RTL verification is complete.
+> **Current stage:** the full RTL — both clock domains, all CDC synchronizers, the system controller (`SYS_CTRL`), and the top-level integration (`Final_System`) — is in place, and a self-checking ModelSim testbench (`tb/top_tb/`) has passed its full suite end-to-end: RegFile read/write, three ALU operations, and both UART error-injection paths (parity/framing) — **9/9 checks passing**. RTL static checks (`lint_reports/`) have also been run with Synopsys SpyGlass; the only reported error and both warnings — the intentional `CLK_GATE.v` ICG latch and the two `ClkDiv.v` generated-clock warnings — have formal, justified waivers on file. Additional command sequences and edge cases will continue to be added to `tb/top_tb/` for further coverage. Synthesis, DFT, STA, physical design, signoff, and GDS will follow once RTL verification is complete.
 
 ## System Overview
 
@@ -203,6 +203,33 @@ TEST SUMMARY: PASSED = 9 | FAILED = 0
 
 Full transcript: [`tb/top_tb/logs/simulation_log.txt`](tb/top_tb/logs/simulation_log.txt).
 
+## Lint (`lint_reports/`)
+
+RTL static checks were run with **Synopsys SpyGlass** (`SpyGlass_vL-2016.06`), using the `lint/lint_rtl` goal from the `rtl_handoff` GuideWare methodology. Every reported issue has a formal, justified waiver.
+
+```
+lint_reports/
+├── lint.prj                        SpyGlass project file — lists every RTL source, lint options, goal setup, and the waiver file to apply
+├── moresimple.rpt                   SpyGlass lint report (clock-reset, ERC, latch, lint, morelint, STARC, timing, and related rule groups)
+└── spyglass-1_waiver_file.awl       Waiver file with a written engineering justification for each waived message
+```
+
+### Result Summary
+
+| Severity | Count | Details | Waived |
+|---|---|---|---|
+| Error | 1 | `InferLatch` — latch inferred for `Latch_Out` in `CLK_GATE.v` | ✅ |
+| Warning | 2 | `STARC05-1.4.3.4 ClkSigToNonClkPin` — `ClkDiv`'s `clk_div` output used as a non-clock signal in both TX and RX clock-divider instances | ✅ |
+| Info | 2 | Top-level design unit detection (`Final_System`) and elaboration summary pointer | — (informational) |
+
+> The raw `moresimple.rpt` in this snapshot predates loading the waiver file into the SpyGlass session, so it still lists the error/warnings as reported. `lint.prj` points SpyGlass at `spyglass-1_waiver_file.awl` as its `default_waiver_file`; re-running the goal with the waiver file loaded suppresses all 3 messages below, leaving only the 2 informational messages.
+
+**Waiver 1 — `InferLatch` in `CLK_GATE.v`:** the inferred latch is a deliberate Integrated Clock Gating (ICG) implementation, not an unintended combinational latch. It captures `CLK_EN` while `CLK` is low and holds it stable through the clock's high phase, so `GATED_CLK = CLK && Latch_Out` is generated glitch-free — the standard RTL pattern for clock gating ahead of synthesis mapping onto a technology ICG cell (`TLATNCAX12M`, already referenced in `CLK_GATE.v`). Action required at synthesis: confirm `set_clock_gating_style -positive_edge_logic integrated` correctly maps this construct onto the library ICG cell rather than leaving a literal latch in the netlist.
+
+**Waiver 2 — `STARC05-1.4.3.4` in `ClkDiv.v` (×2, TX and RX instances):** `clk_div` is a generated (internally divided) clock, flagged because it drives clock ports (`CLK_RX`/`CLK_TX`) downstream. Inside the divider module it is legitimately combined through synchronous reset logic and a combinational selector (`clk_en ? div_clk : i_ref_clk`) to implement ratio-based division and the reference-clock bypass path — inherent to how a clock-divider/clock-mux block works, not a design defect. No action required.
+
+Full detail is in [`lint_reports/moresimple.rpt`](lint_reports/moresimple.rpt) (raw report) and [`lint_reports/spyglass-1_waiver_file.awl`](lint_reports/spyglass-1_waiver_file.awl) (waiver justifications).
+
 ## Technology Library — TSMC13
 
 The `lib/` directory holds the foundry/standard-cell library files needed for synthesis, STA, and physical implementation, organized by file type:
@@ -227,4 +254,4 @@ Three PVT (Process/Voltage/Temperature) corners are provided for the standard-ce
 
 ## Status
 
-✅ **RTL complete, first full test pass achieved** — all RTL blocks are in place, including a registered-output fix to `serializer.v` (Clock Domain 2), and the top-level testbench (`tb/top_tb/system_tb.sv`) has been run end-to-end on ModelSim with **all 9 checks passing** (RegFile R/W, 3 ALU operations, parity error injection, framing error injection — see [Latest Simulation Result](#latest-simulation-result-)). Additional command sequences and edge cases will continue to be added for further coverage. Synthesis, DFT, STA, physical design, signoff, and GDS will follow once RTL verification is complete.
+✅ **RTL complete, first full test pass achieved** — all RTL blocks are in place, including a registered-output fix to `serializer.v` (Clock Domain 2), and the top-level testbench (`tb/top_tb/system_tb.sv`) has been run end-to-end on ModelSim with **all 9 checks passing** (RegFile R/W, 3 ALU operations, parity error injection, framing error injection — see [Latest Simulation Result](#latest-simulation-result-)). A SpyGlass lint pass (`lint_reports/`) has also been run, with all 3 reported issues (1 error, 2 warnings) formally waived with written engineering justification — see [Lint](#lint-lint_reports). Additional command sequences and edge cases will continue to be added for further coverage. Synthesis, DFT, STA, physical design, signoff, and GDS will follow once RTL verification is complete.
