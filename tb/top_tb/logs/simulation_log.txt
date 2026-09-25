@@ -1,0 +1,31 @@
+
+# =====================================================================================
+# --------------------------- STARTING SYSTEM TESTBENCH ---------------------------------
+# ========================================================================================
+# [TIME:       400.00 ns] Reset released. System initialized.
+# 
+# [TIME:      1400.00 ns] --- Test 1: Writing 0x55 to Addr 0x04, then Reading back ---
+# [PASS @    599912.00 ns] Correct Data Received on TX_OUT: 0x55
+# 
+# [TIME:    599912.00 ns] --- Test 2: ALU Operands (ADDITION: 10 + 5) ---
+# [PASS @   1094703.00 ns] Correct Data Received on TX_OUT: 0x0f
+# [PASS @   1198869.00 ns] Correct Data Received on TX_OUT: 0x00
+# 
+# [TIME:   1198869.00 ns] --- Test 3: ALU NO Operands (SUBTRACTION: 10 - 5) ---
+# [PASS @   1502688.00 ns] Correct Data Received on TX_OUT: 0x05
+# [PASS @   1606855.00 ns] Correct Data Received on TX_OUT: 0x00
+# 
+# [TIME:   1606855.00 ns] --- Test 4: ALU NO Operands (MULTIPLICATION: 10 * 5) ---
+# [PASS @   1910674.00 ns] Correct Data Received on TX_OUT: 0x32
+# [PASS @   2014840.00 ns] Correct Data Received on TX_OUT: 0x00
+# 
+# [TIME:   2014840.00 ns] --- Test 5: Error Injection - Parity Error Test ---
+# [PASS @   2115331.00 ns] Parity Error Flag correctly asserted by DUT!
+# 
+# [TIME:   2135331.00 ns] --- Test 6: Error Injection - Framing Error Test ---
+# [PASS @   2235822.00 ns] Stop Bit Error Flag correctly asserted by DUT!
+# 
+# =====================================================================================
+# [TIME:   2305822.00 ns] TEST SUMMARY: PASSED = 9 | FAILED = 0
+# >>> SUCCESS: ALL ADVANCED TESTS PASSED SUCCESSFULLY! <<<
+# ========================================================================================

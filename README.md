@@ -2,7 +2,7 @@
 
 A small SoC that receives commands from a master device over **UART**, executes them using an **ALU** (arithmetic/logic operations) or a **Register File** (read/write), and sends the result back to the master over UART. The design spans **two independent clock domains** bridged by dedicated CDC (Clock Domain Crossing) synchronizers, and is carried in this repository through the full digital ASIC flow — from RTL to synthesis, physical implementation, and final GDSII signoff.
 
-> **Current stage:** the full RTL — both clock domains, all CDC synchronizers, the system controller (`SYS_CTRL`), and the top-level integration (`Final_System`) — is now in place. `SYS_CTRL` is the block most likely to change as verification uncovers edge cases; expect it to be revised alongside the testbench in upcoming commits. The `tb/` tree has been scaffolded for a ModelSim-based verification flow (testbench + `run.do` + `wave.do`). Synthesis, DFT, STA, physical design, signoff, and GDS will follow once RTL verification is complete.
+> **Current stage:** the full RTL — both clock domains, all CDC synchronizers, the system controller (`SYS_CTRL`), and the top-level integration (`Final_System`) — is in place, and a self-checking ModelSim testbench (`tb/top_tb/`) has passed its full suite end-to-end: RegFile read/write, three ALU operations, and both UART error-injection paths (parity/framing) — **9/9 checks passing**. `SYS_CTRL` is still the block most likely to change as more command sequences and edge cases are tested. Synthesis, DFT, STA, physical design, signoff, and GDS will follow once RTL verification is complete.
 
 ## System Overview
 
@@ -92,7 +92,7 @@ rtl/
 | `FSM_TX.sv` | Transmit control state machine (idle → start → data → parity → stop) |
 | `MUX.v` | Selects between data bit, start bit, parity bit, and stop bit for the serial line |
 | `Parity_calc.v` | Computes the parity bit for the outgoing frame |
-| `serializer.v` | Shifts the parallel input data out bit-by-bit onto `TX_OUT` |
+| `serializer.v` | Shifts the parallel input data out bit-by-bit onto `TX_OUT`. Both `ser_data` (the serial output bit) and `ser_done` (end-of-byte flag) are registered on `CLK`, avoiding combinational glitches on the serial line. |
 
 ### UART_RX (`rtl/clock_domain2/uart_rx/`)
 
@@ -151,12 +151,61 @@ rtl/
 
 ## Verification (`tb/`)
 
-Scaffolded for a **ModelSim**-based simulation flow:
+A self-checking, **ModelSim**-based top-level testbench, driving `Final_System` directly over the UART command protocol and scoring itself against expected results.
 
 ```
 tb/
-└── top_tb/     Top-level testbench + ModelSim scripts (run.do, wave.do) — to be added
+└── top_tb/
+    ├── system_tb.sv    Self-checking testbench for Final_System
+    ├── run.do           ModelSim compile + simulate script
+    ├── wave.do           Waveform layout (grouped by UART, DATA_SYNC, SYS_CTRL, ...)
+    └── logs/
+        └── simulation_log.txt   Transcript from the latest passing ModelSim run
 ```
+
+**`system_tb.sv`** drives `Final_System` with realistic clocks (`REF_CLK` = 100 MHz¹, `UART_CLK` = 3.6864 MHz) and a UART-accurate bit period, then exercises:
+
+| Test | Scenario | Checks |
+|---|---|---|
+| 1 | RegFile Write (`0xAA`) then Read (`0xBB`) at address `0x04` | Read-back data matches what was written |
+| 2 | ALU with operands (`0xCC`): `10 + 5` | Result low/high bytes returned over TX match `0x000F` |
+| 3 | ALU without operands (`0xDD`): `10 − 5` | Result matches `0x0005` |
+| 4 | ALU without operands (`0xDD`): `10 × 5` | Result matches `0x0032` |
+| 5 | Corrupted-parity frame injected on `RX_IN` | `parity_error` flag asserts |
+| 6 | Corrupted stop-bit frame injected on `RX_IN` | `stop_error` flag asserts |
+
+A running `pass_count` / `fail_count` is printed as each check completes, with a final `TEST SUMMARY` at the end of the run.
+
+**To run:** open ModelSim in `tb/top_tb/`, then:
+```tcl
+do run.do
+```
+This compiles all RTL sources, elaborates `system_tb`, loads the `wave.do` waveform layout, and runs the simulation to completion.
+
+> ¹ `REF_period` in the testbench is set for a 100 MHz reference clock; the system specification calls for 50 MHz. This discrepancy is noted for follow-up — see [Status](#status).
+
+### Latest Simulation Result ✅
+
+The full test suite has been run end-to-end on ModelSim with **all 9 checks passing**:
+
+```
+TEST SUMMARY: PASSED = 9 | FAILED = 0
+>>> SUCCESS: ALL ADVANCED TESTS PASSED SUCCESSFULLY! <<<
+```
+
+| # | Check | Result | Time |
+|---|---|---|---|
+| 1 | RegFile read-back = `0x55` | ✅ PASS | 599,912 ns |
+| 2 | ALU ADD (10+5) low byte = `0x0F` | ✅ PASS | 1,094,703 ns |
+| 3 | ALU ADD (10+5) high byte = `0x00` | ✅ PASS | 1,198,869 ns |
+| 4 | ALU SUB (10−5) low byte = `0x05` | ✅ PASS | 1,502,688 ns |
+| 5 | ALU SUB (10−5) high byte = `0x00` | ✅ PASS | 1,606,855 ns |
+| 6 | ALU MUL (10×5) low byte = `0x32` | ✅ PASS | 1,910,674 ns |
+| 7 | ALU MUL (10×5) high byte = `0x00` | ✅ PASS | 2,014,840 ns |
+| 8 | Parity error correctly flagged | ✅ PASS | 2,115,331 ns |
+| 9 | Framing (stop-bit) error correctly flagged | ✅ PASS | 2,235,822 ns |
+
+Full transcript: [`tb/top_tb/logs/simulation_log.txt`](tb/top_tb/logs/simulation_log.txt).
 
 ## Technology Library — TSMC13
 
@@ -182,4 +231,4 @@ Three PVT (Process/Voltage/Temperature) corners are provided for the standard-ce
 
 ## Status
 
-🚧 **RTL complete, verification starting** — all RTL blocks (both clock domains, CDC synchronizers, `SYS_CTRL`, and top-level `Final_System`) are in place. `tb/top_tb/` is scaffolded for the upcoming ModelSim testbench. `SYS_CTRL` may still change as testing surfaces issues. Synthesis, DFT, STA, physical design, signoff, and GDS will follow once verification is complete.
+✅ **RTL complete, first full test pass achieved** — all RTL blocks are in place, including a registered-output fix to `serializer.v` (Clock Domain 2), and the top-level testbench (`tb/top_tb/system_tb.sv`) has been run end-to-end on ModelSim with **all 9 checks passing** (RegFile R/W, 3 ALU operations, parity error injection, framing error injection — see [Latest Simulation Result](#latest-simulation-result-)). `SYS_CTRL` may still change as more command sequences and edge cases are tested. A clock-frequency discrepancy (`REF_period` in the testbench implies 100 MHz vs. the spec's 50 MHz) has been noted for follow-up and should be resolved before timing-sensitive conclusions are drawn from these results. Synthesis, DFT, STA, physical design, signoff, and GDS will follow once RTL verification is complete.
