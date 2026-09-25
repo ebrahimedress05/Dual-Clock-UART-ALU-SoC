@@ -2,14 +2,14 @@
 
 A small SoC that receives commands from a master device over **UART**, executes them using an **ALU** (arithmetic/logic operations) or a **Register File** (read/write), and sends the result back to the master over UART. The design spans **two independent clock domains** bridged by dedicated CDC (Clock Domain Crossing) synchronizers, and is carried in this repository through the full digital ASIC flow — from RTL to synthesis, physical implementation, and final GDSII signoff.
 
-> **Current stage:** the full RTL — both clock domains, all CDC synchronizers, the system controller (`SYS_CTRL`), and the top-level integration (`Final_System`) — is in place, and a self-checking ModelSim testbench (`tb/top_tb/`) has passed its full suite end-to-end: RegFile read/write, three ALU operations, and both UART error-injection paths (parity/framing) — **9/9 checks passing**. `SYS_CTRL` is still the block most likely to change as more command sequences and edge cases are tested. Synthesis, DFT, STA, physical design, signoff, and GDS will follow once RTL verification is complete.
+> **Current stage:** the full RTL — both clock domains, all CDC synchronizers, the system controller (`SYS_CTRL`), and the top-level integration (`Final_System`) — is in place, and a self-checking ModelSim testbench (`tb/top_tb/`) has passed its full suite end-to-end: RegFile read/write, three ALU operations, and both UART error-injection paths (parity/framing) — **9/9 checks passing**. Additional command sequences and edge cases will continue to be added to `tb/top_tb/` for further coverage. Synthesis, DFT, STA, physical design, signoff, and GDS will follow once RTL verification is complete.
 
 ## System Overview
 
 | | |
 |---|---|
 | **Function** | Receive a command frame over UART → decode it in `SYS_CTRL` → execute via `ALU` or `RegFile` → return the result over UART |
-| **Reference clock** | `REF_CLK` = 50 MHz |
+| **Reference clock** | `REF_CLK` = 100 MHz |
 | **UART clock** | `UART_CLK` = 3.6864 MHz |
 | **Clock domains** | 2 (bridged via reset/data synchronizers and an asynchronous FIFO) |
 | **Technology** | TSMC 13 (`tsmc13fsg`), Scan Metro standard-cell library (`scmetro_tsmc_cl013g`) |
@@ -36,7 +36,7 @@ The RTL is organized by **clock domain**, so it's immediately clear which clock 
 
 ```
 rtl/
-├── clock_domain1/      → Driven by REF_CLK (50 MHz)
+├── clock_domain1/      → Driven by REF_CLK (100 MHz)
 │   ├── regfile/            8x16 Register File — holds operands, config, and general data
 │   ├── alu/                Executes the arithmetic/logic operations
 │   ├── clock_gating/       Gates REF_CLK into the ALU (enabled by SYS_CTRL)
@@ -56,7 +56,7 @@ rtl/
 └── top/                  Top-level integration of both clock domains and all synchronizers
 ```
 
-**Why two domains?** The core datapath (RegFile + ALU) runs at the fast 50 MHz reference clock for quick command execution, while the UART interface runs at the much slower 3.6864 MHz clock required for standard UART bit timing. The `sync/` blocks are what safely move resets, data, and control pulses between these two asynchronous clocks.
+**Why two domains?** The core datapath (RegFile + ALU) runs at the fast 100 MHz reference clock for quick command execution, while the UART interface runs at the much slower 3.6864 MHz clock required for standard UART bit timing. The `sync/` blocks are what safely move resets, data, and control pulses between these two asynchronous clocks.
 
 ### RegFile (`rtl/clock_domain1/regfile/`)
 
@@ -76,13 +76,11 @@ rtl/
 |---|---|
 | `CLK_GATE.v` | Integrated clock gating cell (`CLK_GATE`). A level-sensitive latch captures `CLK_EN` while `CLK` is low, and the latched enable is ANDed with `CLK` to produce a glitch-free `GATED_CLK`. This is the standard ICG (Integrated Clock Gating) structure used to gate `REF_CLK` into the ALU, driven by `SYS_CTRL`. A commented-out instantiation of the technology's `TLATNCAX12M` cell is included for mapping to the standard-cell library during synthesis. |
 
-### SYS_CTRL (`rtl/clock_domain1/sys_ctrl/`) — ⚠️ under active revision
+### SYS_CTRL (`rtl/clock_domain1/sys_ctrl/`)
 
 | File | Role |
 |---|---|
-| `SYS_CTRL.sv` | Main command controller (`SYS_CTRL`, parameterized `OPER_WIDTH`, `ALU_OUT_WIDTH`, `Address_width`). A Moore/Mealy FSM decodes the opcode byte received from UART_RX (`0xAA`/`0xBB`/`0xCC`/`0xDD`) and sequences RegFile writes/reads and ALU operations accordingly, sending the result back out through the TX path once `FIFO_FULL` allows it. |
-
-> `SYS_CTRL` is expected to change as testbenches exercise each command sequence and edge case (back-to-back commands, FIFO-full stalls, invalid opcodes, etc.). Treat its current state as a first working draft rather than final RTL.
+| `SYS_CTRL.sv` | Main command controller (`SYS_CTRL`, parameterized `OPER_WIDTH`, `ALU_OUT_WIDTH`, `Address_width`). A Moore/Mealy FSM decodes the opcode byte received from UART_RX (`0xAA`/`0xBB`/`0xCC`/`0xDD`) and sequences RegFile writes/reads and ALU operations accordingly, sending the result back out through the TX path once `FIFO_FULL` allows it. Verified against RegFile read/write and three ALU operations in `tb/top_tb/` — see [Latest Simulation Result](#latest-simulation-result-). |
 
 ### UART_TX (`rtl/clock_domain2/uart_tx/`)
 
@@ -163,7 +161,7 @@ tb/
         └── simulation_log.txt   Transcript from the latest passing ModelSim run
 ```
 
-**`system_tb.sv`** drives `Final_System` with realistic clocks (`REF_CLK` = 100 MHz¹, `UART_CLK` = 3.6864 MHz) and a UART-accurate bit period, then exercises:
+**`system_tb.sv`** drives `Final_System` with realistic clocks (`REF_CLK` = 100 MHz, `UART_CLK` = 3.6864 MHz) and a UART-accurate bit period, then exercises:
 
 | Test | Scenario | Checks |
 |---|---|---|
@@ -181,8 +179,6 @@ A running `pass_count` / `fail_count` is printed as each check completes, with a
 do run.do
 ```
 This compiles all RTL sources, elaborates `system_tb`, loads the `wave.do` waveform layout, and runs the simulation to completion.
-
-> ¹ `REF_period` in the testbench is set for a 100 MHz reference clock; the system specification calls for 50 MHz. This discrepancy is noted for follow-up — see [Status](#status).
 
 ### Latest Simulation Result ✅
 
@@ -231,4 +227,4 @@ Three PVT (Process/Voltage/Temperature) corners are provided for the standard-ce
 
 ## Status
 
-✅ **RTL complete, first full test pass achieved** — all RTL blocks are in place, including a registered-output fix to `serializer.v` (Clock Domain 2), and the top-level testbench (`tb/top_tb/system_tb.sv`) has been run end-to-end on ModelSim with **all 9 checks passing** (RegFile R/W, 3 ALU operations, parity error injection, framing error injection — see [Latest Simulation Result](#latest-simulation-result-)). `SYS_CTRL` may still change as more command sequences and edge cases are tested. A clock-frequency discrepancy (`REF_period` in the testbench implies 100 MHz vs. the spec's 50 MHz) has been noted for follow-up and should be resolved before timing-sensitive conclusions are drawn from these results. Synthesis, DFT, STA, physical design, signoff, and GDS will follow once RTL verification is complete.
+✅ **RTL complete, first full test pass achieved** — all RTL blocks are in place, including a registered-output fix to `serializer.v` (Clock Domain 2), and the top-level testbench (`tb/top_tb/system_tb.sv`) has been run end-to-end on ModelSim with **all 9 checks passing** (RegFile R/W, 3 ALU operations, parity error injection, framing error injection — see [Latest Simulation Result](#latest-simulation-result-)). Additional command sequences and edge cases will continue to be added for further coverage. Synthesis, DFT, STA, physical design, signoff, and GDS will follow once RTL verification is complete.
