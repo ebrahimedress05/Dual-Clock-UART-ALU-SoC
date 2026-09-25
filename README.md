@@ -2,7 +2,7 @@
 
 A small SoC that receives commands from a master device over **UART**, executes them using an **ALU** (arithmetic/logic operations) or a **Register File** (read/write), and sends the result back to the master over UART. The design spans **two independent clock domains** bridged by dedicated CDC (Clock Domain Crossing) synchronizers, and is carried in this repository through the full digital ASIC flow — from RTL to synthesis, physical implementation, and final GDSII signoff.
 
-> **Current stage:** the full RTL — both clock domains, all CDC synchronizers, the system controller (`SYS_CTRL`), and the top-level integration (`Final_System`) — is in place, and a self-checking ModelSim testbench (`tb/top_tb/`) has passed its full suite end-to-end: RegFile read/write, three ALU operations, and both UART error-injection paths (parity/framing) — **9/9 checks passing**. `Final_System` has been synthesized with Design Compiler against all three `scmetro_tsmc_cl013g` PVT corners with **no constraint violations** (setup slack +265.57 ns, hold slack +0.43 ns). RTL static checks (`lint_reports/`) have also been run with Synopsys SpyGlass; the only reported error and both warnings — the intentional `CLK_GATE.v` ICG latch and the two `ClkDiv.v` generated-clock warnings — have formal, justified waivers on file. DFT, STA, physical design, signoff, and GDS will follow.
+> **Current stage:** the full RTL — both clock domains, all CDC synchronizers, the system controller (`SYS_CTRL`), and the top-level integration (`Final_System`) — is in place, and a self-checking ModelSim testbench (`tb/top_tb/`) has passed its full suite end-to-end: RegFile read/write, three ALU operations, and both UART error-injection paths (parity/framing) — **9/9 checks passing**. `Final_System` has been synthesized with Design Compiler against all three `scmetro_tsmc_cl013g` PVT corners with **no constraint violations** (setup slack +265.57 ns, hold slack +0.43 ns). RTL static checks (`lint_reports/`) have also been run with Synopsys SpyGlass; the only reported error and both warnings — the intentional `CLK_GATE.v` ICG latch and the two `ClkDiv.v` generated-clock warnings — have formal, justified waivers on file. The post-synthesis netlist has been formally verified against the RTL with Synopsys Formality: **381/381 compare points equivalent, 0 failing, 0 unverified, 0 aborted**. DFT, STA, physical design, signoff, and GDS will follow.
 
 ## System Overview
 
@@ -303,6 +303,40 @@ By hierarchy, the largest power contributors are `regfile` (42.7%), `ASYNC_FIFO`
 
 `syn.log` reports **0 errors, 45 warnings**. All warnings are benign/expected for this design stage — mainly unused/dangling internal signals flagged by lint-style checks (e.g. floating counter bits in `edge_bit_counter`, an unconnected `prescale[0]` bit in `data_sampling`), plus the standard `SYNOPSYS_UNCONNECTED_*` net-naming note from the Verilog netlist writer. None affect functionality or timing closure.
 
+## Formal Verification — RTL vs. Post-Synthesis Netlist (`Formality/post-syn/`)
+
+The gate-level netlist produced by Design Compiler is proven logically equivalent to the RTL using **Synopsys Formality** (`L-2016.03-SP1`), consuming the SVF (Setup Verification File) that Design Compiler wrote out during synthesis (`synthesis/svf/Final_System.svf`) so that the reference-to-implementation mapping matches what the synthesis tool actually did.
+
+```
+Formality/
+└── post-syn/
+    ├── scripts/
+    │   ├── syn_fm_script.tcl   Formality session: reads RTL (Ref) + netlist (Imp), reads the SVF, matches, verifies
+    │   └── run_syn_fm.sh        Shell wrapper to launch fm_shell in batch mode
+    ├── logs/
+    │   └── syn_fm.log            Full Formality session transcript
+    ├── formality_svf/
+    │   └── svf.txt                 Copy of the consumed SVF, for traceability
+    └── reports/
+        ├── passing_points.rpt      Matched, logically-equivalent compare points
+        ├── failing_points.rpt        Not-equivalent compare points
+        ├── unverified_points.rpt      Compare points Formality could not resolve
+        └── aborted_points.rpt          Compare points dropped from analysis
+```
+
+### Result — Verification SUCCEEDED ✅
+
+| Compare Points | Port | DFF | LAT | Total |
+|---|---|---|---|---|
+| Passing (equivalent) | 3 | 377 | 1 | **381** |
+| Failing (not equivalent) | 0 | 0 | 0 | **0** |
+| Unverified | — | — | — | **0** |
+| Aborted | — | — | — | **0** |
+
+Formality ran in **Synopsys Auto Setup** mode (`synopsys_auto_setup = true`), matching the RTL-interpretation and undriven-signal settings Design Compiler itself uses, so the equivalence check is apples-to-apples with how the netlist was actually synthesized. One `FMR_ELAB-147` message was produced while linking the reference (RTL) design — an interpretation note, not an equivalence failure — and does not appear against any of the 381 matched points.
+
+Full detail is in [`Formality/post-syn/logs/syn_fm.log`](Formality/post-syn/logs/syn_fm.log) (session transcript) and the individual `reports/*.rpt` files.
+
 ## Technology Library — TSMC13
 
 The `lib/` directory holds the foundry/standard-cell library files needed for synthesis, STA, and physical implementation, organized by file type:
@@ -327,4 +361,4 @@ Three PVT (Process/Voltage/Temperature) corners are provided for the standard-ce
 
 ## Status
 
-✅ **RTL verified, synthesis complete with clean timing** — all RTL blocks are in place and pass the full self-checking testbench (9/9 checks). `Final_System` has been synthesized against all three PVT corners with **zero constraint violations** (setup slack +265.57 ns at `ss_1p08v_125c`, hold slack +0.43 ns at `ff_1p32v_m40c`) — see [Synthesis](#synthesis-synthesis). A SpyGlass lint pass (`lint_reports/`) has all 3 reported issues formally waived — see [Lint](#lint-lint_reports). Next up: DFT (scan insertion / ATPG), full STA, physical design (floorplan → place → CTS → route), signoff, and GDSII.
+✅ **RTL verified, synthesis complete with clean timing, post-synthesis netlist formally equivalent to RTL** — all RTL blocks are in place and pass the full self-checking testbench (9/9 checks). `Final_System` has been synthesized against all three PVT corners with **zero constraint violations** (setup slack +265.57 ns at `ss_1p08v_125c`, hold slack +0.43 ns at `ff_1p32v_m40c`) — see [Synthesis](#synthesis-synthesis). A SpyGlass lint pass (`lint_reports/`) has all 3 reported issues formally waived — see [Lint](#lint-lint_reports). Synopsys Formality confirms the gate-level netlist is logically equivalent to the RTL, **381/381 compare points passing, 0 failing** — see [Formal Verification](#formal-verification--rtl-vs-post-synthesis-netlist-formalitypost-syn). Next up: DFT (scan insertion / ATPG), full STA, physical design (floorplan → place → CTS → route), signoff, and GDSII.
