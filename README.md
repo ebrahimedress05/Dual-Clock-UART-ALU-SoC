@@ -2,14 +2,14 @@
 
 A small SoC that receives commands from a master device over **UART**, executes them using an **ALU** (arithmetic/logic operations) or a **Register File** (read/write), and sends the result back to the master over UART. The design spans **two independent clock domains** bridged by dedicated CDC (Clock Domain Crossing) synchronizers, and is carried in this repository through the full digital ASIC flow — from RTL to synthesis, physical implementation, and final GDSII signoff.
 
-> **Current stage:** the full RTL — both clock domains, all CDC synchronizers, the system controller (`SYS_CTRL`), and the top-level integration (`Final_System`) — is in place, and a self-checking ModelSim testbench (`tb/top_tb/`) has passed its full suite end-to-end: RegFile read/write, three ALU operations, and both UART error-injection paths (parity/framing) — **9/9 checks passing**. RTL static checks (`lint_reports/`) have also been run with Synopsys SpyGlass; the only reported error and both warnings — the intentional `CLK_GATE.v` ICG latch and the two `ClkDiv.v` generated-clock warnings — have formal, justified waivers on file. Additional command sequences and edge cases will continue to be added to `tb/top_tb/` for further coverage. Synthesis, DFT, STA, physical design, signoff, and GDS will follow once RTL verification is complete.
+> **Current stage:** the full RTL — both clock domains, all CDC synchronizers, the system controller (`SYS_CTRL`), and the top-level integration (`Final_System`) — is in place, and a self-checking ModelSim testbench (`tb/top_tb/`) has passed its full suite end-to-end: RegFile read/write, three ALU operations, and both UART error-injection paths (parity/framing) — **9/9 checks passing**. `REF_CLK` in both `Final_System.v` and the testbench has been corrected to 50 MHz to match the system specification, and a stray comment in `Final_System.v` has been fixed. RTL static checks (`lint_reports/`) have also been run with Synopsys SpyGlass; the only reported error and both warnings — the intentional `CLK_GATE.v` ICG latch and the two `ClkDiv.v` generated-clock warnings — have formal, justified waivers on file. Additional command sequences and edge cases will continue to be added to `tb/top_tb/` for further coverage. Synthesis, DFT, STA, physical design, signoff, and GDS will follow once RTL verification is complete.
 
 ## System Overview
 
 | | |
 |---|---|
 | **Function** | Receive a command frame over UART → decode it in `SYS_CTRL` → execute via `ALU` or `RegFile` → return the result over UART |
-| **Reference clock** | `REF_CLK` = 100 MHz |
+| **Reference clock** | `REF_CLK` = 50 MHz |
 | **UART clock** | `UART_CLK` = 3.6864 MHz |
 | **Clock domains** | 2 (bridged via reset/data synchronizers and an asynchronous FIFO) |
 | **Technology** | TSMC 13 (`tsmc13fsg`), Scan Metro standard-cell library (`scmetro_tsmc_cl013g`) |
@@ -36,7 +36,7 @@ The RTL is organized by **clock domain**, so it's immediately clear which clock 
 
 ```
 rtl/
-├── clock_domain1/      → Driven by REF_CLK (100 MHz)
+├── clock_domain1/      → Driven by REF_CLK (50 MHz)
 │   ├── regfile/            8x16 Register File — holds operands, config, and general data
 │   ├── alu/                Executes the arithmetic/logic operations
 │   ├── clock_gating/       Gates REF_CLK into the ALU (enabled by SYS_CTRL)
@@ -56,7 +56,7 @@ rtl/
 └── top/                  Top-level integration of both clock domains and all synchronizers
 ```
 
-**Why two domains?** The core datapath (RegFile + ALU) runs at the fast 100 MHz reference clock for quick command execution, while the UART interface runs at the much slower 3.6864 MHz clock required for standard UART bit timing. The `sync/` blocks are what safely move resets, data, and control pulses between these two asynchronous clocks.
+**Why two domains?** The core datapath (RegFile + ALU) runs at the fast 50 MHz reference clock for quick command execution, while the UART interface runs at the much slower 3.6864 MHz clock required for standard UART bit timing. The `sync/` blocks are what safely move resets, data, and control pulses between these two asynchronous clocks.
 
 ### RegFile (`rtl/clock_domain1/regfile/`)
 
@@ -161,7 +161,7 @@ tb/
         └── simulation_log.txt   Transcript from the latest passing ModelSim run
 ```
 
-**`system_tb.sv`** drives `Final_System` with realistic clocks (`REF_CLK` = 100 MHz, `UART_CLK` = 3.6864 MHz) and a UART-accurate bit period, then exercises:
+**`system_tb.sv`** drives `Final_System` with realistic clocks (`REF_CLK` = 50 MHz, `UART_CLK` = 3.6864 MHz) and a UART-accurate bit period, then exercises:
 
 | Test | Scenario | Checks |
 |---|---|---|
@@ -202,6 +202,8 @@ TEST SUMMARY: PASSED = 9 | FAILED = 0
 | 9 | Framing (stop-bit) error correctly flagged | ✅ PASS | 2,235,822 ns |
 
 Full transcript: [`tb/top_tb/logs/simulation_log.txt`](tb/top_tb/logs/simulation_log.txt).
+
+> **Note:** the logged run above was captured while `REF_period` was set for a 100 MHz reference clock. `REF_period` has since been corrected to 50 MHz to match the system specification; the pass/fail results are expected to hold (only the clock period scales, not the command sequencing), but the log has not yet been re-captured at 50 MHz. A refreshed `simulation_log.txt` will be committed once the testbench is re-run.
 
 ## Lint (`lint_reports/`)
 
@@ -254,4 +256,4 @@ Three PVT (Process/Voltage/Temperature) corners are provided for the standard-ce
 
 ## Status
 
-✅ **RTL complete, first full test pass achieved** — all RTL blocks are in place, including a registered-output fix to `serializer.v` (Clock Domain 2), and the top-level testbench (`tb/top_tb/system_tb.sv`) has been run end-to-end on ModelSim with **all 9 checks passing** (RegFile R/W, 3 ALU operations, parity error injection, framing error injection — see [Latest Simulation Result](#latest-simulation-result-)). A SpyGlass lint pass (`lint_reports/`) has also been run, with all 3 reported issues (1 error, 2 warnings) formally waived with written engineering justification — see [Lint](#lint-lint_reports). Additional command sequences and edge cases will continue to be added for further coverage. Synthesis, DFT, STA, physical design, signoff, and GDS will follow once RTL verification is complete.
+✅ **RTL complete, first full test pass achieved** — all RTL blocks are in place, including a registered-output fix to `serializer.v` (Clock Domain 2) and a correction of `REF_CLK` to 50 MHz (matching the system specification) in both `Final_System.v` and the testbench, and the top-level testbench (`tb/top_tb/system_tb.sv`) has been run end-to-end on ModelSim with **all 9 checks passing** (RegFile R/W, 3 ALU operations, parity error injection, framing error injection — see [Latest Simulation Result](#latest-simulation-result-)). A SpyGlass lint pass (`lint_reports/`) has also been run, with all 3 reported issues (1 error, 2 warnings) formally waived with written engineering justification — see [Lint](#lint-lint_reports). Additional command sequences and edge cases will continue to be added for further coverage. Synthesis, DFT, STA, physical design, signoff, and GDS will follow once RTL verification is complete.

@@ -7,7 +7,7 @@ module system_tb ();
 /////////////////////////////////////////////////////////
 
 // Clock periods
-parameter REF_period   = 10.0;    // 100 MHz Reference Clock
+parameter REF_period   = 20.0;    // 50 MHz Reference Clock
 parameter UART_period  = 271.267; // 3.6864 MHz UART Clock
 
 // Bit Period for UART frame with default Prescale = 32
@@ -33,7 +33,7 @@ localparam time BIT_PERIOD = 8680.55;
 ////////////////// Clock Generator  ////////////////////
 ////////////////////////////////////////////////////////
 
-// 1. Reference Clock Generator (100 MHz)
+// 1. Reference Clock Generator (50 MHz)
 always #(REF_period / 2.0) REF_CLK_tb = ~REF_CLK_tb;
 
 // 2. UART Clock Generator (3.6864 MHz)

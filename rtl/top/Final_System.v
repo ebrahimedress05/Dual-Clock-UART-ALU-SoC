@@ -217,7 +217,7 @@ module Final_System #(
     ); 
 
 
-    // clk_divider for RX
+    // clk_divider for TX
     ClkDiv ClkDiv_TX (
     .i_ref_clk(UART_CLK) ,
     .i_rst_n(SYNC_RST_2) ,
