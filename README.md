@@ -2,7 +2,7 @@
 
 A small SoC that receives commands from a master device over **UART**, executes them using an **ALU** (arithmetic/logic operations) or a **Register File** (read/write), and sends the result back to the master over UART. The design spans **two independent clock domains** bridged by dedicated CDC (Clock Domain Crossing) synchronizers, and is carried in this repository through the full digital ASIC flow — from RTL to synthesis, physical implementation, and final GDSII signoff.
 
-> **Current stage:** the full RTL — both clock domains, all CDC synchronizers, the system controller (`SYS_CTRL`), and the top-level integration (`Final_System`) — is in place, and a self-checking ModelSim testbench (`tb/top_tb/`) has passed its full suite end-to-end: RegFile read/write, three ALU operations, and both UART error-injection paths (parity/framing) — **9/9 checks passing**. `REF_CLK` in both `Final_System.v` and the testbench has been corrected to 50 MHz to match the system specification, and a stray comment in `Final_System.v` has been fixed. RTL static checks (`lint_reports/`) have also been run with Synopsys SpyGlass; the only reported error and both warnings — the intentional `CLK_GATE.v` ICG latch and the two `ClkDiv.v` generated-clock warnings — have formal, justified waivers on file. Additional command sequences and edge cases will continue to be added to `tb/top_tb/` for further coverage. Synthesis, DFT, STA, physical design, signoff, and GDS will follow once RTL verification is complete.
+> **Current stage:** the full RTL — both clock domains, all CDC synchronizers, the system controller (`SYS_CTRL`), and the top-level integration (`Final_System`) — is in place, and a self-checking ModelSim testbench (`tb/top_tb/`) has passed its full suite end-to-end: RegFile read/write, three ALU operations, and both UART error-injection paths (parity/framing) — **9/9 checks passing**. `Final_System` has been synthesized with Design Compiler against all three `scmetro_tsmc_cl013g` PVT corners with **no constraint violations** (setup slack +265.57 ns, hold slack +0.43 ns). RTL static checks (`lint_reports/`) have also been run with Synopsys SpyGlass; the only reported error and both warnings — the intentional `CLK_GATE.v` ICG latch and the two `ClkDiv.v` generated-clock warnings — have formal, justified waivers on file. DFT, STA, physical design, signoff, and GDS will follow.
 
 ## System Overview
 
@@ -232,6 +232,77 @@ lint_reports/
 
 Full detail is in [`lint_reports/moresimple.rpt`](lint_reports/moresimple.rpt) (raw report) and [`lint_reports/spyglass-1_waiver_file.awl`](lint_reports/spyglass-1_waiver_file.awl) (waiver justifications).
 
+## Synthesis (`synthesis/`)
+
+`Final_System` has been synthesized with **Synopsys Design Compiler** (`O-2018.06-SP1`) against all three `scmetro_tsmc_cl013g` PVT corners, using multi-corner timing (worst-case `ss_1p08v_125c` for setup, best-case `ff_1p32v_m40c` for hold).
+
+```
+synthesis/
+├── scripts/
+│   ├── syn_script.tcl    Design Compiler synthesis script (libraries, RTL elaboration, constraints, mapping, reporting)
+│   ├── cons.tcl           Timing/design constraints applied before mapping
+│   ├── system.lst          List of RTL source files read into the synthesis session
+│   └── run_syn.sh          Shell wrapper to launch the synthesis run
+├── sdc/
+│   └── Final_System.sdc    Synthesis-derived SDC: clocks, uncertainty, I/O delays, clock groups
+├── netlist/
+│   ├── Final_System.v       Gate-level structural netlist
+│   └── Final_System.ddc     Compiled Design Compiler database (netlist + constraints)
+├── sdf/
+│   └── Final_System.sdf     Standard Delay Format — back-annotated cell/net delays for gate-level simulation
+├── svf/
+│   └── Final_System.svf     Setup Verification File for Formality (RTL-vs-netlist equivalence checking)
+├── log/
+│   └── syn.log               Full synthesis session transcript
+└── reports/
+    ├── area.rpt               Cell/area breakdown, by hierarchy
+    ├── power.rpt               Power breakdown, by hierarchy
+    ├── setup.rpt               Worst setup (max-delay) timing path
+    ├── hold.rpt                 Worst hold (min-delay) timing path
+    ├── clocks.rpt                Clock tree summary (real + generated clocks)
+    └── constraints.rpt            Constraint-violation summary
+```
+
+### Clock Tree
+
+Design Compiler derived 3 generated clocks from the two real (unconstrained) input clocks, matching the RTL's clock-gating and clock-dividing structure:
+
+| Clock | Period | Source | Divide |
+|---|---|---|---|
+| `REF_CLK` | 20.00 ns (50 MHz) | Primary input | — |
+| `ALU_CLK` | 20.00 ns (50 MHz) | `CLK_GATE/GATED_CLK` (generated from `REF_CLK`) | ÷1 |
+| `UART_CLK` | 271.30 ns (3.6864 MHz) | Primary input | — |
+| `RX_CLK` | 271.30 ns | `ClkDiv_RX/o_div_clk` (generated from `UART_CLK`) | ÷1 |
+| `TX_CLK` | 8,681.50 ns | `ClkDiv_TX/o_div_clk` (generated from `UART_CLK`) | ÷32 |
+
+`REF_CLK`/`ALU_CLK` and `UART_CLK`/`TX_CLK`/`RX_CLK` are constrained as asynchronous clock groups, consistent with the CDC synchronizers in `rtl/sync/`.
+
+### Timing — Constraints Met ✅
+
+```
+This design has no violated constraints.
+```
+
+| Check | Corner | Worst Path | Slack | Result |
+|---|---|---|---|---|
+| Setup (max delay) | `ss_1p08v_125c` (worst-case) | `regfile → ALU` (`ALU_CLK`) | **+265.57 ns** | ✅ MET |
+| Hold (min delay) | `ff_1p32v_m40c` (best-case) | `RST_SYNC_2 → ...` (`UART_CLK`) | **+0.43 ns** | ✅ MET |
+
+### Area & Power
+
+| Metric | Value |
+|---|---|
+| Total cell area | 24,877.79 µm² |
+| Total area (incl. net interconnect) | 294,752.49 µm² |
+| Cell count | 2,191 (1,735 combinational, 414 sequential) |
+| Total power (`ss_1p08v_125c`) | 0.255 mW |
+
+By hierarchy, the largest power contributors are `regfile` (42.7%), `ASYNC_FIFO` (26.7%), and `ALU` (6.9%) — dominated by leakage at this analysis effort (`-analysis_effort low`), so these figures should be treated as a first-pass estimate rather than a signoff-quality power number.
+
+### Synthesis Log
+
+`syn.log` reports **0 errors, 45 warnings**. All warnings are benign/expected for this design stage — mainly unused/dangling internal signals flagged by lint-style checks (e.g. floating counter bits in `edge_bit_counter`, an unconnected `prescale[0]` bit in `data_sampling`), plus the standard `SYNOPSYS_UNCONNECTED_*` net-naming note from the Verilog netlist writer. None affect functionality or timing closure.
+
 ## Technology Library — TSMC13
 
 The `lib/` directory holds the foundry/standard-cell library files needed for synthesis, STA, and physical implementation, organized by file type:
@@ -256,4 +327,4 @@ Three PVT (Process/Voltage/Temperature) corners are provided for the standard-ce
 
 ## Status
 
-✅ **RTL complete, first full test pass achieved** — all RTL blocks are in place, including a registered-output fix to `serializer.v` (Clock Domain 2) and a correction of `REF_CLK` to 50 MHz (matching the system specification) in both `Final_System.v` and the testbench, and the top-level testbench (`tb/top_tb/system_tb.sv`) has been run end-to-end on ModelSim with **all 9 checks passing** (RegFile R/W, 3 ALU operations, parity error injection, framing error injection — see [Latest Simulation Result](#latest-simulation-result-)). A SpyGlass lint pass (`lint_reports/`) has also been run, with all 3 reported issues (1 error, 2 warnings) formally waived with written engineering justification — see [Lint](#lint-lint_reports). Additional command sequences and edge cases will continue to be added for further coverage. Synthesis, DFT, STA, physical design, signoff, and GDS will follow once RTL verification is complete.
+✅ **RTL verified, synthesis complete with clean timing** — all RTL blocks are in place and pass the full self-checking testbench (9/9 checks). `Final_System` has been synthesized against all three PVT corners with **zero constraint violations** (setup slack +265.57 ns at `ss_1p08v_125c`, hold slack +0.43 ns at `ff_1p32v_m40c`) — see [Synthesis](#synthesis-synthesis). A SpyGlass lint pass (`lint_reports/`) has all 3 reported issues formally waived — see [Lint](#lint-lint_reports). Next up: DFT (scan insertion / ATPG), full STA, physical design (floorplan → place → CTS → route), signoff, and GDSII.
