@@ -33,6 +33,7 @@ module Final_System #(
     wire WrEn ;
     wire RdEN ;
     wire [BUS_WIDTH-1:0] RdData ;
+    wire RdData_Valid ;
     wire ALU_EN ;
     wire [3:0] ALU_FUN ;
     wire ALU_OUT_Valid ;
