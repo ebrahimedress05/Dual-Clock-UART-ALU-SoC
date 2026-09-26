@@ -1,0 +1,154 @@
+ 
+****************************************
+Report : port
+        -verbose
+Design : Final_System_dft
+Version: O-2018.06-SP1
+Date   : Sun Sep 27 03:00:03 2026
+****************************************
+
+
+
+Attributes:
+    d - dont_touch_network
+
+                       Pin      Wire     Max     Max     Connection
+Port           Dir     Load     Load     Trans   Cap     Class      Attrs
+--------------------------------------------------------------------------------
+REF_CLK        in      0.0000   0.0000   --      --      --         d
+RST            in      0.0000   0.0000   --      --      --         d
+RX_IN          in      0.0000   0.0000    1.50    0.18   --         
+SE             in      0.0000   0.0000    1.50    0.18   --         
+SI[0]          in      0.0000   0.0000    1.50    0.18   --         
+SI[1]          in      0.0000   0.0000    1.50    0.18   --         
+SI[2]          in      0.0000   0.0000    1.50    0.18   --         
+SI[3]          in      0.0000   0.0000    1.50    0.18   --         
+UART_CLK       in      0.0000   0.0000   --      --      --         d
+scan_CLK       in      0.0000   0.0000   --      --      --         d
+scan_RST       in      0.0000   0.0000   --      --      --         
+test_mode      in      0.0000   0.0000    1.50    0.18   --         
+SO[0]          out     0.1000   0.0000   --      --      --         
+SO[1]          out     0.1000   0.0000   --      --      --         
+SO[2]          out     0.1000   0.0000   --      --      --         
+SO[3]          out     0.1000   0.0000   --      --      --         
+TX_OUT         out     0.1000   0.0000   --      --      --         
+parity_error   out     0.1000   0.0000   --      --      --         
+stop_error     out     0.1000   0.0000   --      --      --         
+
+
+              External  Max             Min                Min       Min
+              Number    Wireload        Wireload           Pin       Wire
+Port          Points    Model           Model              Load      Load
+--------------------------------------------------------------------------------
+REF_CLK            1      --              --              --        -- 
+RST                1      --              --              --        -- 
+RX_IN              1      --              --              --        -- 
+SE                 1      --              --              --        -- 
+SI[0]              1      --              --              --        -- 
+SI[1]              1      --              --              --        -- 
+SI[2]              1      --              --              --        -- 
+SI[3]              1      --              --              --        -- 
+UART_CLK           1      --              --              --        -- 
+scan_CLK           1      --              --              --        -- 
+scan_RST           1      --              --              --        -- 
+test_mode          1      --              --              --        -- 
+SO[0]              1      --              --              --        -- 
+SO[1]              1      --              --              --        -- 
+SO[2]              1      --              --              --        -- 
+SO[3]              1      --              --              --        -- 
+TX_OUT             1      --              --              --        -- 
+parity_error       1      --              --              --        -- 
+stop_error         1      --              --              --        -- 
+
+                    Input Delay
+                  Min             Max       Related   Max
+Input Port    Rise    Fall    Rise    Fall   Clock  Fanout
+--------------------------------------------------------------------------------
+REF_CLK       --      --      --      --      --      -- 
+RST           --      --      --      --      --      -- 
+RX_IN        54.26   54.26   54.26   54.26  RX_CLK    --    
+SE          200.00  200.00  200.00  200.00  DFTCLK    --    
+SI[0]       200.00  200.00  200.00  200.00  DFTCLK    --    
+SI[1]       200.00  200.00  200.00  200.00  DFTCLK    --    
+SI[2]       200.00  200.00  200.00  200.00  DFTCLK    --    
+SI[3]       200.00  200.00  200.00  200.00  DFTCLK    --    
+UART_CLK      --      --      --      --      --      -- 
+scan_CLK      --      --      --      --      --      -- 
+scan_RST      --      --      --      --      --      -- 
+test_mode   200.00  200.00  200.00  200.00  DFTCLK    --    
+
+
+                    Driving Cell
+Input Port   Rise(min/max)      Fall(min/max)      Mult(min/max)  Attrs(min/max)
+--------------------------------------------------------------------------------
+RX_IN        scmetro_tsmc_cl013g_rvt_ss_1p08v_125c/BUFX2M/Y
+                                scmetro_tsmc_cl013g_rvt_ss_1p08v_125c/BUFX2M/Y
+                                                     -- /  --     
+SE           scmetro_tsmc_cl013g_rvt_ss_1p08v_125c/BUFX2M/Y
+                                scmetro_tsmc_cl013g_rvt_ss_1p08v_125c/BUFX2M/Y
+                                                     -- /  --     
+SI[0]        scmetro_tsmc_cl013g_rvt_ss_1p08v_125c/BUFX2M/Y
+                                scmetro_tsmc_cl013g_rvt_ss_1p08v_125c/BUFX2M/Y
+                                                     -- /  --     
+SI[1]        scmetro_tsmc_cl013g_rvt_ss_1p08v_125c/BUFX2M/Y
+                                scmetro_tsmc_cl013g_rvt_ss_1p08v_125c/BUFX2M/Y
+                                                     -- /  --     
+SI[2]        scmetro_tsmc_cl013g_rvt_ss_1p08v_125c/BUFX2M/Y
+                                scmetro_tsmc_cl013g_rvt_ss_1p08v_125c/BUFX2M/Y
+                                                     -- /  --     
+SI[3]        scmetro_tsmc_cl013g_rvt_ss_1p08v_125c/BUFX2M/Y
+                                scmetro_tsmc_cl013g_rvt_ss_1p08v_125c/BUFX2M/Y
+                                                     -- /  --     
+test_mode    scmetro_tsmc_cl013g_rvt_ss_1p08v_125c/BUFX2M/Y
+                                scmetro_tsmc_cl013g_rvt_ss_1p08v_125c/BUFX2M/Y
+                                                     -- /  --     
+
+
+               Max Drive      Min Drive      Resistance    Min    Min       Cell
+Input Port    Rise    Fall   Rise    Fall   Max     Min    Cap    Fanout    Deg
+--------------------------------------------------------------------------------
+REF_CLK       --      --     --      --     --      --     --     --        -- 
+RST           --      --     --      --     --      --     --     --        -- 
+RX_IN         --      --     --      --     --      --     --     --        -- 
+SE            --      --     --      --     --      --     --     --        -- 
+SI[0]         --      --     --      --     --      --     --     --        -- 
+SI[1]         --      --     --      --     --      --     --     --        -- 
+SI[2]         --      --     --      --     --      --     --     --        -- 
+SI[3]         --      --     --      --     --      --     --     --        -- 
+UART_CLK      --      --     --      --     --      --     --     --        -- 
+scan_CLK      --      --     --      --     --      --     --     --        -- 
+scan_RST      --      --     --      --     --      --     --     --        -- 
+test_mode     --      --     --      --     --      --     --     --        -- 
+
+
+               Max Tran        Min Tran
+Input Port    Rise    Fall    Rise    Fall
+--------------------------------------------------------------------------------
+REF_CLK       --      --      --      -- 
+RST           --      --      --      -- 
+RX_IN         --      --      --      -- 
+SE            --      --      --      -- 
+SI[0]         --      --      --      -- 
+SI[1]         --      --      --      -- 
+SI[2]         --      --      --      -- 
+SI[3]         --      --      --      -- 
+UART_CLK      --      --      --      -- 
+scan_CLK      --      --      --      -- 
+scan_RST      --      --      --      -- 
+test_mode     --      --      --      -- 
+
+
+                    Output Delay
+                  Min             Max      Related  Fanout
+Output Port   Rise    Fall    Rise    Fall  Clock     Load
+--------------------------------------------------------------------------------
+SO[0]       1736.30 1736.30 1736.30 1736.30 DFTCLK    0.00  
+SO[1]       1736.30 1736.30 1736.30 1736.30 DFTCLK    0.00  
+SO[2]       1736.30 1736.30 1736.30 1736.30 DFTCLK    0.00  
+SO[3]       1736.30 1736.30 1736.30 1736.30 DFTCLK    0.00  
+TX_OUT      1736.30 1736.30 1736.30 1736.30 TX_CLK    0.00  
+parity_error
+             54.26   54.26   54.26   54.26  RX_CLK    0.00  
+stop_error   54.26   54.26   54.26   54.26  RX_CLK    0.00  
+
+1
