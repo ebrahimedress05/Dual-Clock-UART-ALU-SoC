@@ -6,7 +6,7 @@ Report : timing
         -max_paths 1
 Design : Final_System
 Version: O-2018.06-SP1
-Date   : Sun Sep 27 02:18:02 2026
+Date   : Tue Sep 29 09:20:14 2026
 ****************************************
 
 Operating Conditions: scmetro_tsmc_cl013g_rvt_ss_1p08v_125c   Library: scmetro_tsmc_cl013g_rvt_ss_1p08v_125c
@@ -177,8 +177,8 @@ Wire Load Model Mode: top
   RX_IN (in)                                              0.13      54.39 r
   UART_RX/RX_IN (UART_RX)                                 0.00      54.39 r
   UART_RX/FSM_RX/RX_IN (FSM_RX)                           0.00      54.39 r
-  UART_RX/FSM_RX/U41/Y (NAND3BX1M)                        0.34      54.73 r
-  UART_RX/FSM_RX/U14/Y (NAND3X2M)                         0.47      55.20 f
+  UART_RX/FSM_RX/U43/Y (NAND3BX1M)                        0.34      54.73 r
+  UART_RX/FSM_RX/U16/Y (NAND3X2M)                         0.47      55.20 f
   UART_RX/FSM_RX/enable (FSM_RX)                          0.00      55.20 f
   UART_RX/edge_bit_counter/enable (edge_bit_counter)      0.00      55.20 f
   UART_RX/edge_bit_counter/U9/Y (INVX2M)                  0.89      56.09 r

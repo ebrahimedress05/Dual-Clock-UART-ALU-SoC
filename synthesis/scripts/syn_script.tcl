@@ -102,6 +102,6 @@ report_constraint -all_violators -nosplit > reports/constraints.rpt
 
 ################# starting graphical user interface #######################
 
-#gui_start
+gui_start
 
 #exit

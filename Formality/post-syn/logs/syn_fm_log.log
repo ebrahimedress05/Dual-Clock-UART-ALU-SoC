@@ -19,7 +19,7 @@
 
 Build: 4031317
 Hostname: IC_EDA (RHEL64)
-Current time: Sun Sep 27 02:16:39 2026
+Current time: Tue Sep 29 09:21:29 2026
 
 Loading db file '/home/synopsys/Formality2016/libraries/syn/gtech.db'
 ########################### Define Top Module ############################
@@ -221,7 +221,7 @@ SVF files produced:
 Status:  Matching...
     
 *********************************** Matching Results ***********************************    
- 381 Compare points matched by name    
+ 382 Compare points matched by name    
  0 Compare points matched by signature analysis    
  0 Compare points matched by topology    
  4 Matched primary inputs, black-box outputs    
@@ -237,7 +237,7 @@ Reference design is 'Ref:/WORK/Final_System'
 Implementation design is 'Imp:/WORK/Final_System'
     
 *********************************** Matching Results ***********************************    
- 381 Compare points matched by name    
+ 382 Compare points matched by name    
  0 Compare points matched by signature analysis    
  0 Compare points matched by topology    
  4 Matched primary inputs, black-box outputs    
@@ -290,11 +290,11 @@ Verification SUCCEEDED
 -----------------------------------------------------------------------
  Reference design: Ref:/WORK/Final_System
  Implementation design: Imp:/WORK/Final_System
- 381 Passing compare points
+ 382 Passing compare points
 ----------------------------------------------------------------------------------------
 Matched Compare Points     BBPin    Loop   BBNet     Cut    Port     DFF     LAT   TOTAL
 ----------------------------------------------------------------------------------------
-Passing (equivalent)           0       0       0       0       3     377       1     381
+Passing (equivalent)           0       0       0       0       3     378       1     382
 Failing (not equivalent)       0       0       0       0       0       0       0       0
 ****************************************************************************************
 1
@@ -307,13 +307,3 @@ report_failing_points > "reports/failing_points.rpt"
 report_aborted_points > "reports/aborted_points.rpt"
 report_unverified_points > "reports/unverified_points.rpt"
 start_gui
-     1  source -echo -verbose syn_fm_script.tcl
-1
-1
-fm_shell (verify)> 
-Maximum memory usage for this session: 482204 KB
-CPU usage for this session: 7.08 seconds
-Current time: Sun Sep 27 02:17:07 2026
-Elapsed time: 29 seconds
-
-Thank you for using Formality (R)!

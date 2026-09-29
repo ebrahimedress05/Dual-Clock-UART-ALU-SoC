@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////
 // Created by: Synopsys DC Expert(TM) in wire load mode
 // Version   : O-2018.06-SP1
-// Date      : Sun Sep 27 02:18:00 2026
+// Date      : Tue Sep 29 09:20:13 2026
 /////////////////////////////////////////////////////////////
 
 
@@ -47,111 +47,114 @@ module FSM_RX ( RX_IN, PAR_EN, edge_cnt, bit_cnt, par_err, strt_glitch,
   input RX_IN, PAR_EN, par_err, strt_glitch, stp_err, CLK, RST;
   output dat_samp_en, enable, deser_en, par_chk_en, strt_chk_en, stp_chk_en,
          data_valid;
-  wire   N57, N58, N59, N60, N61, N62, N100, N101, N105, \r94/carry[4] ,
-         \r94/carry[3] , n2, n3, n4, n5, n6, n7, n8, n9, n10, n11, n12, n13,
-         n14, n15, n16, n17, n18, n19, n20, n21, n22, n23, n24, n25, n26, n27,
-         n28, n29, n30, n31, n32, n33, n34, n35, n36, n37, n38, n39, n40, n41,
-         n42, n43, n44, n45, n46, n47, n48, n49, n50, n51, n52, n53, n54, n55,
-         n56, n57, n58, n59;
+  wire   data_valid_comb, N57, N58, N59, N60, N61, N62, N100, N101, N105,
+         \r94/carry[4] , \r94/carry[3] , n2, n3, n4, n5, n6, n7, n8, n9, n10,
+         n11, n12, n13, n14, n15, n16, n17, n18, n19, n20, n21, n22, n23, n24,
+         n25, n26, n27, n28, n29, n30, n31, n32, n33, n34, n35, n36, n37, n38,
+         n39, n40, n41, n42, n43, n44, n45, n46, n47, n48, n49, n50, n51, n52,
+         n53, n54, n55, n56, n57, n58, n59, n60, n61;
   wire   [3:0] current_state;
   wire   [3:0] next_state;
   assign N57 = prescale[1];
   assign N101 = PAR_EN;
 
-  DFFRQX2M \current_state_reg[2]  ( .D(next_state[2]), .CK(CLK), .RN(RST), .Q(
+  DFFRQX2M \current_state_reg[2]  ( .D(next_state[2]), .CK(CLK), .RN(n2), .Q(
         current_state[2]) );
-  DFFRQX2M \current_state_reg[0]  ( .D(next_state[0]), .CK(CLK), .RN(RST), .Q(
+  DFFRQX2M \current_state_reg[0]  ( .D(next_state[0]), .CK(CLK), .RN(n2), .Q(
         current_state[0]) );
-  DFFRQX2M \current_state_reg[1]  ( .D(next_state[1]), .CK(CLK), .RN(RST), .Q(
+  DFFRQX2M \current_state_reg[1]  ( .D(next_state[1]), .CK(CLK), .RN(n2), .Q(
         current_state[1]) );
-  DFFRQX2M \current_state_reg[3]  ( .D(next_state[3]), .CK(CLK), .RN(RST), .Q(
+  DFFRQX2M \current_state_reg[3]  ( .D(next_state[3]), .CK(CLK), .RN(n2), .Q(
         current_state[3]) );
-  NOR3BX4M U3 ( .AN(n36), .B(strt_glitch), .C(current_state[2]), .Y(n6) );
-  NOR3X2M U4 ( .A(current_state[0]), .B(current_state[3]), .C(n40), .Y(n36) );
-  NOR4X2M U5 ( .A(n35), .B(current_state[1]), .C(current_state[2]), .D(
-        current_state[3]), .Y(n19) );
-  NOR3XLM U6 ( .A(n34), .B(n6), .C(n19), .Y(n33) );
-  NOR3X2M U7 ( .A(n2), .B(n4), .C(n3), .Y(N105) );
-  NOR3X2M U8 ( .A(bit_cnt[1]), .B(bit_cnt[2]), .C(bit_cnt[0]), .Y(n27) );
-  AOI22XLM U9 ( .A0(n19), .A1(n20), .B0(n21), .B1(n22), .Y(n14) );
-  NOR4BXLM U10 ( .AN(n16), .B(n6), .C(n17), .D(n18), .Y(n15) );
-  INVX2M U11 ( .A(bit_cnt[2]), .Y(n5) );
-  INVX2M U12 ( .A(prescale[2]), .Y(N58) );
-  BUFX2M U13 ( .A(enable), .Y(dat_samp_en) );
-  NAND3X2M U14 ( .A(n13), .B(n26), .C(n33), .Y(enable) );
-  AND2X1M U15 ( .A(\r94/carry[4] ), .B(prescale[5]), .Y(N62) );
-  CLKXOR2X2M U16 ( .A(prescale[5]), .B(\r94/carry[4] ), .Y(N61) );
-  AND2X1M U17 ( .A(\r94/carry[3] ), .B(prescale[4]), .Y(\r94/carry[4] ) );
-  CLKXOR2X2M U18 ( .A(prescale[4]), .B(\r94/carry[3] ), .Y(N60) );
-  AND2X1M U19 ( .A(prescale[2]), .B(prescale[3]), .Y(\r94/carry[3] ) );
-  CLKXOR2X2M U20 ( .A(prescale[3]), .B(prescale[2]), .Y(N59) );
-  CLKINVX1M U21 ( .A(N101), .Y(N100) );
-  CLKNAND2X2M U22 ( .A(n5), .B(bit_cnt[3]), .Y(n4) );
-  CLKXOR2X2M U23 ( .A(N101), .B(bit_cnt[1]), .Y(n3) );
-  CLKXOR2X2M U24 ( .A(N100), .B(bit_cnt[0]), .Y(n2) );
-  NOR2BX1M U25 ( .AN(n6), .B(n7), .Y(strt_chk_en) );
-  CLKINVX1M U26 ( .A(n8), .Y(stp_chk_en) );
-  NOR3BX1M U27 ( .AN(N105), .B(n9), .C(n10), .Y(next_state[3]) );
-  OAI21X1M U28 ( .A0(n11), .A1(n12), .B0(n13), .Y(next_state[2]) );
-  OAI211X1M U29 ( .A0(N101), .A1(n11), .B0(n14), .C0(n15), .Y(next_state[1])
+  DFFRQX2M data_valid_reg ( .D(data_valid_comb), .CK(CLK), .RN(n2), .Q(
+        data_valid) );
+  NOR3BX4M U3 ( .AN(n38), .B(strt_glitch), .C(current_state[2]), .Y(n8) );
+  NOR3X2M U4 ( .A(current_state[0]), .B(current_state[3]), .C(n42), .Y(n38) );
+  NOR4X2M U5 ( .A(n37), .B(current_state[1]), .C(current_state[2]), .D(
+        current_state[3]), .Y(n21) );
+  NOR3XLM U6 ( .A(n36), .B(n8), .C(n21), .Y(n35) );
+  NOR3X2M U7 ( .A(n4), .B(n6), .C(n5), .Y(N105) );
+  NOR3X2M U8 ( .A(bit_cnt[1]), .B(bit_cnt[2]), .C(bit_cnt[0]), .Y(n29) );
+  AOI22XLM U9 ( .A0(n21), .A1(n22), .B0(n23), .B1(n24), .Y(n16) );
+  NOR4BXLM U10 ( .AN(n18), .B(n8), .C(n19), .D(n20), .Y(n17) );
+  INVX2M U11 ( .A(n3), .Y(n2) );
+  INVX2M U12 ( .A(RST), .Y(n3) );
+  INVX2M U13 ( .A(bit_cnt[2]), .Y(n7) );
+  INVX2M U14 ( .A(prescale[2]), .Y(N58) );
+  BUFX2M U15 ( .A(enable), .Y(dat_samp_en) );
+  NAND3X2M U16 ( .A(n15), .B(n28), .C(n35), .Y(enable) );
+  AND2X1M U17 ( .A(\r94/carry[4] ), .B(prescale[5]), .Y(N62) );
+  CLKXOR2X2M U18 ( .A(prescale[5]), .B(\r94/carry[4] ), .Y(N61) );
+  AND2X1M U19 ( .A(\r94/carry[3] ), .B(prescale[4]), .Y(\r94/carry[4] ) );
+  CLKXOR2X2M U20 ( .A(prescale[4]), .B(\r94/carry[3] ), .Y(N60) );
+  AND2X1M U21 ( .A(prescale[2]), .B(prescale[3]), .Y(\r94/carry[3] ) );
+  CLKXOR2X2M U22 ( .A(prescale[3]), .B(prescale[2]), .Y(N59) );
+  CLKINVX1M U23 ( .A(N101), .Y(N100) );
+  CLKNAND2X2M U24 ( .A(n7), .B(bit_cnt[3]), .Y(n6) );
+  CLKXOR2X2M U25 ( .A(N101), .B(bit_cnt[1]), .Y(n5) );
+  CLKXOR2X2M U26 ( .A(N100), .B(bit_cnt[0]), .Y(n4) );
+  NOR2BX1M U27 ( .AN(n8), .B(n9), .Y(strt_chk_en) );
+  CLKINVX1M U28 ( .A(n10), .Y(stp_chk_en) );
+  NOR3BX1M U29 ( .AN(N105), .B(n11), .C(n12), .Y(next_state[3]) );
+  OAI21X1M U30 ( .A0(n13), .A1(n14), .B0(n15), .Y(next_state[2]) );
+  OAI211X1M U31 ( .A0(N101), .A1(n13), .B0(n16), .C0(n17), .Y(next_state[1])
          );
-  NAND4BX1M U30 ( .AN(par_chk_en), .B(n8), .C(n16), .D(n23), .Y(next_state[0])
-         );
-  AOI221XLM U31 ( .A0(n19), .A1(n24), .B0(n7), .B1(n6), .C0(n25), .Y(n23) );
-  CLKINVX1M U32 ( .A(n26), .Y(n25) );
-  NOR3BX1M U33 ( .AN(n27), .B(bit_cnt[3]), .C(n10), .Y(n7) );
-  CLKINVX1M U34 ( .A(n20), .Y(n24) );
-  NOR3BX1M U35 ( .AN(n27), .B(bit_cnt[3]), .C(n28), .Y(n20) );
-  AOI31X1M U36 ( .A0(N105), .A1(n17), .A2(n29), .B0(n18), .Y(n8) );
-  CLKINVX1M U37 ( .A(n28), .Y(n29) );
-  OAI32X1M U38 ( .A0(n30), .A1(n28), .A2(n31), .B0(n21), .B1(n32), .Y(
+  NAND4BX1M U32 ( .AN(par_chk_en), .B(n10), .C(n18), .D(n25), .Y(next_state[0]) );
+  AOI221XLM U33 ( .A0(n21), .A1(n26), .B0(n9), .B1(n8), .C0(n27), .Y(n25) );
+  CLKINVX1M U34 ( .A(n28), .Y(n27) );
+  NOR3BX1M U35 ( .AN(n29), .B(bit_cnt[3]), .C(n12), .Y(n9) );
+  CLKINVX1M U36 ( .A(n22), .Y(n26) );
+  NOR3BX1M U37 ( .AN(n29), .B(bit_cnt[3]), .C(n30), .Y(n22) );
+  AOI31X1M U38 ( .A0(N105), .A1(n19), .A2(n31), .B0(n20), .Y(n10) );
+  CLKINVX1M U39 ( .A(n30), .Y(n31) );
+  OAI32X1M U40 ( .A0(n32), .A1(n30), .A2(n33), .B0(n23), .B1(n34), .Y(
         par_chk_en) );
-  NOR2X1M U39 ( .A(n30), .B(n10), .Y(n21) );
-  NAND4BBX1M U40 ( .AN(bit_cnt[1]), .BN(bit_cnt[2]), .C(bit_cnt[0]), .D(
-        bit_cnt[3]), .Y(n30) );
-  NAND3BX1M U41 ( .AN(RX_IN), .B(n37), .C(n38), .Y(n26) );
-  NOR3X1M U42 ( .A(current_state[0]), .B(current_state[2]), .C(
-        current_state[1]), .Y(n38) );
-  OAI2B1X1M U43 ( .A1N(n39), .A0(stp_err), .B0(current_state[3]), .Y(n37) );
-  NOR4BX1M U44 ( .AN(n31), .B(n22), .C(n18), .D(n17), .Y(n13) );
-  AND2X1M U45 ( .A(n36), .B(current_state[2]), .Y(n17) );
-  AOI21X1M U46 ( .A0(n41), .A1(N105), .B0(n9), .Y(n18) );
-  CLKNAND2X2M U47 ( .A(n42), .B(current_state[2]), .Y(n9) );
-  CLKINVX1M U48 ( .A(n32), .Y(n22) );
-  CLKNAND2X2M U49 ( .A(n43), .B(current_state[0]), .Y(n32) );
-  CLKNAND2X2M U50 ( .A(n43), .B(n35), .Y(n31) );
-  NOR3X1M U51 ( .A(current_state[1]), .B(current_state[3]), .C(n44), .Y(n43)
+  NOR2X1M U41 ( .A(n32), .B(n12), .Y(n23) );
+  NAND4BBX1M U42 ( .AN(bit_cnt[1]), .BN(bit_cnt[2]), .C(bit_cnt[0]), .D(
+        bit_cnt[3]), .Y(n32) );
+  NAND3BX1M U43 ( .AN(RX_IN), .B(n39), .C(n40), .Y(n28) );
+  NOR3X1M U44 ( .A(current_state[0]), .B(current_state[2]), .C(
+        current_state[1]), .Y(n40) );
+  OAI2B1X1M U45 ( .A1N(n41), .A0(stp_err), .B0(current_state[3]), .Y(n39) );
+  NOR4BX1M U46 ( .AN(n33), .B(n24), .C(n20), .D(n19), .Y(n15) );
+  AND2X1M U47 ( .A(n38), .B(current_state[2]), .Y(n19) );
+  AOI21X1M U48 ( .A0(n43), .A1(N105), .B0(n11), .Y(n20) );
+  CLKNAND2X2M U49 ( .A(n44), .B(current_state[2]), .Y(n11) );
+  CLKINVX1M U50 ( .A(n34), .Y(n24) );
+  CLKNAND2X2M U51 ( .A(n45), .B(current_state[0]), .Y(n34) );
+  CLKNAND2X2M U52 ( .A(n45), .B(n37), .Y(n33) );
+  NOR3X1M U53 ( .A(current_state[1]), .B(current_state[3]), .C(n46), .Y(n45)
          );
-  NOR2X1M U52 ( .A(n28), .B(n16), .Y(deser_en) );
-  CLKNAND2X2M U53 ( .A(n34), .B(n12), .Y(n16) );
-  NAND3X1M U54 ( .A(n41), .B(n27), .C(bit_cnt[3]), .Y(n12) );
-  CLKINVX1M U55 ( .A(n10), .Y(n41) );
-  NAND4X1M U56 ( .A(n45), .B(n46), .C(n47), .D(n48), .Y(n10) );
-  NOR3X1M U57 ( .A(n49), .B(n50), .C(n51), .Y(n48) );
-  CLKXOR2X2M U58 ( .A(prescale[4]), .B(edge_cnt[4]), .Y(n51) );
-  CLKXOR2X2M U59 ( .A(N57), .B(edge_cnt[1]), .Y(n50) );
-  CLKXOR2X2M U60 ( .A(prescale[0]), .B(edge_cnt[0]), .Y(n49) );
-  XNOR2X1M U61 ( .A(edge_cnt[2]), .B(prescale[2]), .Y(n47) );
-  XNOR2X1M U62 ( .A(edge_cnt[3]), .B(prescale[3]), .Y(n46) );
-  XNOR2X1M U63 ( .A(edge_cnt[5]), .B(prescale[5]), .Y(n45) );
-  CLKINVX1M U64 ( .A(n11), .Y(n34) );
-  CLKNAND2X2M U65 ( .A(n42), .B(n44), .Y(n11) );
-  CLKINVX1M U66 ( .A(current_state[2]), .Y(n44) );
-  NOR3X1M U67 ( .A(n40), .B(current_state[3]), .C(n35), .Y(n42) );
-  CLKINVX1M U68 ( .A(current_state[1]), .Y(n40) );
-  NAND4X1M U69 ( .A(n52), .B(n53), .C(n54), .D(n55), .Y(n28) );
-  NOR3X1M U70 ( .A(n56), .B(n57), .C(n58), .Y(n55) );
-  CLKXOR2X2M U71 ( .A(edge_cnt[4]), .B(N61), .Y(n58) );
-  CLKXOR2X2M U72 ( .A(edge_cnt[1]), .B(N58), .Y(n57) );
-  CLKXOR2X2M U73 ( .A(edge_cnt[0]), .B(N57), .Y(n56) );
-  XNOR2X1M U74 ( .A(edge_cnt[2]), .B(N59), .Y(n54) );
-  XNOR2X1M U75 ( .A(edge_cnt[3]), .B(N60), .Y(n53) );
-  XNOR2X1M U76 ( .A(edge_cnt[5]), .B(N62), .Y(n52) );
-  NOR4X1M U77 ( .A(n59), .B(current_state[1]), .C(stp_err), .D(
-        current_state[2]), .Y(data_valid) );
-  NAND3X1M U78 ( .A(n39), .B(n35), .C(current_state[3]), .Y(n59) );
-  CLKINVX1M U79 ( .A(current_state[0]), .Y(n35) );
-  CLKNAND2X2M U80 ( .A(par_err), .B(N101), .Y(n39) );
+  NOR2X1M U54 ( .A(n30), .B(n18), .Y(deser_en) );
+  CLKNAND2X2M U55 ( .A(n36), .B(n14), .Y(n18) );
+  NAND3X1M U56 ( .A(n43), .B(n29), .C(bit_cnt[3]), .Y(n14) );
+  CLKINVX1M U57 ( .A(n12), .Y(n43) );
+  NAND4X1M U58 ( .A(n47), .B(n48), .C(n49), .D(n50), .Y(n12) );
+  NOR3X1M U59 ( .A(n51), .B(n52), .C(n53), .Y(n50) );
+  CLKXOR2X2M U60 ( .A(prescale[4]), .B(edge_cnt[4]), .Y(n53) );
+  CLKXOR2X2M U61 ( .A(N57), .B(edge_cnt[1]), .Y(n52) );
+  CLKXOR2X2M U62 ( .A(prescale[0]), .B(edge_cnt[0]), .Y(n51) );
+  XNOR2X1M U63 ( .A(edge_cnt[2]), .B(prescale[2]), .Y(n49) );
+  XNOR2X1M U64 ( .A(edge_cnt[3]), .B(prescale[3]), .Y(n48) );
+  XNOR2X1M U65 ( .A(edge_cnt[5]), .B(prescale[5]), .Y(n47) );
+  CLKINVX1M U66 ( .A(n13), .Y(n36) );
+  CLKNAND2X2M U67 ( .A(n44), .B(n46), .Y(n13) );
+  CLKINVX1M U68 ( .A(current_state[2]), .Y(n46) );
+  NOR3X1M U69 ( .A(n42), .B(current_state[3]), .C(n37), .Y(n44) );
+  CLKINVX1M U70 ( .A(current_state[1]), .Y(n42) );
+  NAND4X1M U71 ( .A(n54), .B(n55), .C(n56), .D(n57), .Y(n30) );
+  NOR3X1M U72 ( .A(n58), .B(n59), .C(n60), .Y(n57) );
+  CLKXOR2X2M U73 ( .A(edge_cnt[4]), .B(N61), .Y(n60) );
+  CLKXOR2X2M U74 ( .A(edge_cnt[1]), .B(N58), .Y(n59) );
+  CLKXOR2X2M U75 ( .A(edge_cnt[0]), .B(N57), .Y(n58) );
+  XNOR2X1M U76 ( .A(edge_cnt[2]), .B(N59), .Y(n56) );
+  XNOR2X1M U77 ( .A(edge_cnt[3]), .B(N60), .Y(n55) );
+  XNOR2X1M U78 ( .A(edge_cnt[5]), .B(N62), .Y(n54) );
+  NOR4X1M U79 ( .A(n61), .B(current_state[1]), .C(stp_err), .D(
+        current_state[2]), .Y(data_valid_comb) );
+  NAND3X1M U80 ( .A(n41), .B(n37), .C(current_state[3]), .Y(n61) );
+  CLKINVX1M U81 ( .A(current_state[0]), .Y(n37) );
+  CLKNAND2X2M U82 ( .A(par_err), .B(N101), .Y(n41) );
 endmodule
 
 
@@ -229,41 +232,43 @@ module deserializer ( deser_en, sampled_bit, bit_cnt, CLK, RST, P_DATA );
   output [7:0] P_DATA;
   input deser_en, sampled_bit, CLK, RST;
   wire   n5, n6, n7, n8, n9, n10, n11, n12, n13, n14, n15, n16, n17, n18, n19,
-         n20, n21, n22, n23, n24, n1, n2, n3, n4;
+         n20, n21, n22, n23, n24, n1, n2, n3, n4, n25, n26;
 
-  DFFRQX2M \P_DATA_reg[5]  ( .D(n22), .CK(CLK), .RN(RST), .Q(P_DATA[5]) );
-  DFFRQX2M \P_DATA_reg[0]  ( .D(n17), .CK(CLK), .RN(RST), .Q(P_DATA[0]) );
-  DFFRQX2M \P_DATA_reg[6]  ( .D(n23), .CK(CLK), .RN(RST), .Q(P_DATA[6]) );
-  DFFRQX2M \P_DATA_reg[1]  ( .D(n18), .CK(CLK), .RN(RST), .Q(P_DATA[1]) );
-  DFFRQX2M \P_DATA_reg[4]  ( .D(n21), .CK(CLK), .RN(RST), .Q(P_DATA[4]) );
-  DFFRQX2M \P_DATA_reg[2]  ( .D(n19), .CK(CLK), .RN(RST), .Q(P_DATA[2]) );
-  DFFRQX2M \P_DATA_reg[7]  ( .D(n24), .CK(CLK), .RN(RST), .Q(P_DATA[7]) );
-  DFFRQX2M \P_DATA_reg[3]  ( .D(n20), .CK(CLK), .RN(RST), .Q(P_DATA[3]) );
-  INVX2M U3 ( .A(sampled_bit), .Y(n4) );
-  NOR4BX1M U4 ( .AN(deser_en), .B(n3), .C(bit_cnt[2]), .D(bit_cnt[3]), .Y(n8)
+  DFFRQX2M \P_DATA_reg[5]  ( .D(n22), .CK(CLK), .RN(n1), .Q(P_DATA[5]) );
+  DFFRQX2M \P_DATA_reg[0]  ( .D(n17), .CK(CLK), .RN(n1), .Q(P_DATA[0]) );
+  DFFRQX2M \P_DATA_reg[6]  ( .D(n23), .CK(CLK), .RN(n1), .Q(P_DATA[6]) );
+  DFFRQX2M \P_DATA_reg[1]  ( .D(n18), .CK(CLK), .RN(n1), .Q(P_DATA[1]) );
+  DFFRQX2M \P_DATA_reg[4]  ( .D(n21), .CK(CLK), .RN(n1), .Q(P_DATA[4]) );
+  DFFRQX2M \P_DATA_reg[2]  ( .D(n19), .CK(CLK), .RN(n1), .Q(P_DATA[2]) );
+  DFFRQX2M \P_DATA_reg[7]  ( .D(n24), .CK(CLK), .RN(n1), .Q(P_DATA[7]) );
+  DFFRQX2M \P_DATA_reg[3]  ( .D(n20), .CK(CLK), .RN(n1), .Q(P_DATA[3]) );
+  INVX2M U3 ( .A(n2), .Y(n1) );
+  INVX2M U4 ( .A(RST), .Y(n2) );
+  INVX2M U5 ( .A(sampled_bit), .Y(n26) );
+  NOR4BX1M U6 ( .AN(deser_en), .B(n25), .C(bit_cnt[2]), .D(bit_cnt[3]), .Y(n8)
          );
-  OAI2BB2X1M U5 ( .B0(n4), .B1(n7), .A0N(P_DATA[1]), .A1N(n7), .Y(n18) );
-  NAND2X2M U6 ( .A(n8), .B(n2), .Y(n7) );
-  OAI2BB2X1M U7 ( .B0(n4), .B1(n9), .A0N(P_DATA[2]), .A1N(n9), .Y(n19) );
-  NAND2X2M U8 ( .A(n8), .B(bit_cnt[0]), .Y(n9) );
-  OAI2BB2X1M U9 ( .B0(n4), .B1(n10), .A0N(P_DATA[3]), .A1N(n10), .Y(n20) );
-  NAND3X2M U10 ( .A(n2), .B(n3), .C(n1), .Y(n10) );
-  OAI2BB2X1M U11 ( .B0(n4), .B1(n11), .A0N(P_DATA[4]), .A1N(n11), .Y(n21) );
-  NAND3X2M U12 ( .A(bit_cnt[0]), .B(n3), .C(n1), .Y(n11) );
-  OAI2BB2X1M U13 ( .B0(n4), .B1(n12), .A0N(P_DATA[5]), .A1N(n12), .Y(n22) );
-  NAND3X2M U14 ( .A(bit_cnt[1]), .B(n2), .C(n1), .Y(n12) );
-  OAI2BB2X1M U15 ( .B0(n4), .B1(n13), .A0N(P_DATA[6]), .A1N(n13), .Y(n23) );
-  NAND3X2M U16 ( .A(bit_cnt[1]), .B(bit_cnt[0]), .C(n1), .Y(n13) );
-  OAI2BB2X1M U17 ( .B0(n4), .B1(n15), .A0N(P_DATA[7]), .A1N(n15), .Y(n24) );
-  NAND4XLM U18 ( .A(bit_cnt[3]), .B(deser_en), .C(n16), .D(n2), .Y(n15) );
-  NOR2X2M U19 ( .A(bit_cnt[2]), .B(bit_cnt[1]), .Y(n16) );
-  OAI2BB2X1M U20 ( .B0(n5), .B1(n4), .A0N(P_DATA[0]), .A1N(n5), .Y(n17) );
-  NAND4XLM U21 ( .A(deser_en), .B(bit_cnt[0]), .C(n6), .D(n3), .Y(n5) );
-  NOR2X2M U22 ( .A(bit_cnt[3]), .B(bit_cnt[2]), .Y(n6) );
-  INVX2M U23 ( .A(n14), .Y(n1) );
-  NAND3BXLM U24 ( .AN(bit_cnt[3]), .B(deser_en), .C(bit_cnt[2]), .Y(n14) );
-  INVX2M U25 ( .A(bit_cnt[1]), .Y(n3) );
-  INVX2M U26 ( .A(bit_cnt[0]), .Y(n2) );
+  OAI2BB2X1M U7 ( .B0(n26), .B1(n7), .A0N(P_DATA[1]), .A1N(n7), .Y(n18) );
+  NAND2X2M U8 ( .A(n8), .B(n4), .Y(n7) );
+  OAI2BB2X1M U9 ( .B0(n26), .B1(n9), .A0N(P_DATA[2]), .A1N(n9), .Y(n19) );
+  NAND2X2M U10 ( .A(n8), .B(bit_cnt[0]), .Y(n9) );
+  OAI2BB2X1M U11 ( .B0(n26), .B1(n10), .A0N(P_DATA[3]), .A1N(n10), .Y(n20) );
+  NAND3X2M U12 ( .A(n4), .B(n25), .C(n3), .Y(n10) );
+  OAI2BB2X1M U13 ( .B0(n26), .B1(n11), .A0N(P_DATA[4]), .A1N(n11), .Y(n21) );
+  NAND3X2M U14 ( .A(bit_cnt[0]), .B(n25), .C(n3), .Y(n11) );
+  OAI2BB2X1M U15 ( .B0(n26), .B1(n12), .A0N(P_DATA[5]), .A1N(n12), .Y(n22) );
+  NAND3X2M U16 ( .A(bit_cnt[1]), .B(n4), .C(n3), .Y(n12) );
+  OAI2BB2X1M U17 ( .B0(n26), .B1(n13), .A0N(P_DATA[6]), .A1N(n13), .Y(n23) );
+  NAND3X2M U18 ( .A(bit_cnt[1]), .B(bit_cnt[0]), .C(n3), .Y(n13) );
+  OAI2BB2X1M U19 ( .B0(n26), .B1(n15), .A0N(P_DATA[7]), .A1N(n15), .Y(n24) );
+  NAND4XLM U20 ( .A(bit_cnt[3]), .B(deser_en), .C(n16), .D(n4), .Y(n15) );
+  NOR2X2M U21 ( .A(bit_cnt[2]), .B(bit_cnt[1]), .Y(n16) );
+  OAI2BB2X1M U22 ( .B0(n5), .B1(n26), .A0N(P_DATA[0]), .A1N(n5), .Y(n17) );
+  NAND4XLM U23 ( .A(deser_en), .B(bit_cnt[0]), .C(n6), .D(n25), .Y(n5) );
+  NOR2X2M U24 ( .A(bit_cnt[3]), .B(bit_cnt[2]), .Y(n6) );
+  INVX2M U25 ( .A(n14), .Y(n3) );
+  NAND3BXLM U26 ( .AN(bit_cnt[3]), .B(deser_en), .C(bit_cnt[2]), .Y(n14) );
+  INVX2M U27 ( .A(bit_cnt[1]), .Y(n25) );
+  INVX2M U28 ( .A(bit_cnt[0]), .Y(n4) );
 endmodule
 
 
@@ -416,7 +421,7 @@ module UART_RX ( RX_IN, prescale, PAR_EN, PAR_TYP, CLK, RST, P_DATA,
         .CLK(CLK), .RST(n1), .stp_err(stop_error) );
   strt_check strt_check ( .strt_chk_en(strt_chk_en), .sampled_bit(sampled_bit), 
         .CLK(CLK), .RST(n1), .strt_glitch(strt_glitch) );
-  INVX4M U1 ( .A(n2), .Y(n1) );
+  INVX2M U1 ( .A(n2), .Y(n1) );
   INVX2M U2 ( .A(RST), .Y(n2) );
 endmodule
 

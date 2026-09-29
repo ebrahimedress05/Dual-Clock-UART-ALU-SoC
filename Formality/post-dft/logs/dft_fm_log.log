@@ -19,7 +19,7 @@
 
 Build: 4031317
 Hostname: IC_EDA (RHEL64)
-Current time: Sun Sep 27 04:05:36 2026
+Current time: Tue Sep 29 09:39:31 2026
 
 Loading db file '/home/synopsys/Formality2016/libraries/syn/gtech.db'
 ########################### Define Top Module ############################
@@ -236,7 +236,7 @@ match
 Reference design is 'Ref:/WORK/Final_System_dft'
 Implementation design is 'Imp:/WORK/Final_System_dft'
 Status:  Checking designs...
-    Warning: 4 (12) undriven nets found in reference (implementation) design; see formality1.log for list (FM-399)
+    Warning: 4 (12) undriven nets found in reference (implementation) design; see formality2.log for list (FM-399)
 Status:  Building verification models...
 Status:  Processing Guide Commands...
     Set 'Ref:/WORK/Final_System_dft/SE' to constant 0    
@@ -268,14 +268,14 @@ SVF files read:
       /home/ICer/IC/Projects/System/DFT/Final_System_dft.svf
 
 SVF files produced:
-  /home/ICer/IC/Projects/System/Formality/post-dft/formality1_svf/
+  /home/ICer/IC/Projects/System/Formality/post-dft/formality2_svf/
     svf.txt
 ****************************************************************************
 
 Status:  Matching...
     
 *********************************** Matching Results ***********************************    
- 381 Compare points matched by name    
+ 382 Compare points matched by name    
  0 Compare points matched by signature analysis    
  0 Compare points matched by topology    
  5 Matched primary inputs, black-box outputs    
@@ -291,7 +291,7 @@ Reference design is 'Ref:/WORK/Final_System_dft'
 Implementation design is 'Imp:/WORK/Final_System_dft'
     
 *********************************** Matching Results ***********************************    
- 381 Compare points matched by name    
+ 382 Compare points matched by name    
  0 Compare points matched by signature analysis    
  0 Compare points matched by topology    
  5 Matched primary inputs, black-box outputs    
@@ -347,11 +347,11 @@ Verification SUCCEEDED
 -----------------------------------------------------------------------
  Reference design: Ref:/WORK/Final_System_dft
  Implementation design: Imp:/WORK/Final_System_dft
- 381 Passing compare points
+ 382 Passing compare points
 ----------------------------------------------------------------------------------------
 Matched Compare Points     BBPin    Loop   BBNet     Cut    Port     DFF     LAT   TOTAL
 ----------------------------------------------------------------------------------------
-Passing (equivalent)           0       0       0       0       3     377       1     381
+Passing (equivalent)           0       0       0       0       3     378       1     382
 Failing (not equivalent)       0       0       0       0       0       0       0       0
 Not Compared
   Don't verify                 0       0       0       0       4       0       0       4

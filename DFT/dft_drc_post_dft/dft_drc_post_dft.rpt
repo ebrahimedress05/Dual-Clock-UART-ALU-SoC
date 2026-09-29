@@ -39,7 +39,7 @@ Warning: Violations occurred during test design rule checking. (TEST-124)
 -----------------------------------------------------------------
   Sequential Cell Report
 
-  1 out of 378 sequential cells have violations
+  1 out of 379 sequential cells have violations
 
 -----------------------------------------------------------------
 
@@ -47,7 +47,7 @@ SEQUENTIAL CELLS WITH VIOLATIONS
       *   1 cell has constant 1 value
          CLK_GATE/U0_TLATNCAX12M
 SEQUENTIAL CELLS WITHOUT VIOLATIONS
-      * 377 cells are valid scan cells
+      * 378 cells are valid scan cells
          RST_SYNC_1/synchronizer_reg[0]
          RST_SYNC_1/synchronizer_reg[1]
          DATA_SYNC/pulse_reg
@@ -72,7 +72,7 @@ SEQUENTIAL CELLS WITHOUT VIOLATIONS
          SYS_CTRL/ALU_OUT_registerd_reg[8]
          SYS_CTRL/internal_address_reg[2]
          SYS_CTRL/internal_address_reg[3]
-         SYS_CTRL/internal_ALU_FUN_reg[2]
+         SYS_CTRL/internal_ALU_FUN_reg[1]
          SYS_CTRL/internal_ALU_FUN_reg[3]
          SYS_CTRL/internal_address_reg[1]
          SYS_CTRL/internal_address_reg[0]
@@ -81,7 +81,7 @@ SEQUENTIAL CELLS WITHOUT VIOLATIONS
          SYS_CTRL/current_state_reg[1]
          SYS_CTRL/current_state_reg[0]
          SYS_CTRL/current_state_reg[3]
-         SYS_CTRL/internal_ALU_FUN_reg[1]
+         SYS_CTRL/internal_ALU_FUN_reg[2]
          regfile/RdData_reg[7]
          regfile/RdData_reg[6]
          regfile/RdData_reg[5]
@@ -278,6 +278,7 @@ SEQUENTIAL CELLS WITHOUT VIOLATIONS
          UART_RX/FSM_RX/current_state_reg[0]
          UART_RX/FSM_RX/current_state_reg[1]
          UART_RX/FSM_RX/current_state_reg[3]
+         UART_RX/FSM_RX/data_valid_reg
          UART_RX/data_sampling/bit_3_reg
          UART_RX/data_sampling/bit_2_reg
          UART_RX/data_sampling/bit_1_reg
@@ -429,25 +430,25 @@ SEQUENTIAL CELLS WITHOUT VIOLATIONS
 ....Inferring feed-through connections....
 Information: Test design rule checking completed. (TEST-123)
   Running test coverage estimation...
- 18238 faults were added to fault list.
- 0            8537   5890         0/0/0    66.74%      0.01
- 0            1964   3923         3/0/0    77.70%      0.01
- 0             951   2965         8/0/0    83.04%      0.02
- 0             591   2361        15/0/0    86.40%      0.02
- 0             391   1960        23/0/0    88.63%      0.02
- 0             303   1644        32/0/0    90.38%      0.03
- 0             241   1374        43/0/0    91.88%      0.03
- 0             190   1171        56/0/0    93.01%      0.03
- 0             117   1003        79/0/0    93.93%      0.05
- 0             121    865        92/0/0    94.70%      0.05
- 0             116    731       107/0/1    95.45%      0.05
- 0              87    599       123/0/1    96.19%      0.06
- 0              87    495       139/0/1    96.77%      0.06
- 0              62    389       159/0/1    97.36%      0.06
- 0              58    299       183/1/2    97.86%      0.07
- 0              56    200       203/1/4    98.42%      0.07
- 0              44     47       284/1/7    99.28%      0.08
- 0              32     14       284/2/8    99.47%      0.08
+ 18266 faults were added to fault list.
+ 0            8346   6091         1/0/0    65.68%      0.00
+ 0            2009   4079         4/0/0    76.87%      0.01
+ 0             923   3152         8/0/0    82.03%      0.01
+ 0             655   2491        13/0/0    85.70%      0.01
+ 0             437   2048        19/0/0    88.16%      0.02
+ 0             336   1700        28/0/0    90.10%      0.02
+ 0             245   1428        37/1/0    91.60%      0.02
+ 0             199   1219        45/1/0    92.76%      0.02
+ 0             108   1093        59/1/1    93.46%      0.02
+ 0             134    938        77/1/2    94.32%      0.04
+ 0              99    820        91/1/2    94.97%      0.04
+ 0             117    656       107/1/3    95.88%      0.04
+ 0              90    543       122/1/3    96.51%      0.05
+ 0              82    419       141/1/5    97.20%      0.05
+ 0              51    323       160/1/6    97.74%      0.05
+ 0              57    216       186/1/6    98.34%      0.05
+ 0              48     47       281/2/6    99.28%      0.06
+ 0              23     15       284/2/8    99.47%      0.06
  
             Pattern Summary Report
  -----------------------------------------------
@@ -459,13 +460,13 @@ Information: Test design rule checking completed. (TEST-123)
  -----------------------------------------------
  fault class                     code   #faults
  ------------------------------  ----  ---------
- Detected                         DT      17387
- Possibly detected                PT          0
+ Detected                         DT      17414
+ Possibly detected                PT          1
  Undetectable                     UD        758
  ATPG untestable                  AU         79
  Not detected                     ND         14
  -----------------------------------------------
- total faults                             18238
+ total faults                             18266
  test coverage                            99.47%
  -----------------------------------------------
   Information: The test coverage above may be inferior

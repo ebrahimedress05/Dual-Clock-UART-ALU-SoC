@@ -7,7 +7,7 @@ Report : timing
         -max_paths 1
 Design : Final_System_dft
 Version: O-2018.06-SP1
-Date   : Sun Sep 27 03:00:03 2026
+Date   : Tue Sep 29 09:32:46 2026
 ****************************************
 
 Operating Conditions: scmetro_tsmc_cl013g_rvt_ff_1p32v_m40c   Library: scmetro_tsmc_cl013g_rvt_ff_1p32v_m40c
@@ -46,9 +46,9 @@ Wire Load Model Mode: top
   slack (MET)                                         0.56
 
 
-  Startpoint: SYS_CTRL/internal_ALU_FUN_reg[0]
+  Startpoint: SYS_CTRL/internal_ALU_FUN_reg[1]
               (rising edge-triggered flip-flop clocked by REF_CLK)
-  Endpoint: SYS_CTRL/internal_ALU_FUN_reg[1]
+  Endpoint: SYS_CTRL/internal_ALU_FUN_reg[2]
             (rising edge-triggered flip-flop clocked by REF_CLK)
   Path Group: REF_CLK
   Path Type: min
@@ -61,15 +61,15 @@ Wire Load Model Mode: top
   --------------------------------------------------------------------------
   clock REF_CLK (rise edge)                               0.00       0.00
   clock network delay (ideal)                             0.00       0.00
-  SYS_CTRL/internal_ALU_FUN_reg[0]/CK (SDFFRX1M)          0.00       0.00 r
-  SYS_CTRL/internal_ALU_FUN_reg[0]/QN (SDFFRX1M)          0.36       0.36 r
-  SYS_CTRL/internal_ALU_FUN_reg[1]/SI (SDFFRHQX8M)        0.00       0.36 r
+  SYS_CTRL/internal_ALU_FUN_reg[1]/CK (SDFFRX1M)          0.00       0.00 r
+  SYS_CTRL/internal_ALU_FUN_reg[1]/QN (SDFFRX1M)          0.36       0.36 r
+  SYS_CTRL/internal_ALU_FUN_reg[2]/SI (SDFFRHQX8M)        0.00       0.36 r
   data arrival time                                                  0.36
 
   clock REF_CLK (rise edge)                               0.00       0.00
   clock network delay (ideal)                             0.00       0.00
   clock uncertainty                                       0.10       0.10
-  SYS_CTRL/internal_ALU_FUN_reg[1]/CK (SDFFRHQX8M)        0.00       0.10 r
+  SYS_CTRL/internal_ALU_FUN_reg[2]/CK (SDFFRHQX8M)        0.00       0.10 r
   library hold time                                      -0.14      -0.04
   data required time                                                -0.04
   --------------------------------------------------------------------------
@@ -79,9 +79,9 @@ Wire Load Model Mode: top
   slack (MET)                                                        0.40
 
 
-  Startpoint: UART_RX/edge_bit_counter/bit_cnt_reg[3]
+  Startpoint: UART_RX/FSM_RX/data_valid_reg
               (rising edge-triggered flip-flop clocked by RX_CLK)
-  Endpoint: UART_RX/edge_bit_counter/edge_cnt_reg[0]
+  Endpoint: UART_RX/data_sampling/bit_1_reg
             (rising edge-triggered flip-flop clocked by RX_CLK)
   Path Group: RX_CLK
   Path Type: min
@@ -94,26 +94,25 @@ Wire Load Model Mode: top
   --------------------------------------------------------------------------
   clock RX_CLK (rise edge)                                0.00       0.00
   clock network delay (ideal)                             0.00       0.00
-  UART_RX/edge_bit_counter/bit_cnt_reg[3]/CK (SDFFRX2M)
-                                                          0.00       0.00 r
-  UART_RX/edge_bit_counter/bit_cnt_reg[3]/QN (SDFFRX2M)
-                                                          0.35       0.35 f
-  UART_RX/edge_bit_counter/edge_cnt_reg[0]/SI (SDFFRQX2M)
-                                                          0.00       0.35 f
-  data arrival time                                                  0.35
+  UART_RX/FSM_RX/data_valid_reg/CK (SDFFRQX2M)            0.00       0.00 r
+  UART_RX/FSM_RX/data_valid_reg/Q (SDFFRQX2M)             0.46       0.46 r
+  UART_RX/FSM_RX/data_valid (FSM_RX_test_1)               0.00       0.46 r
+  UART_RX/data_sampling/test_si (data_sampling_test_1)
+                                                          0.00       0.46 r
+  UART_RX/data_sampling/bit_1_reg/SI (SDFFRQX2M)          0.00       0.46 r
+  data arrival time                                                  0.46
 
   clock RX_CLK (rise edge)                                0.00       0.00
   clock network delay (ideal)                             0.00       0.00
   clock uncertainty                                       0.10       0.10
-  UART_RX/edge_bit_counter/edge_cnt_reg[0]/CK (SDFFRQX2M)
-                                                          0.00       0.10 r
-  library hold time                                      -0.32      -0.22
-  data required time                                                -0.22
+  UART_RX/data_sampling/bit_1_reg/CK (SDFFRQX2M)          0.00       0.10 r
+  library hold time                                      -0.20      -0.10
+  data required time                                                -0.10
   --------------------------------------------------------------------------
-  data required time                                                -0.22
-  data arrival time                                                 -0.35
+  data required time                                                -0.10
+  data arrival time                                                 -0.46
   --------------------------------------------------------------------------
-  slack (MET)                                                        0.57
+  slack (MET)                                                        0.56
 
 
   Startpoint: UART_TX/serializer/shift_register_reg[0]
