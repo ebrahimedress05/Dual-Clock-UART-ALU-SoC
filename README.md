@@ -59,6 +59,7 @@ The full RTL — both clock domains, all CDC synchronizers, the system controlle
 
 ### 📚 Table of Contents
 
+- [🚀 Getting Started — Running the Flow](#-getting-started--running-the-flow)
 - [System Overview](#system-overview)
 - [RTL Structure — Clock Domains Explained](#rtl-structure--clock-domains-explained)
 - [Verification (`tb/`)](#verification-tb)
@@ -71,6 +72,50 @@ The full RTL — both clock domains, all CDC synchronizers, the system controlle
 - [Technology Library — TSMC13](#technology-library--tsmc13)
 - [Status](#status)
 
+## 🚀 Getting Started — Running the Flow
+
+Everyone cloning this repo can reproduce every stage above locally. Each stage is self-contained in its own folder with a shell wrapper script — `cd` in and run it.
+
+### Prerequisites
+
+| Stage | Tool | Tested Version |
+|---|---|---|
+| Simulation | Mentor/Siemens **ModelSim** | — |
+| Lint & CDC | Synopsys **SpyGlass** | `L-2016.06` |
+| Synthesis & DFT | Synopsys **Design Compiler** (`dc_shell`) | `O-2018.06-SP1` |
+| Formal Verification | Synopsys **Formality** (`fm_shell`) | `L-2016.03-SP1` |
+
+All tools need valid licenses and to be on your `$PATH`. The target library is `scmetro_tsmc_cl013g` (TSMC13) — set `$LIB_HOME`/tool-specific variables to point at it before running synthesis or DFT.
+
+### Run each stage
+
+| # | Stage | Directory | Command | Key output |
+|---|---|---|---|---|
+| 1 | 🧪 **Simulation** | `tb/top_tb/` | `vsim -do run.do` (or open ModelSim and `do run.do`) | `logs/simulation_log.txt`, waveform via `wave.do` |
+| 2 | 🔍 **Lint** | `lint_reports/` | `spyglass -project lint.prj -batch` | `moresimple.rpt` |
+| 3 | ⏱️ **CDC Check** | `CDC/` | `spyglass -project system_cdc.prj -batch` | Waived against `scripts/system_waivers.swd` |
+| 4 | 🏗️ **Synthesis** | `synthesis/scripts/` | `sh run_syn.sh` | `../netlists/`, `../reports/`, `../log/syn.log` |
+| 5 | ✅ **Formal (post-syn)** | `Formality/post-syn/scripts/` | `sh run_syn_fm.sh` | `../reports/passing_points.rpt`, `../logs/` |
+| 6 | 🧷 **DFT — Scan Insertion** | `DFT/scripts/` | `sh run_dft.sh` | `../netlists/`, `../dft_drc_post_dft/`, `../reports/` |
+| 7 | ✅ **Formal (post-dft)** | `Formality/post-dft/scripts/` | `sh run_dft_fm.sh` | `../reports/passing_points.rpt`, `../logs/` |
+
+> Each `run_*.sh` wrapper creates its own `reports/`, `log(s)/`, `sdc/`, `sdf/`, and `netlists/` subfolders and pipes the tool's console output straight into a log file with `tee` — so a fresh clone can run any single stage independently and the results land exactly where this README links to them.
+
+### Typical order
+
+```mermaid
+flowchart TD
+    S1["1️⃣ Simulation<br/>tb/top_tb/"] --> S2["2️⃣ Lint<br/>lint_reports/"]
+    S2 --> S3["3️⃣ CDC Check<br/>CDC/"]
+    S3 --> S4["4️⃣ Synthesis<br/>synthesis/"]
+    S4 --> S5["5️⃣ Formal post-syn<br/>Formality/post-syn/"]
+    S5 --> S6["6️⃣ DFT<br/>DFT/"]
+    S6 --> S7["7️⃣ Formal post-dft<br/>Formality/post-dft/"]
+
+    classDef step fill:#0969da,stroke:#0550ae,color:#fff,font-weight:bold;
+    class S1,S2,S3,S4,S5,S6,S7 step;
+```
+
 ## System Overview
 
 | | |
@@ -80,6 +125,53 @@ The full RTL — both clock domains, all CDC synchronizers, the system controlle
 | **UART clock** | `UART_CLK` = 3.6864 MHz |
 | **Clock domains** | 2 (bridged via reset/data synchronizers and an asynchronous FIFO) |
 | **Technology** | TSMC 13 (`tsmc13fsg`), Scan Metro standard-cell library (`scmetro_tsmc_cl013g`) |
+
+### Architecture
+
+```mermaid
+flowchart LR
+    subgraph D1["🟦 REF_CLK domain — 50 MHz"]
+        ALU["ALU"]
+        REGFILE["regfile"]
+        SYSCTRL["SYS_CTRL"]
+        CLKGATE["CLK_GATE"]
+    end
+
+    subgraph D2["🟩 UART_CLK domain — 3.6864 MHz"]
+        RX["UART_RX<br/>(FSM_RX)"]
+        TX["UART_TX<br/>(FSM_TX)"]
+        CLKDIV["ClkDiv_RX / ClkDiv_TX"]
+    end
+
+    subgraph SYNC["🟨 CDC Bridge — rtl/sync/"]
+        RSTSYNC["RST_SYNC"]
+        DATASYNC["DATA_SYNC"]
+        FIFO["ASYNC_FIFO<br/>(Gray-coded pointers)"]
+    end
+
+    RX_IN(["RX_IN"]) --> RX
+    RX -->|"data_valid_reg"| DATASYNC
+    DATASYNC --> SYSCTRL
+    SYSCTRL <--> REGFILE
+    SYSCTRL <--> ALU
+    SYSCTRL -->|"Gray pointers"| FIFO
+    FIFO --> TX
+    TX --> TX_OUT(["TX_OUT"])
+    CLKGATE -.gates.-> ALU
+    CLKDIV -.divides.-> RX
+    CLKDIV -.divides.-> TX
+    RSTSYNC -.resets.-> D1
+    RSTSYNC -.resets.-> D2
+
+    classDef d1 fill:#0969da,stroke:#0550ae,color:#fff;
+    classDef d2 fill:#2ea44f,stroke:#22863a,color:#fff;
+    classDef sync fill:#d4a72c,stroke:#9a6700,color:#fff;
+    class ALU,REGFILE,SYSCTRL,CLKGATE d1;
+    class RX,TX,CLKDIV d2;
+    class RSTSYNC,DATASYNC,FIFO sync;
+```
+
+*Two fully asynchronous clock domains (blue = `REF_CLK`, green = `UART_CLK`) bridged only through the dedicated synchronizers in `rtl/sync/` (yellow) — no signal crosses domains any other way.*
 
 ### Post-Synthesis Schematic
 
