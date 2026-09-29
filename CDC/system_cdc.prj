@@ -1,0 +1,62 @@
+#!SPYGLASS_PROJECT_FILE
+#!VERSION 3.0
+# -------------------------------------------------------------------
+# SpyGlass Project File
+# -------------------------------------------------------------------
+
+##Data Import Section
+
+read_file -type sgdc Final_System.sgdc
+read_file -type verilog ../RTL/ALU.v
+read_file -type verilog ../RTL/ASYNC_FIFO.v
+read_file -type verilog ../RTL/Clk_Div_Mux.v
+read_file -type verilog ../RTL/CLK_GATE.v
+read_file -type verilog ../RTL/ClkDiv.v
+read_file -type verilog ../RTL/data_sampling.v
+read_file -type verilog ../RTL/Data_Sync.v
+read_file -type verilog ../RTL/deserializer.v
+read_file -type verilog ../RTL/DF_SYNC.v
+read_file -type verilog ../RTL/edge_bit_counter.v
+read_file -type verilog ../RTL/FIFO_MEM_CNTRL.v
+read_file -type verilog ../RTL/FIFO_rptr.v
+read_file -type verilog ../RTL/FIFO_wptr.v
+read_file -type verilog ../RTL/Final_System.v
+read_file -type verilog ../RTL/FSM_RX.sv
+read_file -type verilog ../RTL/FSM_TX.sv
+read_file -type verilog ../RTL/MUX.v
+read_file -type verilog ../RTL/NOT.v
+read_file -type verilog ../RTL/Parity_calc.v
+read_file -type verilog ../RTL/parity_check.v
+read_file -type verilog ../RTL/PULSE_GEN.v
+read_file -type verilog ../RTL/Register_File.v
+read_file -type verilog ../RTL/RST_SYNC.v
+read_file -type verilog ../RTL/serializer.v
+read_file -type verilog ../RTL/stop_check.v
+read_file -type verilog ../RTL/strt_check.v
+read_file -type verilog ../RTL/SYS_CTRL.sv
+read_file -type verilog ../RTL/UART_RX.v
+read_file -type verilog ../RTL/UART_TX.v
+
+##Common Options Section
+
+set_option projectwdir .
+set_option language_mode mixed
+set_option designread_enable_synthesis yes
+set_option designread_disable_flatten no
+set_option enableSV yes
+set_option sdc2sgdc yes
+set_option active_methodology $SPYGLASS_HOME/GuideWare/latest/block/rtl_handoff
+
+# Unified Global Waiver File
+read_file -type waiver ./system_waivers.swd
+
+##Goal Setup Section
+
+current_methodology $SPYGLASS_HOME/GuideWare/latest/block/rtl_handoff
+
+current_goal cdc/cdc_setup_check -alltop
+
+current_goal cdc/clock_reset_integrity -alltop
+
+current_goal cdc/cdc_verify_struct -alltop
+

@@ -1,0 +1,76 @@
+current_design  "Final_System"
+
+########################################################################
+#Section 1: List of source clocks
+#These clocks have set_false_path/set_clock_groups/set_clock_uncertainty associated with them
+#/home/ICer/IC/Projects/System/spyglass/Final_System.sdc@@15@@
+clock  -name "REF_CLK"  -domain d0  -edge { "0.000000" "10.000000"}  -period 20 -tag REF_CLK 
+#/home/ICer/IC/Projects/System/spyglass/Final_System.sdc@@23@@
+clock  -name "UART_CLK"  -domain d1  -edge { "0.000000" "135.647995"}  -period 271.296997 -tag UART_CLK 
+
+########################################################################
+#Section 2: List of remaining source clocks
+#These clocks do not have the set_false_path/set_clock_groups/set_clock_uncertainty constraints associated with them
+
+########################################################################
+#Section 3: List of generated clocks
+#These clocks satisfy either of the following conditions
+ #a. Generated clocks have domains different than the domains of their source clocks
+ #b. Generated clocks are specified on the black-boxes
+
+########################################################################
+#Section 4: List of generated clocks which have same domain as that of their source clock 
+#/home/ICer/IC/Projects/System/spyglass/Final_System.sdc@@31@@
+#clock  -name "Final_System.CLK_GATE.GATED_CLK"  -domain d0  -edge { "0.000000" "10.000000"}  -period 20 -tag ALU_CLK 
+#/home/ICer/IC/Projects/System/spyglass/Final_System.sdc@@34@@
+#clock  -name "Final_System.ClkDiv_TX.o_div_clk"  -domain d1  -edge { "0.000000" "4340.751953"}  -period 8681.503906 -tag TX_CLK 
+#/home/ICer/IC/Projects/System/spyglass/Final_System.sdc@@37@@
+#clock  -name "Final_System.ClkDiv_RX.o_div_clk"  -domain d1  -edge { "0.000000" "135.647995"}  -period 271.296997 -tag RX_CLK 
+
+########################################################################
+#Section 5: List of valid set_case_analyis constraint generated from set_case_analysis command.
+
+########################################################################
+#Section 6: List of valid abstract_port/input constraint generated from set_input_delay command.
+#/home/ICer/IC/Projects/System/spyglass/Final_System.sdc@@40@@
+abstract_port -ports "RX_IN" -clock "UART_CLK"
+
+########################################################################
+#Section 7: List of valid output constraint generated from set_output_delay command.
+#/home/ICer/IC/Projects/System/spyglass/Final_System.sdc@@41@@
+output  -name "stop_error"  -clock "UART_CLK"
+#/home/ICer/IC/Projects/System/spyglass/Final_System.sdc@@42@@
+output  -name "parity_error"  -clock "UART_CLK"
+#/home/ICer/IC/Projects/System/spyglass/Final_System.sdc@@43@@
+output  -name "TX_OUT"  -clock "UART_CLK"
+
+########################################################################
+#Section 8: List of valid clock_sense constraint generated from set_clock_sense command.
+#These constraint are generated only for -stop_propagtion in set_clock_sense.
+
+########################################################################
+#Section 9: List of valid cdc false path constraint generated from sdc command.
+#These constraint are generated only for real clocks.
+
+########################################################################
+#Section 10: List of disable_timing constraint generated from set_disable_timing sdc command.
+#These constraint are generated only for those sdc command which have object list as lib cells only.
+
+########################################################################
+#Section 11: List of valid false path constraint generated from sdc command.
+#These constraint are generated only for real clocks.
+#The type for constraint false_path is specified as below:
+#        - scg_logically_exclusive: When it is translated from set_clock_group -logically_exclusive
+#        - scg_physically_exclusive: When it is translated from set_clock_group -physically_exclusive
+#        - scg_asynchronous: When it is translated from set_clock_group -asynchronous
+#        - sfp: When it is translated from set_false_path
+#/home/ICer/IC/Projects/System/spyglass/Final_System.sdc@@44@@
+#false_path -from REF_CLK ALU_CLK -to UART_CLK TX_CLK RX_CLK  -type scg_asynchronous
+#/home/ICer/IC/Projects/System/spyglass/Final_System.sdc@@44@@
+#false_path -from UART_CLK TX_CLK RX_CLK -to REF_CLK ALU_CLK  -type scg_asynchronous
+
+########################################################################
+#Section 12: List of valid sg_multi_cycle constraint generated from sdc command.
+
+########################################################################
+#Section 13: List of valid set_lib_timing_mode constraint generated from set_mode sdc command.

@@ -41,6 +41,18 @@ module FSM_RX (
         end
     end
 
+    reg data_valid_comb ; // comb data valid 
+
+    // make data valid seq
+    always @(posedge CLK or negedge RST) begin
+       if (!RST) begin
+            data_valid <= 0 ;
+        end
+        else begin
+            data_valid <= data_valid_comb ;
+        end
+    end
+
     // next_state and output logic
     always @(*) begin
         dat_samp_en = 0 ;
@@ -49,7 +61,7 @@ module FSM_RX (
         par_chk_en = 0 ;
         strt_chk_en = 0 ;
         stp_chk_en = 0 ; 
-        data_valid = 0 ;
+        data_valid_comb = 0 ;
         case (current_state)
         IDLE  : begin
             if (RX_IN == 0) begin
@@ -170,7 +182,7 @@ module FSM_RX (
 
         check  : begin           
             if (stp_err == 0 && (!par_err || !PAR_EN)) begin
-                data_valid = 1 ;
+                data_valid_comb = 1 ;
                 if (RX_IN == 0) begin
                     next_state = start ;
                     enable = 1 ;
@@ -193,7 +205,7 @@ module FSM_RX (
             par_chk_en = 0 ;
             strt_chk_en = 0 ;
             stp_chk_en = 0 ; 
-            data_valid = 0 ;
+            data_valid_comb = 0 ;
         end 
         endcase
     end

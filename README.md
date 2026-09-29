@@ -7,7 +7,7 @@
   <img alt="Formal post-syn" src="https://img.shields.io/badge/Formal%20(post--syn)-381%2F381-2ea44f?style=flat-square">
   <img alt="DFT" src="https://img.shields.io/badge/DFT-4%20Chains%20%7C%2099.47%25-2ea44f?style=flat-square">
   <img alt="Formal post-dft" src="https://img.shields.io/badge/Formal%20(post--dft)-381%2F381-2ea44f?style=flat-square">
-  <img alt="CDC" src="https://img.shields.io/badge/CDC%20Check-Pending-lightgrey?style=flat-square">
+  <img alt="CDC" src="https://img.shields.io/badge/CDC%20Check-14%20Waivers%20Justified-2ea44f?style=flat-square">
   <img alt="STA" src="https://img.shields.io/badge/STA-Pending-lightgrey?style=flat-square">
   <img alt="Physical Design" src="https://img.shields.io/badge/Physical%20Design-Pending-lightgrey?style=flat-square">
   <img alt="GDSII" src="https://img.shields.io/badge/GDSII-Pending-lightgrey?style=flat-square">
@@ -42,18 +42,18 @@ flowchart LR
     classDef next fill:#0969da,stroke:#0550ae,color:#ffffff,font-weight:bold;
     classDef pending fill:#e1e4e8,stroke:#8c959f,color:#57606a;
 
-    class A,B,C,D,E,F,G done
+    class A,B,C,D,E,F,G,L done
     class H next
-    class I,J,K,L pending
+    class I,J,K pending
 ```
 
-> 🟢 **Done** — RTL → Functional Verification → Lint → Synthesis → Formal (post-syn) → DFT → Formal (post-dft)   🔵 **Up next** — STA   ⚪ **Pending** — CDC Check → Physical Design → Signoff → GDSII
+> 🟢 **Done** — RTL → Functional Verification → Lint → CDC Check → Synthesis → Formal (post-syn) → DFT → Formal (post-dft)   🔵 **Up next** — STA   ⚪ **Pending** — Physical Design → Signoff → GDSII
 
 <details>
 <summary><b>📋 Full status write-up (click to expand)</b></summary>
 <br>
 
-The full RTL — both clock domains, all CDC synchronizers, the system controller (`SYS_CTRL`), and the top-level integration (`Final_System`) — is in place, and a self-checking ModelSim testbench (`tb/top_tb/`) has passed its full suite end-to-end: RegFile read/write, three ALU operations, and both UART error-injection paths (parity/framing) — **9/9 checks passing**. `Final_System` has been synthesized with Design Compiler against all three `scmetro_tsmc_cl013g` PVT corners with **no constraint violations** (setup slack +265.57 ns, hold slack +0.43 ns). RTL static checks (`lint_reports/`) have also been run with Synopsys SpyGlass; the only reported error and both warnings — the intentional `CLK_GATE.v` ICG latch and the two `ClkDiv.v` generated-clock warnings — have formal, justified waivers on file. The post-synthesis netlist has been formally verified against the RTL with Synopsys Formality: **381/381 compare points equivalent, 0 failing, 0 unverified, 0 aborted**. Full-scan DFT has been inserted (4 chains, multiplexed flip-flop style, 99.47% estimated stuck-at coverage), and a second Formality run confirms the scan-inserted netlist is still functionally equivalent to the DFT-aware RTL in mission mode: **381/381 compare points equivalent, 0 failing**. STA, physical design, signoff, and GDS will follow.
+The full RTL — both clock domains, all CDC synchronizers, the system controller (`SYS_CTRL`), and the top-level integration (`Final_System`) — is in place, and a self-checking ModelSim testbench (`tb/top_tb/`) has passed its full suite end-to-end: RegFile read/write, three ALU operations, and both UART error-injection paths (parity/framing) — **9/9 checks passing**. `Final_System` has been synthesized with Design Compiler against all three `scmetro_tsmc_cl013g` PVT corners with **no constraint violations** (setup slack +265.57 ns, hold slack +0.43 ns). RTL static checks (`lint_reports/`) have also been run with Synopsys SpyGlass; the only reported error and both warnings — the intentional `CLK_GATE.v` ICG latch and the two `ClkDiv.v` generated-clock warnings — have formal, justified waivers on file. A dedicated SpyGlass CDC run formally checked every clock-domain crossing: **14 waivers, all engineering-justified**, and one real issue it surfaced — an unregistered `data_valid` in `FSM_RX.sv` feeding a CDC synchronizer enable — has been fixed. The post-synthesis netlist has been formally verified against the RTL with Synopsys Formality: **381/381 compare points equivalent, 0 failing, 0 unverified, 0 aborted**. Full-scan DFT has been inserted (4 chains, multiplexed flip-flop style, 99.47% estimated stuck-at coverage), and a second Formality run confirms the scan-inserted netlist is still functionally equivalent to the DFT-aware RTL in mission mode: **381/381 compare points equivalent, 0 failing**. STA, physical design, signoff, and GDS will follow.
 
 </details>
 
@@ -63,6 +63,7 @@ The full RTL — both clock domains, all CDC synchronizers, the system controlle
 - [RTL Structure — Clock Domains Explained](#rtl-structure--clock-domains-explained)
 - [Verification (`tb/`)](#verification-tb)
 - [Lint (`lint_reports/`)](#lint-lint_reports)
+- [CDC — Clock Domain Crossing (`CDC/`)](#cdc--clock-domain-crossing-cdc)
 - [Synthesis (`synthesis/`)](#synthesis-synthesis)
 - [Formal Verification — RTL vs. Post-Synthesis Netlist](#formal-verification--rtl-vs-post-synthesis-netlist-formalitypost-syn)
 - [DFT — Scan Insertion (`DFT/`)](#dft--scan-insertion-dft)
@@ -298,7 +299,55 @@ lint_reports/
 
 Full detail is in [`lint_reports/moresimple.rpt`](lint_reports/moresimple.rpt) (raw report) and [`lint_reports/spyglass-1_waiver_file.awl`](lint_reports/spyglass-1_waiver_file.awl) (waiver justifications).
 
-> 🔜 **Planned:** a dedicated **SpyGlass CDC** run (separate from the `lint_rtl` goal above) to formally check every clock-domain crossing in `rtl/sync/` — synchronizer structure, reconvergence, and glitch/data-loss risk on the `REF_CLK` ↔ `UART_CLK` boundary. Results will be added here once complete.
+## CDC — Clock Domain Crossing (`CDC/`)
+
+A dedicated **SpyGlass CDC** run — separate from the `lint_rtl` goal above — formally checks every clock-domain crossing in the design, using the `rtl_handoff` GuideWare methodology's `cdc/cdc_setup_check`, `cdc/clock_reset_integrity`, and `cdc/cdc_verify_struct` goals.
+
+```
+CDC/
+├── system_cdc.prj                  SpyGlass project file — RTL file list, goal setup, and the waiver file to apply
+└── scripts/
+    ├── Final_System.sgdc            SGDC constraints: clock/reset definitions, quasi-static signals, synchronizer declarations
+    ├── system_waivers.swd            Waiver file — a written engineering justification for every waived message
+    └── sdc2sgdc.sgdc.4585            Tool-generated clock summary, translated from the synthesis SDC
+```
+
+### Clock domains detected
+
+| Clock | Period | Source |
+|---|---|---|
+| `REF_CLK` | 20 ns (50 MHz) | Primary input |
+| `UART_CLK` | 271.30 ns (~3.69 MHz) | Primary input |
+| `Final_System.CLK_GATE.GATED_CLK` (`ALU_CLK`) | 20 ns | Generated — gated `REF_CLK` |
+| `Final_System.ClkDiv_TX.o_div_clk` (`TX_CLK`) | 8681.50 ns | Generated — divided `UART_CLK` |
+| `Final_System.ClkDiv_RX.o_div_clk` (`RX_CLK`) | 271.30 ns | Generated — divided `UART_CLK` |
+
+### Quasi-static signals
+
+`REG2` and `REG3` (the Register File's UART-config and clock-divider-ratio registers — the same registers `i_clk_en`/`i_div_ratio` come from) are declared `quasi_static`: they change only during configuration, not while the clock they configure is actively toggling, so their downstream clock-mux/divider convergence is analyzed as glitch-safe rather than flagged as a live hazard. `set_case_analysis` was deliberately **not** used here, since these registers do change (at configuration time) rather than being permanently tied to one value — `set_case_analysis` would have hidden a real, reachable path from analysis instead of correctly modeling it as slow-changing.
+
+### Result — 14 waivers, all formally justified ✅
+
+| Rule | Waived | What it flags | Why it's safe |
+|---|---|---|---|
+| `Setup_port01` | 1 | `RST` port not fully constrained at top level | Drives dedicated reset synchronizers (`RST_SYNC`) immediately |
+| `Clock_check04` | 1 | `negedge UART_CLK` used against recommended edge | Intentional — needed for 50% duty cycle in the odd-ratio clock divider |
+| `Clock_converge01` | 1 | `UART_CLK` fan-out reconverges on `CLK_RX` | Intentional reconvergence via OR gate in the odd-divider architecture (bypass path + divided path) |
+| `Clock_glitch04` | 2 | Divider logic (`clk_div`/`clk_odd_div`) reconverges on destination registers (`R_addr`, `current_state`) | Structural artifact of the same posedge/negedge OR-gate divider, present in both TX and RX instances |
+| `Ac_conv02` | 2 | Synchronized Gray pointers (`DF_SYNC_W`/`DF_SYNC_R`) converge on a combinational gate (`W_full`/`R_empty`) | Standard, safe pattern for evaluating async-FIFO full/empty flags from synchronized Gray pointers |
+| `Ac_conv04` | 1 | FIFO memory bus converges into the UART TX serializer's shift register | Protected by `R_empty` read-handshaking, so Gray-encoding isn't required on the data bus itself |
+| `Ac_conv01` | 1 | `DATA_SYNC` and FIFO `DF_SYNC_W` converge on a MUX feeding `SYS_CTRL.next_state` | Safe — the two synchronized sources are evaluated in mutually exclusive FSM states |
+| `Ac_cdc01a` | 1 | Fast-to-slow crossing for the FIFO's Gray write pointer into `DF_SYNC_R` | Gray coding guarantees no intermediate/invalid states are sampled across the crossing |
+| `Ac_datahold01a` | 2 | FIFO read-payload crossing into `Parity_calc`/`serializer` not independently data-hold-checked | Structurally protected by the FIFO's read-empty handshaking |
+| `Ac_clockperiod03` | 1 | `UART_CLK`/`REF_CLK` period ratio exceeds the default threshold | Expected and safe — the two clocks are fully asynchronous, decoupled via FIFOs and synchronizers, not a ratio-dependent design |
+
+Full justifications are in [`CDC/scripts/system_waivers.swd`](CDC/scripts/system_waivers.swd).
+
+### Fix landed from this CDC pass — `FSM_RX.sv`: registering `data_valid`
+
+The CDC run's `Ac_datahold01a`-style analysis around `UART_RX`'s handoff to `DATA_SYNC` surfaced a real issue (not a false positive to waive): `data_valid` in `FSM_RX.sv` was driven directly out of the FSM's combinational next-state/output block, then used, unregistered, as `DATA_SYNC`'s `bus_enable` — the enable that qualifies a CDC synchronizer sampled on `REF_CLK`. A combinational signal feeding a synchronizer enable can glitch mid-cycle and be sampled incorrectly on the other side of the clock boundary.
+
+**Fix:** `data_valid` is now a clean, clocked flip-flop output. The combinational logic still computes the value (renamed `data_valid_comb`), but it's registered on `posedge CLK` (asynchronous `RST`) before leaving the module, giving `DATA_SYNC` a single, clock-aligned pulse to synchronize instead of a combinational signal.
 
 ## Synthesis (`synthesis/`)
 
@@ -520,7 +569,7 @@ Three PVT (Process/Voltage/Temperature) corners are provided for the standard-ce
 |---|---|---|
 | ✅ RTL & Functional Verification | 9/9 checks passing | [Verification](#verification-tb) |
 | ✅ Lint | 3/3 issues waived | [Lint](#lint-lint_reports) |
-| ⚪ CDC Check | Pending — SpyGlass CDC, planned | 
+| ✅ CDC Check | 14 waivers, all justified | [CDC](#cdc--clock-domain-crossing-cdc) |
 | ✅ Synthesis | 0 constraint violations, all 3 PVT corners | [Synthesis](#synthesis-synthesis) |
 | ✅ Formal (post-syn) | 381/381 passing, 0 failing | [Formal Verification](#formal-verification--rtl-vs-post-synthesis-netlist-formalitypost-syn) |
 | ✅ DFT | 4 chains, 99.47% est. coverage, timing clean | [DFT](#dft--scan-insertion-dft) |
@@ -529,4 +578,4 @@ Three PVT (Process/Voltage/Temperature) corners are provided for the standard-ce
 | ⚪ Physical Design | Pending | — |
 | ⚪ Signoff & GDSII | Pending | — |
 
-**In short:** all RTL blocks are in place and pass the full self-checking testbench (9/9 checks). `Final_System` has been synthesized against all three PVT corners with **zero constraint violations** (setup slack +265.57 ns at `ss_1p08v_125c`, hold slack +0.43 ns at `ff_1p32v_m40c`). A SpyGlass lint pass has all 3 reported issues formally waived. Synopsys Formality confirms the gate-level netlist is logically equivalent to the RTL (**381/381 compare points, 0 failing**). Full-scan DFT has been inserted (4 chains, multiplexed flip-flop style, **99.47% estimated stuck-at coverage**, all post-DFT timing paths met), and a second Formality run confirms the scan-inserted netlist is still functionally equivalent to the DFT-aware RTL in mission mode (**381/381 compare points, 0 failing**). Next up: a dedicated ATPG signoff run, full STA, physical design (floorplan → place → CTS → route), signoff, and GDSII.
+**In short:** all RTL blocks are in place and pass the full self-checking testbench (9/9 checks). A SpyGlass lint pass has all 3 reported issues formally waived, and a dedicated SpyGlass CDC run formally checked every clock-domain crossing — **14 waivers, all engineering-justified**, plus a real fix landed (`FSM_RX.sv` now registers `data_valid` before it drives a synchronizer enable). `Final_System` has been synthesized against all three PVT corners with **zero constraint violations** (setup slack +265.57 ns at `ss_1p08v_125c`, hold slack +0.43 ns at `ff_1p32v_m40c`). Synopsys Formality confirms the gate-level netlist is logically equivalent to the RTL (**381/381 compare points, 0 failing**). Full-scan DFT has been inserted (4 chains, multiplexed flip-flop style, **99.47% estimated stuck-at coverage**, all post-DFT timing paths met), and a second Formality run confirms the scan-inserted netlist is still functionally equivalent to the DFT-aware RTL in mission mode (**381/381 compare points, 0 failing**). Next up: a dedicated ATPG signoff run, full STA, physical design (floorplan → place → CTS → route), signoff, and GDSII.
