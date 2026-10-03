@@ -1,0 +1,19 @@
+waive -msg {Port coverage for top design unit 'Final_System' is: '1' (25.00 %) port(s) not fully constrained} -rule {Setup_port01} -comment {Primary asynchronous reset port RST drives dedicated synchronizers (RST_SYNC).} -exact
+
+waive -msg {Clock 'Final_System.UART_CLK' with multiple fanout converges on 'Final_System.CLK_RX'} -rule {Clock_converge01} -comment {Intentional clock reconvergence via OR gate in odd divider architecture.} -exact
+
+waive -msg {Fast('Final_System.REF_CLK') to slow('Final_System.UART_CLK') clock crossing(from 'Final_System.ASYNC_FIFO.W_ptr[0]' to 'Final_System.ASYNC_FIFO.DF_SYNC_R.MULTI_FLIP_FLOP[0][1]') detected. Data hold check:Partially-Proved} -rule {Ac_cdc01a} -comment {Safe: FIFO write pointer Gray-coded crossing skips intermediate states safely without data loss.} -exact
+
+waive -msg {Fast('Final_System.REF_CLK') to slow('Final_System.UART_CLK') clock crossing(from 'Final_System.ASYNC_FIFO.W_ptr[1]' to 'Final_System.ASYNC_FIFO.DF_SYNC_R.MULTI_FLIP_FLOP[1][1]') detected. Data hold check:Partially-Proved} -rule {Ac_cdc01a} -comment {Safe: FIFO write pointer Gray-coded crossing skips intermediate states safely without data loss.} -exact
+
+waive -msg {Fast('Final_System.REF_CLK') to slow('Final_System.UART_CLK') clock crossing(from 'Final_System.ASYNC_FIFO.W_ptr[2]' to 'Final_System.ASYNC_FIFO.DF_SYNC_R.MULTI_FLIP_FLOP[2][1]') detected. Data hold check:Partially-Proved} -rule {Ac_cdc01a} -comment {Safe: FIFO write pointer Gray-coded crossing skips intermediate states safely without data loss.} -exact
+
+waive -msg {Fast('Final_System.REF_CLK') to slow('Final_System.UART_CLK') clock crossing(from 'Final_System.ASYNC_FIFO.W_ptr[3]' to 'Final_System.ASYNC_FIFO.DF_SYNC_R.MULTI_FLIP_FLOP[3][1]') detected. Data hold check:Partially-Proved} -rule {Ac_cdc01a} -comment {Safe: FIFO write pointer Gray-coded crossing skips intermediate states safely without data loss.} -exact
+
+waive -msg {Fast('Final_System.REF_CLK') to slow('Final_System.UART_CLK') clock crossing(from 'Final_System.ASYNC_FIFO.W_ptr[4]' to 'Final_System.ASYNC_FIFO.DF_SYNC_R.MULTI_FLIP_FLOP[4][1]') detected. Data hold check:Partially-Proved} -rule {Ac_cdc01a} -comment {Safe: FIFO write pointer Gray-coded crossing skips intermediate states safely without data loss.} -exact
+
+waive -msg {Synchronized crossing: destination flop 'Final_System.UART_TX.Parity_calc.Par_bit', clocked by 'Final_System.UART_CLK', source flop 'Final_System.ASYNC_FIFO.FIFO_MEM_CNTRL.mem[7:0][7:0]', clocked by 'Final_System.REF_CLK'. Data-enable sequencing check: Partially-Proved} -rule {Ac_datahold01a} -comment {Safe: FIFO read payload crossing to Parity_calc is structurally protected by FIFO read-empty handshaking.} -exact
+
+waive -msg {Synchronized crossing: destination flop 'Final_System.UART_TX.serializer.shift_register[7:0]', clocked by 'Final_System.UART_CLK', source flop 'Final_System.ASYNC_FIFO.FIFO_MEM_CNTRL.mem[7:0][7:0]', clocked by 'Final_System.REF_CLK'. Data-enable sequencing check: Partially-Proved} -rule {Ac_datahold01a} -comment {Safe: FIFO read payload crossing to serializer shift register is structurally protected by FIFO read-empty handshaking.} -exact
+
+waive -rule {Ac_conv04} -msg {*FIFO_MEM_CNTRL.mem*serializer.shift_register*} -comment {Safe: FIFO read data payload bus is protected by R_empty handshaking, not requiring Gray encoding.}

@@ -1,0 +1,5 @@
+waive -msg {Clock 'Final_System.UART_CLK' with multiple fanout converges on 'Final_System.CLK_RX'}  -rule {  {Clock_converge01}  }  -comment {Intentional clock reconvergence via OR gate in odd divider architecture.}  -exact 
+
+waive -msg {Port coverage for top design unit 'Final_System' is: '1' (25.00 %) port(s) not fully constrained}  -rule {  {Setup_port01}  }  -comment {Primary asynchronous reset port RST drives dedicated synchronizers (RST_SYNC).}  -exact 
+
+

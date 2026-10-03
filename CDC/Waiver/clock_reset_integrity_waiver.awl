@@ -1,0 +1,7 @@
+waive -msg {Flop Final_System.ClkDiv_TX.clk_div and Flop Final_System.ClkDiv_TX.clk_odd_div are converging through combinational logic to clock of Flop R_addr[0]} -rule {Clock_glitch04} -comment {Structural artifact of posedge/negedge OR gate in ClkDiv_TX for 50% duty cycle.} -exact
+
+waive -msg {Flop Final_System.ClkDiv_RX.clk_div and Flop Final_System.ClkDiv_RX.clk_odd_div are converging through combinational logic to clock of Flop current_state[0]} -rule {Clock_glitch04} -comment {Structural artifact of posedge/negedge OR gate in ClkDiv_RX for 50% duty cycle.} -exact
+
+waive -msg {Clock 'Final_System.UART_CLK' with multiple fanout converges on 'Final_System.CLK_RX'} -rule {Clock_converge01} -comment {Intentional clock reconvergence via OR gate in odd divider architecture.} -exact
+
+waive -msg {Recommended edge (positive) of clock 'Final_System.UART_CLK' not used} -rule {Clock_check04} -comment {Intentional usage of falling clock edge (negedge) for 50% duty cycle in odd clock divider.} -exact

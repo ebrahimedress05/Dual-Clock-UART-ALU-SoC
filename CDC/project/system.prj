@@ -1,12 +1,15 @@
 #!SPYGLASS_PROJECT_FILE
 #!VERSION 3.0
-# -------------------------------------------------------------------
-# SpyGlass Project File
-# -------------------------------------------------------------------
+#  -------------------------------------------------------------------
+#  This is a software generated project file. Manual edits to this file could be lost during the next save operation
+#  Copyright Synopsys Inc.
+#  Last Updated By: SpyGlass SpyGlass_vL-2016.06
+#  Last Updated On Sun Oct  4 02:45:39 2026
+#
+#  -------------------------------------------------------------------
 
 ##Data Import Section
 
-read_file -type sgdc Final_System.sgdc
 read_file -type verilog ../RTL/ALU.v
 read_file -type verilog ../RTL/ASYNC_FIFO.v
 read_file -type verilog ../RTL/Clk_Div_Mux.v
@@ -36,6 +39,7 @@ read_file -type verilog ../RTL/strt_check.v
 read_file -type verilog ../RTL/SYS_CTRL.sv
 read_file -type verilog ../RTL/UART_RX.v
 read_file -type verilog ../RTL/UART_TX.v
+read_file -type sgdc Final_System.sgdc
 
 ##Common Options Section
 
@@ -47,16 +51,29 @@ set_option enableSV yes
 set_option sdc2sgdc yes
 set_option active_methodology $SPYGLASS_HOME/GuideWare/latest/block/rtl_handoff
 
-# Unified Global Waiver File
-read_file -type waiver ./system_waivers.swd
 
 ##Goal Setup Section
 
 current_methodology $SPYGLASS_HOME/GuideWare/latest/block/rtl_handoff
 
+
 current_goal cdc/cdc_setup_check -alltop
+read_file -type awl ./spyglass-1/cdc/cdc_setup_check/spyglass-1_waiver_file.awl
+set_goal_option default_waiver_file ./spyglass-1/cdc/cdc_setup_check/spyglass-1_waiver_file.awl
+
 
 current_goal cdc/clock_reset_integrity -alltop
+read_file -type awl ./spyglass-1/cdc/clock_reset_integrity/spyglass-1_waiver_file.awl
+set_goal_option default_waiver_file ./spyglass-1/cdc/clock_reset_integrity/spyglass-1_waiver_file.awl
+
 
 current_goal cdc/cdc_verify_struct -alltop
+read_file -type awl ./spyglass-1/cdc/cdc_verify_struct/spyglass-1_waiver_file.awl
+set_goal_option default_waiver_file ./spyglass-1/cdc/cdc_verify_struct/spyglass-1_waiver_file.awl
+
+
+current_goal cdc/cdc_verify -alltop
+read_file -type awl ./spyglass-1/cdc/cdc_verify/spyglass-1_waiver_file.awl
+set_goal_option default_waiver_file ./spyglass-1/cdc/cdc_verify/spyglass-1_waiver_file.awl
+set_parameter fa_verif_cycles 4096
 

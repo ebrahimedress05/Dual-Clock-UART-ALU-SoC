@@ -30,17 +30,21 @@ quasi_static -name Final_System.regfile.REG3
              #### Section 5 : set_case_analysis  ####
 ####################################################################################
 
-#set_case_analysis -name top.out_reg0[1] -value 1
+
 
 ####################################################################################
              #### Section 6 : DATA/RESET Synchronizers  ####
 ####################################################################################
 
-#reset_synchronizer -name U0_RST_SYNC.SYNC_RST
-#reset_synchronizer -name U1_RST_SYNC.SYNC_RST
-#sync_cell -name DF_Sync
+fifo -memory "Final_System.ASYNC_FIFO.FIFO_MEM_CNTRL.mem"
 
 ####################################################################################
              #### Section 7 : Constraints  ####
 ####################################################################################
+
+cdc_attribute -unrelated "Final_System.DATA_SYNC.MULTI_FLIP_FLOP[1]" \
+                         "Final_System.ASYNC_FIFO.DF_SYNC_W.MULTI_FLIP_FLOP*"
+
+cdc_attribute -unrelated "Final_System.DATA_SYNC.MULTI_FLIP_FLOP[1]" \
+                         "Final_System.ASYNC_FIFO.DF_SYNC_R.MULTI_FLIP_FLOP*"
 
