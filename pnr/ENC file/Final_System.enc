@@ -1,0 +1,8 @@
+################################################
+#                                              #
+# Silicon Perspective, A Cadence Company       #
+# FirstEncounter Design Restore script         #
+#    for design session: /home/ahesham/Labs/System_pnr/pnr/Final_System.enc                     
+#                                              #
+################################################
+restoreDesign /home/ahesham/Labs/System_pnr/pnr/Final_System.enc.dat Final_System_dft
