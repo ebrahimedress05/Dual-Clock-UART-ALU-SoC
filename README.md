@@ -53,7 +53,7 @@ flowchart LR
 <summary><b>📋 Full status write-up (click to expand)</b></summary>
 <br>
 
-The full RTL — both clock domains, all CDC synchronizers, the system controller (`SYS_CTRL`), and the top-level integration (`Final_System`) — is in place, and a self-checking ModelSim testbench (`tb/top_tb/`) has passed its full suite end-to-end: RegFile read/write, three ALU operations, and both UART error-injection paths (parity/framing) — **9/9 checks passing**. `Final_System` has been synthesized with Design Compiler against all three `scmetro_tsmc_cl013g` PVT corners with **no constraint violations** (setup slack +265.57 ns, hold slack +0.43 ns). RTL static checks (`lint_reports/`) have also been run with Synopsys SpyGlass; the only reported error and both warnings — the intentional `CLK_GATE.v` ICG latch and the two `ClkDiv.v` generated-clock warnings — have formal, justified waivers on file. A dedicated SpyGlass CDC run formally checked every clock-domain crossing: **19 waivers across 4 independent goals, 0 unresolved warnings**, and one real issue it surfaced — an unregistered `data_valid` in `FSM_RX.sv` feeding a CDC synchronizer enable — has been fixed. The post-synthesis netlist has been formally verified against the RTL with Synopsys Formality: **382/382 compare points equivalent, 0 failing, 0 unverified, 0 aborted**. Full-scan DFT has been inserted (4 chains, multiplexed flip-flop style, 99.47% estimated stuck-at coverage), and a second Formality run confirms the scan-inserted netlist is still functionally equivalent to the DFT-aware RTL in mission mode: **382/382 compare points equivalent, 0 failing**. STA, physical design, signoff, and GDS will follow.
+The full RTL — both clock domains, all CDC synchronizers, the system controller (`SYS_CTRL`), and the top-level integration (`Final_System`) — is in place, and a self-checking ModelSim testbench (`tb/top_tb/`) has passed its full suite end-to-end: RegFile read/write, three ALU operations, and both UART error-injection paths (parity/framing) — **9/9 checks passing**. `Final_System` has been synthesized with Design Compiler against all three `scmetro_tsmc_cl013g` PVT corners with **no constraint violations** (worst setup slack +0.08 ns, worst hold slack +0.43 ns). RTL static checks (`lint_reports/`) have also been run with Synopsys SpyGlass; the only reported error and both warnings — the intentional `CLK_GATE.v` ICG latch and the two `ClkDiv.v` generated-clock warnings — have formal, justified waivers on file. A dedicated SpyGlass CDC run formally checked every clock-domain crossing: **19 waivers across 4 independent goals, 0 unresolved warnings**, and one real issue it surfaced — an unregistered `data_valid` in `FSM_RX.sv` feeding a CDC synchronizer enable — has been fixed. The post-synthesis netlist has been formally verified against the RTL with Synopsys Formality: **382/382 compare points equivalent, 0 failing, 0 unverified, 0 aborted**. Full-scan DFT has been inserted (4 balanced chains of 94–95 cells, multiplexed flip-flop style, **99.47% estimated stuck-at coverage**, all post-DFT timing met, +14.7% cell area), and a second Formality run confirms the scan-inserted netlist is still functionally equivalent to the DFT-aware RTL in mission mode: **382/382 compare points equivalent, 0 failing, 0 unverified, 0 aborted**. STA, physical design, signoff, and GDS will follow.
 
 </details>
 
@@ -528,23 +528,25 @@ This design has no violated constraints.
 
 | Check | Corner | Worst Path | Slack | Result |
 |---|---|---|---|---|
-| Setup (max delay) | `ss_1p08v_125c` (worst-case) | `regfile → ALU` (`ALU_CLK`) | **+265.57 ns** | ✅ MET |
-| Hold (min delay) | `ff_1p32v_m40c` (best-case) | `RST_SYNC_2 → ...` (`UART_CLK`) | **+0.43 ns** | ✅ MET |
+| Setup (max delay) | `ss_1p08v_125c` (worst-case) | `regfile → ALU` (`ALU_CLK`) | **+0.08 ns** | ✅ MET |
+| Hold (min delay) | `ff_1p32v_m40c` (best-case) | `DF_SYNC_W` (`REF_CLK`) / `RST_SYNC_2` (`UART_CLK`) | **+0.43 ns** | ✅ MET |
+
+Per-clock-group worst setup slack: `ALU_CLK` +0.08 ns · `REF_CLK` +11.36 ns · `RX_CLK` +212.79 ns · `UART_CLK` +265.57 ns · `TX_CLK` +6,942.23 ns. The 50 MHz `regfile → ALU` path is the critical one — every other domain has large margin.
 
 ### Area & Power
 
 | Metric | Value |
 |---|---|
-| Total cell area | 24,877.79 µm² |
-| Total area (incl. net interconnect) | 294,752.49 µm² |
-| Cell count | 2,191 (1,735 combinational, 414 sequential) |
-| Total power (`ss_1p08v_125c`) | 0.255 mW |
+| Total cell area | 24,916.62 µm² |
+| Total area (incl. net interconnect) | 295,117.99 µm² |
+| Cell count | 2,196 (1,739 combinational, 415 sequential) |
+| Total power | 0.255 mW |
 
 By hierarchy, the largest power contributors are `regfile` (42.7%), `ASYNC_FIFO` (26.7%), and `ALU` (6.9%) — dominated by leakage at this analysis effort (`-analysis_effort low`), so these figures should be treated as a first-pass estimate rather than a signoff-quality power number.
 
 ### Synthesis Log
 
-`syn.log` reports **0 errors, 45 warnings**. All warnings are benign/expected for this design stage — mainly unused/dangling internal signals flagged by lint-style checks (e.g. floating counter bits in `edge_bit_counter`, an unconnected `prescale[0]` bit in `data_sampling`), plus the standard `SYNOPSYS_UNCONNECTED_*` net-naming note from the Verilog netlist writer. None affect functionality or timing closure.
+`syn.log` reports **0 errors, 44 warnings**. All warnings are benign/expected for this design stage — mainly unused/dangling internal signals flagged by lint-style checks (e.g. floating counter bits in `edge_bit_counter`, an unconnected `prescale[0]` bit in `data_sampling`), plus the standard `SYNOPSYS_UNCONNECTED_*` net-naming note from the Verilog netlist writer. None affect functionality or timing closure.
 
 ## Formal Verification — RTL vs. Post-Synthesis Netlist (`Formality/post-syn/`)
 
@@ -582,25 +584,26 @@ Full detail is in [`Formality/post-syn/logs/syn_fm.log`](Formality/post-syn/logs
 
 ## DFT — Scan Insertion (`DFT/`)
 
-Design-for-Test is added to `Final_System_dft` (the post-synthesis netlist re-targeted with test-friendly RTL) using Design Compiler's scan architecting flow: full-scan, multiplexed-flip-flop style, with a single external scan-enable (`SE`) and no scan compression.
+Design-for-Test is added to `Final_System_dft` using Design Compiler's scan-architecting flow: **full scan, multiplexed flip-flop style**, a single external scan-enable (`SE`), a dedicated scan clock, and no scan compression. The DFT build re-elaborates the design from the test-friendly RTL variants (`rtl/top__dft/`), re-applies the synthesis constraints, runs `compile -scan`, and then stitches the chains with `insert_dft`.
 
 ```
 DFT/
 ├── scripts/
-│   ├── dft_script.tcl          DC session: elaborate → constrain → scan-configure → insert_dft → post-DFT optimize/report
-│   ├── cons.tcl                   Timing/design constraints re-applied for the DFT build
-│   ├── run_dft.sh                  Shell wrapper to launch dc_shell in batch mode
+│   ├── dft_script.tcl          DC session: elaborate → constrain → compile -scan → define DFT signals → DRC → insert_dft → incremental compile → post-DFT DRC/reports
+│   ├── cons.tcl                   Timing/design constraints (synthesis constraints + scan-clock section)
+│   ├── run_dft.sh                  Shell wrapper to launch dc_shell
 │   └── system.lst                    RTL file list (DFT-friendly variants)
 ├── log/
 │   └── dft.log                        Full DC session transcript
 ├── dft_drc_post_dft/
 │   └── dft_drc_post_dft.rpt              Post-DFT design-rule check + estimated fault coverage
 ├── netlists/
-│   └── Final_System_dft.v                  Scan-inserted gate-level netlist
-├── reports/                                  area / power / timing / clocks / ports / constraints
+│   ├── Final_System_dft.v                  Scan-inserted gate-level netlist
+│   └── Final_System_dft.ddc                  Compiled DC database
+├── reports/                                  area / power / setup / hold / clocks / ports / constraints
 ├── sdc/  and  sdf/                              Post-DFT constraints and delay annotation
 └── svf/
-    └── Final_System_dft.svf                Setup file for a follow-up Formality equivalence check
+    └── Final_System_dft.svf                Setup file for the follow-up Formality equivalence check
 ```
 
 ### Block Diagram — `Final_System_dft` Top-Level Ports
@@ -616,35 +619,87 @@ Two blocks needed a DFT-aware variant, added alongside the originals rather than
 - **`CLK_GATE_dft.v`** — adds a `TE` (test-enable) input, ORed with `CLK_EN`, so the integrated clock-gating latch is forced transparent in test mode instead of gating the scan clock.
 - **`ClkDiv_dft.v`** — splits the divider's single dual-edge-triggered clock (`i_ref_clk`, used on both `posedge` and `negedge`) into two separate ports, `i_ref_clk_pos` and `i_ref_clk_neg`. ATPG tools can't drive a single physical clock pin on both edges during scan shift, so the two edges are exposed as independent inputs and merged back in test glue logic (`MUX2x1.v`) — a new top-level variant, `Final_System_dft.v` (`rtl/top__dft/`), wires this all together and adds the scan/test ports (`scan_CLK`, `scan_RST`, `test_mode`, `SE`, `SI[3:0]`, `SO[3:0]`).
 
-### Result — 4 scan chains, 99.47% estimated coverage, timing clean ✅
+### DFT signal specification
+
+| Port | DFT type | Notes |
+|---|---|---|
+| `scan_CLK` | `ScanClock` | Test clock, timing `{500 1000}` ns (1 MHz); constrained as `DFTCLK` with 200 ns I/O delays on the scan ports |
+| `scan_RST` | `Reset` | Active-low, existing in the design |
+| `test_mode` | `Constant` + `TestMode` | Active-high; selects the test clock/reset path |
+| `SE` | `ScanEnable` | Active-high scan enable, no hookup pin (routed to all scan muxes) |
+| `SI[3:0]` / `SO[3:0]` | `ScanDataIn` / `ScanDataOut` | One port pair per chain |
+
+`set_scan_configuration -max_length 100` caps chain length; after `insert_dft`, `test_mode` is tied to 0 with `set_case_analysis` before the netlist, SDC, and SDF are written, so the exported constraints describe mission mode.
+
+### Result — 4 balanced scan chains, 99.47% estimated coverage, timing clean ✅
 
 | | |
 |---|---|
-| Scan methodology | Full scan, multiplexed flip-flop |
-| Chains | **4**, ~94–95 cells each, 378 scan cells total |
-| Post-DFT DRC | **1** violation — `CLK_GATE` ICG latch reports constant-1 (expected; same cell already waived in [Lint](#lint-lint_reports)) |
-| Estimated stuck-at coverage | **99.47%** (17,414 detected / 18,266 total faults; 758 undetectable, 79 ATPG-untestable, 14 not detected) |
-| Post-DFT timing | All paths **MET** — worst setup slack +0.09 ns, worst hold slack +0.40 ns |
+| Scan methodology | Full scan, multiplexed flip-flop, clock domain `no_mix` |
+| Chains | **4** — 95 / 95 / 94 / 94 cells, **378 scan cells** total |
+| Post-DFT DRC | **1** violation — `CLK_GATE/U0_TLATNCAX12M` reports constant-1 (`TEST-505`); expected and consistent with the ICG latch already waived in [Lint](#lint-lint_reports) |
+| Estimated stuck-at coverage | **99.47%** |
+| Post-DFT timing | No violated constraints — worst setup slack +0.09 ns, worst hold slack +0.47 ns |
 
-The coverage figure comes from `dft_drc -coverage_estimate`, a Design-Compiler estimate ahead of a dedicated ATPG signoff run (TetraMAX or equivalent) — see the note in [`dft_drc_post_dft.rpt`](DFT/dft_drc_post_dft/dft_drc_post_dft.rpt). Full detail is in [`DFT/log/dft.log`](DFT/log/dft.log).
+| Chain | Scan in → out | Cells |
+|---|---|---|
+| S1 | `SI[3]` → `SO[3]` | 95 |
+| S2 | `SI[2]` → `SO[2]` | 95 |
+| S3 | `SI[1]` → `SO[1]` | 94 |
+| S4 | `SI[0]` → `SO[0]` | 94 |
+
+| Fault class (uncollapsed stuck-at) | Code | # Faults |
+|---|---|---|
+| Detected | DT | 17,422 |
+| Possibly detected | PT | 1 |
+| Undetectable | UD | 758 |
+| ATPG untestable | AU | 79 |
+| Not detected | ND | 14 |
+| **Total** | | **18,274** |
+| **Test coverage** | | **99.47%** |
+
+The coverage figure comes from `dft_drc -coverage_estimate`, a Design Compiler estimate made ahead of a dedicated ATPG signoff run (TetraMAX or equivalent) — see the note in [`dft_drc_post_dft.rpt`](DFT/dft_drc_post_dft/dft_drc_post_dft.rpt). Full detail is in [`DFT/log/dft.log`](DFT/log/dft.log) (0 errors, 62 warnings; the DRC warning above plus informational multi-clock notes such as `TIM-099`).
+
+**Post-DFT timing (worst path per clock group):**
+
+| Clock group | Worst setup slack | Worst hold slack |
+|---|---|---|
+| `ALU_CLK` | +0.09 ns | +0.56 ns |
+| `REF_CLK` | +11.09 ns | +0.47 ns |
+| `RX_CLK` | +212.80 ns | +0.56 ns |
+| `UART_CLK` | +134.43 ns | +0.50 ns |
+| `TX_CLK` | +270.04 ns | +0.59 ns |
+
+**Cost of testability (vs. the synthesized netlist):**
+
+| Metric | Synthesis | Post-DFT | Δ |
+|---|---|---|---|
+| Total cell area | 24,916.62 µm² | 28,573.81 µm² | **+14.7%** |
+| Total area (incl. nets) | 295,117.99 µm² | 341,055.39 µm² | +15.6% |
+| Cell count | 2,196 | 2,334 | +138 |
+| Sequential cells | 415 | 415 | 0 (scan muxes replace, not add, flops) |
+| Total power | 0.255 mW | 0.478 mW | +0.223 mW |
+
+The area growth is the scan multiplexer on each of the 378 scan flip-flops plus the test glue logic (`MUX2x1`, test-mode gating); the sequential-cell count is unchanged because every functional flop becomes a scan flop in place.
 
 ## Formal Verification — Post-DFT Equivalence (`Formality/post-dft/`)
 
-A second Formality run confirms that inserting the scan chains did not change the design's **mission-mode functional behavior**. This time the comparison is entirely RTL-side vs. netlist-side of the *DFT* boundary:
+A second Formality run confirms that inserting the scan chains did not change the design's **mission-mode functional behavior**. The comparison is between the DFT-aware RTL and the scan-inserted netlist:
 
 | | |
 |---|---|
 | Reference (Ref) | The DFT-aware RTL — `Final_System_dft.v` plus its test-friendly sub-blocks (`CLK_GATE_dft.v`, `ClkDiv_dft.v`, `MUX2x1.v`) |
 | Implementation (Imp) | The scan-inserted gate-level netlist, `DFT/netlists/Final_System_dft.v` |
-| Test mode during compare | `test_mode = 0`, `SE = 0` — i.e. the chip's **normal operating mode**, not scan-shift mode |
-| Excluded from comparison | `SI[]` / `SO[]` scan ports (they don't exist as functional ports in the RTL) |
+| Guidance | `DFT/svf/Final_System_dft.svf`, written by Design Compiler during `insert_dft` |
+| Test mode during compare | `test_mode = 0`, `SE = 0` (`set_constant` on both containers) — the chip's **normal operating mode**, not scan-shift mode |
+| Excluded from comparison | `SI*` / `SO*` scan ports (`set_dont_verify_points`) — they exist only after scan insertion and have no functional counterpart in the RTL |
 
 ```
 Formality/
 └── post-dft/
     ├── scripts/
-    │   ├── dft_fm_script.tcl   Formality session: reads DFT-aware RTL (Ref) + scan-inserted netlist (Imp), matches, verifies
-    │   └── run_dft_fm.sh        Shell wrapper to launch fm_shell in batch mode
+    │   ├── dft_fm_script.tcl   Formality session: reads DFT-aware RTL (Ref) + scan-inserted netlist (Imp), applies constants and don't-verify points, matches, verifies
+    │   └── run_dft_fm.sh        Shell wrapper to launch fm_shell
     ├── logs/
     │   └── dft_fm_log.log        Full Formality session transcript
     └── reports/
@@ -662,8 +717,9 @@ Formality/
 | Failing (not equivalent) | 0 | 0 | 0 | **0** |
 | Unverified | — | — | — | **0** |
 | Aborted | — | — | — | **0** |
+| Not compared (don't-verify scan ports) | 4 | — | — | 4 |
 
-Same compare-point count and breakdown as the post-syn check (382 = 3 ports, 378 flip-flops, 1 latch) — expected, since scan insertion re-wires existing sequential cells through a scan mux rather than adding or removing functional registers. Formality ran with `synopsys_auto_setup = true`, and the design is set constant at `test_mode = 0` / `SE = 0` so the comparison exercises the functional datapath, not the scan path.
+Same compare-point count and breakdown as the post-syn check (382 = 3 ports, 378 flip-flops, 1 latch) — expected, since scan insertion re-wires existing sequential cells through a scan mux rather than adding or removing functional registers. Formality ran with `synopsys_auto_setup = true` and `verification_verify_directly_undriven_output = false`; the auto-setup summary in the log records `SE` and `test_mode` as the constant test-logic inputs. One RTL-interpretation notice is raised while linking the reference design, as in the post-syn run; it does not correspond to any failing compare point.
 
 Full detail is in [`Formality/post-dft/logs/dft_fm_log.log`](Formality/post-dft/logs/dft_fm_log.log) (session transcript) and the individual `reports/*.rpt` files.
 
@@ -696,12 +752,12 @@ Three PVT (Process/Voltage/Temperature) corners are provided for the standard-ce
 | ✅ RTL & Functional Verification | 9/9 checks passing | [Verification](#verification-tb) |
 | ✅ Lint | 3/3 issues waived | [Lint](#lint-lint_reports) |
 | ✅ CDC Check | 19 waivers, 4 goals, 0 warnings | [CDC](#cdc--clock-domain-crossing-cdc) |
-| ✅ Synthesis | 0 constraint violations, all 3 PVT corners | [Synthesis](#synthesis-synthesis) |
+| ✅ Synthesis | 0 constraint violations, all 3 PVT corners (worst setup +0.08 ns, hold +0.43 ns) | [Synthesis](#synthesis-synthesis) |
 | ✅ Formal (post-syn) | 382/382 passing, 0 failing | [Formal Verification](#formal-verification--rtl-vs-post-synthesis-netlist-formalitypost-syn) |
-| ✅ DFT | 4 chains, 99.47% est. coverage, timing clean | [DFT](#dft--scan-insertion-dft) |
+| ✅ DFT | 4 chains (95/95/94/94), 99.47% est. coverage, +14.7% area, timing clean | [DFT](#dft--scan-insertion-dft) |
 | ✅ Formal (post-dft) | 382/382 passing, 0 failing | [Formal Verification — Post-DFT](#formal-verification--post-dft-equivalence-formalitypost-dft) |
 | 🔵 STA | Up next | — |
 | ⚪ Physical Design | Pending | — |
 | ⚪ Signoff & GDSII | Pending | — |
 
-**In short:** all RTL blocks are in place and pass the full self-checking testbench (9/9 checks). A SpyGlass lint pass has all 3 reported issues formally waived, and a dedicated SpyGlass CDC run formally checked every clock-domain crossing — **19 waivers across 4 independent goals, 0 unresolved warnings**, plus a real fix landed (`FSM_RX.sv` now registers `data_valid` before it drives a synchronizer enable). `Final_System` has been synthesized against all three PVT corners with **zero constraint violations** (setup slack +265.57 ns at `ss_1p08v_125c`, hold slack +0.43 ns at `ff_1p32v_m40c`). Synopsys Formality confirms the gate-level netlist is logically equivalent to the RTL (**382/382 compare points, 0 failing**). Full-scan DFT has been inserted (4 chains, multiplexed flip-flop style, **99.47% estimated stuck-at coverage**, all post-DFT timing paths met), and a second Formality run confirms the scan-inserted netlist is still functionally equivalent to the DFT-aware RTL in mission mode (**382/382 compare points, 0 failing**). Next up: a dedicated ATPG signoff run, full STA, physical design (floorplan → place → CTS → route), signoff, and GDSII.
+**In short:** all RTL blocks are in place and pass the full self-checking testbench (9/9 checks). A SpyGlass lint pass has all 3 reported issues formally waived, and a dedicated SpyGlass CDC run formally checked every clock-domain crossing — **19 waivers across 4 independent goals, 0 unresolved warnings**, plus a real fix landed (`FSM_RX.sv` now registers `data_valid` before it drives a synchronizer enable). `Final_System` has been synthesized against all three PVT corners with **zero constraint violations** (worst setup slack +0.08 ns at `ss_1p08v_125c`, worst hold slack +0.43 ns at `ff_1p32v_m40c`). Synopsys Formality confirms the gate-level netlist is logically equivalent to the RTL (**382/382 compare points, 0 failing**). Full-scan DFT has been inserted (4 balanced chains, multiplexed flip-flop style, **99.47% estimated stuck-at coverage**, all post-DFT timing paths met, +14.7% cell area), and a second Formality run confirms the scan-inserted netlist is still functionally equivalent to the DFT-aware RTL in mission mode (**382/382 compare points, 0 failing**). Next up: a dedicated ATPG signoff run, full STA, physical design (floorplan → place → CTS → route), signoff, and GDSII.

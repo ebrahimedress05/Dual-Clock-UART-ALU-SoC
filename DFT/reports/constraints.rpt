@@ -1,11 +1,10 @@
-Warning: There are infeasible paths detected in your design that were ignored during optimization. Please run 'report_timing -attributes' and/or 'create_qor_snapshot/query_qor_snapshot -infeasible_paths' to identify these paths.  (OPT-1721)
  
 ****************************************
 Report : constraint
         -all_violators
 Design : Final_System_dft
 Version: O-2018.06-SP1
-Date   : Tue Sep 29 09:32:46 2026
+Date   : Mon Oct  5 01:29:47 2026
 ****************************************
 
 This design has no violated constraints.

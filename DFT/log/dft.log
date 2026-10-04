@@ -624,7 +624,7 @@ check_design
 ****************************************
 check_design summary:
 Version:     O-2018.06-SP1
-Date:        Tue Sep 29 09:32:25 2026
+Date:        Mon Oct  5 01:29:24 2026
 ****************************************
 
                    Name                                            Total
@@ -762,6 +762,7 @@ scmetro_tsmc_cl013g_rvt_tt_1p2v_25c is characterized. Delays may be inaccurate a
   Processing 'FIFO_wptr_addr_width4'
   Processing 'FIFO_MEM_CNTRL_data_width8_depth8_addr_width4'
   Processing 'ASYNC_FIFO_data_width8_depth8_addr_width4_NUM_STAGES2'
+  Processing 'CLK_GATE_dft'
   Processing 'ALU_OPER_WIDTH8_OUT_WIDTH16'
   Processing 'regfile_Address_width4_Data_width8_depth16'
   Processing 'SYS_CTRL_OPER_WIDTH8_ALU_OUT_WIDTH16_Address_width4'
@@ -786,8 +787,6 @@ Information: There are 360 clock pins driven by multiple clocks, and some of the
 
   Beginning Implementation Selection
   ----------------------------------
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
   Processing 'ClkDiv_dft_1_DW01_inc_0'
   Processing 'ClkDiv_dft_1_DW01_cmp6_0'
   Processing 'ClkDiv_dft_1_DW01_cmp6_1'
@@ -829,60 +828,42 @@ Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is
   Processing 'edge_bit_counter_DW02_mult_0'
   Processing 'ClkDiv_dft_0_DW01_inc_2'
   Processing 'ClkDiv_dft_0_DW02_mult_0'
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
 Information: There are 360 clock pins driven by multiple clocks, and some of them are driven by up-to 2 clocks. (TIM-099)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
 
   Beginning Mapping Optimizations  (Medium effort)
   -------------------------------
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
 Loading db file '/home/ICer/IC/Projects/System/Stdcell/scmetro_tsmc_cl013g_rvt_tt_1p2v_25c.db'
 Loading db file '/home/ICer/IC/Projects/System/Stdcell/scmetro_tsmc_cl013g_rvt_ff_1p32v_m40c.db'
   Mapping Optimization (Phase 1)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
 
                                   TOTAL                                      
    ELAPSED            WORST NEG   SETUP    DESIGN                            
     TIME      AREA      SLACK     COST    RULE COST         ENDPOINT         
   --------- --------- --------- --------- --------- -------------------------
-    0:00:07   46171.4      0.00       0.0      13.6                          
-    0:00:08   46171.4      0.00       0.0      13.6                          
-    0:00:08   46171.4      0.00       0.0      13.6                          
-    0:00:08   46171.4      0.00       0.0      13.6                          
-    0:00:08   46171.4      0.00       0.0      13.6                          
-    0:00:09   28026.6      3.58       4.1       9.0                          
-    0:00:09   28073.7      1.59       1.6       9.0                          
-    0:00:09   28034.9      1.31       1.3       4.8                          
-    0:00:09   28212.6      0.19       0.2       4.8                          
-    0:00:09   28150.2      0.15       0.2       4.8                          
-    0:00:09   28165.5      0.07       0.1       4.8                          
-    0:00:10   28171.4      0.00       0.0       4.8                          
-    0:00:10   28152.5      0.05       0.1       4.8                          
-    0:00:10   28157.3      0.00       0.0       4.8                          
-    0:00:10   28156.1      0.00       0.0       4.8                          
-    0:00:10   28149.0      0.00       0.0       4.8                          
-    0:00:10   28149.0      0.00       0.0       4.8                          
-    0:00:10   28149.0      0.00       0.0       4.8                          
-    0:00:10   28149.0      0.00       0.0       4.8                          
-    0:00:10   28180.8      0.00       0.0       0.6                          
-    0:00:10   28190.2      0.00       0.0       0.0                          
-    0:00:10   28190.2      0.00       0.0       0.0                          
-    0:00:10   28190.2      0.00       0.0       0.0                          
-    0:00:10   28190.2      0.00       0.0       0.0                          
+    0:00:08   46191.4      0.00       0.0      13.6                          
+    0:00:09   46191.4      0.00       0.0      13.6                          
+    0:00:09   46191.4      0.00       0.0      13.6                          
+    0:00:09   46191.4      0.00       0.0      13.6                          
+    0:00:09   46191.4      0.00       0.0      13.6                          
+    0:00:10   28032.5      3.58       4.1       9.0                          
+    0:00:10   28079.6      1.59       1.6       9.0                          
+    0:00:10   28040.8      1.31       1.3       4.8                          
+    0:00:10   28218.4      0.19       0.2       4.8                          
+    0:00:10   28156.1      0.15       0.2       4.8                          
+    0:00:10   28171.4      0.07       0.1       4.8                          
+    0:00:10   28177.3      0.00       0.0       4.8                          
+    0:00:10   28158.4      0.05       0.1       4.8                          
+    0:00:10   28163.1      0.00       0.0       4.8                          
+    0:00:10   28162.0      0.00       0.0       4.8                          
+    0:00:11   28154.9      0.00       0.0       4.8                          
+    0:00:11   28154.9      0.00       0.0       4.8                          
+    0:00:11   28154.9      0.00       0.0       4.8                          
+    0:00:11   28154.9      0.00       0.0       4.8                          
+    0:00:11   28186.7      0.00       0.0       0.6                          
+    0:00:11   28196.1      0.00       0.0       0.0                          
+    0:00:11   28196.1      0.00       0.0       0.0                          
+    0:00:11   28196.1      0.00       0.0       0.0                          
+    0:00:11   28196.1      0.00       0.0       0.0                          
 
 
 
@@ -893,9 +874,9 @@ Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is
    ELAPSED            WORST NEG   SETUP    DESIGN                            
     TIME      AREA      SLACK     COST    RULE COST         ENDPOINT         
   --------- --------- --------- --------- --------- -------------------------
-    0:00:10   28190.2      0.00       0.0       0.0                          
-    0:00:10   28190.2      0.00       0.0       0.0                          
-    0:00:10   28186.7      0.00       0.0       0.0                          
+    0:00:11   28196.1      0.00       0.0       0.0                          
+    0:00:11   28196.1      0.00       0.0       0.0                          
+    0:00:11   28192.6      0.00       0.0       0.0                          
 
 
   Beginning Area-Recovery Phase  (cleanup)
@@ -905,24 +886,22 @@ Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is
    ELAPSED            WORST NEG   SETUP    DESIGN                            
     TIME      AREA      SLACK     COST    RULE COST         ENDPOINT         
   --------- --------- --------- --------- --------- -------------------------
-    0:00:10   28186.7      0.00       0.0       0.0                          
-    0:00:10   28186.7      0.00       0.0       0.0                          
-    0:00:10   27913.7      0.00       0.0       0.0                          
-    0:00:10   27874.8      0.00       0.0       0.0                          
-    0:00:10   27863.1      0.00       0.0       0.0                          
-    0:00:10   27853.7      0.00       0.0       0.0                          
-    0:00:10   27843.1      0.00       0.0       0.0                          
-    0:00:10   27843.1      0.00       0.0       0.0                          
-    0:00:10   27843.1      0.00       0.0       0.0                          
-    0:00:10   27677.2      0.59       0.6       0.0                          
-    0:00:10   27677.2      0.59       0.6       0.0                          
-    0:00:10   27677.2      0.59       0.6       0.0                          
-    0:00:10   27677.2      0.59       0.6       0.0                          
-    0:00:10   27677.2      0.59       0.6       0.0                          
-    0:00:10   27677.2      0.59       0.6       0.0                          
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-    0:00:10   27785.4      0.00       0.0       0.0                          
+    0:00:11   28192.6      0.00       0.0       0.0                          
+    0:00:11   28192.6      0.00       0.0       0.0                          
+    0:00:11   27919.6      0.00       0.0       0.0                          
+    0:00:11   27880.7      0.00       0.0       0.0                          
+    0:00:11   27869.0      0.00       0.0       0.0                          
+    0:00:11   27859.5      0.00       0.0       0.0                          
+    0:00:11   27849.0      0.00       0.0       0.0                          
+    0:00:11   27849.0      0.00       0.0       0.0                          
+    0:00:11   27849.0      0.00       0.0       0.0                          
+    0:00:11   27683.0      0.59       0.6       0.0                          
+    0:00:11   27683.0      0.59       0.6       0.0                          
+    0:00:11   27683.0      0.59       0.6       0.0                          
+    0:00:11   27683.0      0.59       0.6       0.0                          
+    0:00:11   27683.0      0.59       0.6       0.0                          
+    0:00:11   27683.0      0.59       0.6       0.0                          
+    0:00:11   27791.3      0.00       0.0       0.0                          
 Loading db file '/home/ICer/IC/Projects/System/Stdcell/scmetro_tsmc_cl013g_rvt_ss_1p08v_125c.db'
 
 
@@ -1416,7 +1395,7 @@ Preview_dft report
 For    : 'Insert_dft' command
 Design : Final_System_dft
 Version: O-2018.06-SP1
-Date   : Tue Sep 29 09:32:38 2026
+Date   : Mon Oct  5 01:29:38 2026
 ****************************************
 
 Number of chains: 4
@@ -1460,195 +1439,174 @@ Information: There are 362 clock pins driven by multiple clocks, and some of the
    ELAPSED            WORST NEG   SETUP    DESIGN                            
     TIME      AREA      SLACK     COST    RULE COST         ENDPOINT         
   --------- --------- --------- --------- --------- -------------------------
-    0:00:13  335194.5    738.00    2950.4      49.5 ASYNC_FIFO/FIFO_rptr/R_addr[1]
-    0:00:13  335194.5    738.00    2950.4      49.5 ASYNC_FIFO/FIFO_rptr/R_addr[1]
-    0:00:13  335194.5    738.00    2950.4      49.5 ASYNC_FIFO/FIFO_rptr/R_addr[1]
-    0:00:13  335194.5    738.00    2950.4      49.5 ASYNC_FIFO/FIFO_rptr/R_addr[1]
-    0:00:13  335244.7    738.00    2950.3      49.3 SYS_CTRL/n87             
-    0:00:13  335495.6    738.00    2950.3     106.4 SE                       
-    0:00:13  335495.6    738.00    2950.3     106.4 SE                       
-    0:00:13  335495.6    738.00    2950.3     106.4 SE                       
-    0:00:13  335495.6    738.00    2950.3     106.4 SE                       
-    0:00:13  335696.4    738.00    2950.3     105.7 net12029                 
-    0:00:13  335696.4    738.00    2950.3     105.7 net12029                 
-    0:00:13  335696.4    738.00    2950.3     105.7 net12029                 
-    0:00:13  335752.5    738.00    2950.3      95.4 net12036                 
-    0:00:13  335808.6    738.00    2950.3      85.0 net12026                 
-    0:00:13  335808.6    738.00    2950.3      85.0 net12026                 
-    0:00:13  335808.6    738.00    2950.3      85.0 net12026                 
-    0:00:13  335959.2    738.00    2950.3      92.6 net12046                 
-    0:00:13  335959.2    738.00    2950.3      92.6 net12046                 
-    0:00:13  335959.2    738.00    2950.3      92.6 net12046                 
-    0:00:13  336059.6    738.00    2950.3      92.6 net12050                 
-    0:00:13  336115.6    738.00    2950.3      84.6 net12056                 
-    0:00:13  336266.2    738.00    2950.3      83.3 net12027                 
-    0:00:13  336266.2    738.00    2950.3      83.3 net12027                 
-    0:00:13  336266.2    738.00    2950.3      83.3 net12027                 
-    0:00:13  336372.5    738.00    2950.3      78.1 net12045                 
-    0:00:13  336372.5    738.00    2950.3      78.1 net12045                 
-    0:00:13  336372.5    738.00    2950.3      78.1 net12045                 
-    0:00:13  336372.5    738.00    2950.3      78.1 net12045                 
-    0:00:13  336372.5    738.00    2950.3      78.1 net12045                 
-    0:00:13  336428.6    738.00    2950.3      75.9 net12062                 
-    0:00:13  336484.7    738.00    2950.3      74.3 net12063                 
-    0:00:13  336540.7    738.00    2950.3      73.0 net12067                 
-    0:00:13  336596.8    738.00    2950.3      71.9 net12027                 
-    0:00:13  336652.9    738.00    2950.3      70.7 net12068                 
-    0:00:13  336709.0    738.00    2950.3      69.9 net12028                 
-    0:00:13  336859.6    738.00    2950.3      69.9 net12025                 
-    0:00:13  336859.6    738.00    2950.3      69.9 net12025                 
-    0:00:13  336859.6    738.00    2950.3      69.9 net12025                 
-    0:00:13  336753.3    738.00    2950.3      59.4 net12043                 
-    0:00:13  336747.4    738.00    2950.3      59.5 SE                       
-    0:00:13  336747.4    738.00    2950.3      59.5 SE                       
-    0:00:13  336691.3    738.00    2950.3      59.0 SE                       
-    0:00:13  336747.4    738.00    2950.3      59.9 net12051                 
-    0:00:13  336747.4    738.00    2950.3      59.9 net12051                 
-    0:00:13  336747.4    738.00    2950.3      59.9 net12059                 
-    0:00:13  336903.9    738.00    2950.3      59.9 UART_RX/stop_check/stp_err
-    0:00:13  336903.9    738.00    2950.3      59.9 UART_RX/stop_check/stp_err
-    0:00:13  336903.9    738.00    2950.3      59.9 UART_RX/stop_check/stp_err
-    0:00:13  336747.4    738.00    2950.3      58.9 net12059                 
-    0:00:13  336747.4    738.00    2950.3      58.9 net12050                 
-    0:00:13  336747.4    738.00    2950.3      58.9 net12050                 
-    0:00:13  336691.3    738.00    2950.3      49.9 net12093                 
-    0:00:13  336691.3    738.00    2950.3      48.8 net12091                 
-    0:00:13  335401.1    738.00    2950.3      49.2 SE                       
-    0:00:13  335477.2    737.57    2949.2      48.2 SO[1]                    
-    0:00:13  335477.2    737.57    2949.2      48.2 SO[1]                    
-    0:00:13  335552.1    737.37    2948.8      48.1 SO[2]                    
-    0:00:13  335628.2    737.37    2948.3      48.1 SO[0]                    
-    0:00:13  335628.2    737.37    2948.3      48.1 SO[0]                    
-    0:00:13  335628.2    737.37    2948.3      48.1 SO[0]                    
-    0:00:13  335704.3    737.13    2947.8      48.2 SO[3]                    
-    0:00:13  335704.3    737.13    2947.8      48.2 SO[3]                    
-    0:00:13  335704.3    737.13    2947.8      48.2 SO[3]                    
-    0:00:14  335662.3    736.93    2947.6      48.2 SO[2]                    
-    0:00:14  335662.3    736.93    2947.6      48.2 SO[2]                    
-    0:00:14  335662.3    736.93    2947.6      48.2 SO[2]                    
-    0:00:14  335662.3    736.93    2947.6      48.2 SO[2]                    
-    0:00:14  335737.2    736.90    2947.6      48.2 SO[1]                    
-    0:00:14  335670.6    736.90    2947.5      48.2 SO[0]                    
-    0:00:14  335670.6    736.90    2947.5      48.2 SO[0]                    
-    0:00:14  335670.6    736.90    2947.5      48.2 SO[0]                    
-    0:00:14  335871.3    736.90    2947.5      47.0 regfile/test_se          
-    0:00:14  335871.3    736.90    2947.5      47.0 regfile/test_se          
-    0:00:14  335871.3    736.90    2947.5      47.0 regfile/test_se          
-    0:00:14  336095.7    736.90    2947.5      46.6 ASYNC_FIFO/FIFO_MEM_CNTRL/test_se
-    0:00:14  336095.7    736.90    2947.5      46.6 ASYNC_FIFO/FIFO_MEM_CNTRL/test_se
-    0:00:14  336095.7    736.90    2947.5      46.6 ASYNC_FIFO/FIFO_MEM_CNTRL/test_se
-    0:00:14  336263.9    736.90    2947.5      44.4 SYS_CTRL/test_se         
-    0:00:14  336263.9    736.90    2947.5      44.4 SYS_CTRL/test_se         
-    0:00:14  336263.9    736.90    2947.5      44.4 SYS_CTRL/test_se         
-    0:00:14  336263.9    736.90    2947.5      44.4 SYS_CTRL/test_se         
-    0:00:14  336432.1    736.90    2947.5      42.5 ClkDiv_RX/test_se        
-    0:00:14  336432.1    736.90    2947.5      42.5 ClkDiv_RX/test_se        
-    0:00:14  336432.1    736.90    2947.5      42.5 ClkDiv_RX/test_se        
-    0:00:14  336600.4    736.90    2947.5      40.5 ClkDiv_TX/test_se        
-    0:00:14  336600.4    736.90    2947.5      40.5 ClkDiv_TX/test_se        
-    0:00:14  336600.4    736.90    2947.5      40.5 ClkDiv_TX/test_se        
-    0:00:14  336768.6    736.90    2947.5      38.7 ALU/test_se              
-    0:00:14  336768.6    736.90    2947.5      38.7 ALU/test_se              
-    0:00:14  336768.6    736.90    2947.5      38.7 ALU/test_se              
-    0:00:14  336880.8    736.90    2947.5      37.4 DATA_SYNC/test_se        
-    0:00:14  336880.8    736.90    2947.5      37.4 DATA_SYNC/test_se        
-    0:00:14  336880.8    736.90    2947.5      37.4 DATA_SYNC/test_se        
-    0:00:14  336992.9    736.90    2947.5      36.4 ASYNC_FIFO/DF_SYNC_R/test_se
-    0:00:14  336992.9    736.90    2947.5      36.4 ASYNC_FIFO/DF_SYNC_R/test_se
-    0:00:14  336992.9    736.90    2947.5      36.4 ASYNC_FIFO/DF_SYNC_R/test_se
-    0:00:14  337049.0    736.90    2947.5      35.7 UART_RX/deserializer/test_se
-    0:00:14  337105.1    736.90    2947.5      35.2 UART_RX/FSM_RX/test_se   
-    0:00:14  337161.2    736.90    2947.5      35.1 ASYNC_FIFO/FIFO_MEM_CNTRL/test_se
-    0:00:14  337217.3    736.90    2947.5      34.8 UART_TX/FSM_TX/test_se   
-    0:00:14  337273.3    736.90    2947.5      34.6 ClkDiv_RX/test_se        
-    0:00:14  337273.3    736.90    2947.5      34.5 ASYNC_FIFO/DF_SYNC_R/test_se
-    0:00:14  337497.7    736.90    2947.5      33.0 regfile/net12139         
-    0:00:14  337497.7    736.90    2947.5      33.0 regfile/net12139         
-    0:00:14  337497.7    736.90    2947.5      33.0 regfile/net12139         
-    0:00:14  337722.0    736.90    2947.5      31.6 regfile/net12138         
-    0:00:14  337722.0    736.90    2947.5      31.6 regfile/net12138         
-    0:00:14  337722.0    736.90    2947.5      31.6 regfile/net12138         
-    0:00:14  337946.3    736.90    2947.5      30.1 regfile/net12137         
-    0:00:14  337946.3    736.90    2947.5      30.1 regfile/net12137         
-    0:00:14  337946.3    736.90    2947.5      30.1 regfile/net12137         
-    0:00:14  338058.5    736.90    2947.5      27.0 ASYNC_FIFO/FIFO_MEM_CNTRL/net12147
-    0:00:14  338058.5    736.90    2947.5      27.0 ASYNC_FIFO/FIFO_MEM_CNTRL/net12147
-    0:00:14  338170.6    736.90    2947.5      23.9 regfile/net12300         
-    0:00:14  338170.6    736.90    2947.5      23.9 regfile/net12300         
-    0:00:14  338170.6    736.90    2947.5      23.9 regfile/net12300         
-    0:00:14  338282.8    736.90    2947.5      20.8 regfile/net12284         
-    0:00:14  338282.8    736.90    2947.5      20.8 regfile/net12284         
-    0:00:14  338282.8    736.90    2947.5      20.8 regfile/net12284         
-    0:00:14  338394.9    736.90    2947.5      17.7 regfile/net12293         
-    0:00:14  338394.9    736.90    2947.5      17.7 regfile/net12293         
-    0:00:14  338394.9    736.90    2947.5      17.7 regfile/net12293         
-    0:00:14  338507.1    736.90    2947.5      14.7 ASYNC_FIFO/FIFO_MEM_CNTRL/net12146
-    0:00:14  338507.1    736.90    2947.5      14.7 ASYNC_FIFO/FIFO_MEM_CNTRL/net12146
-    0:00:14  338607.5    736.90    2947.5      14.3 regfile/net12139         
-    0:00:14  338607.5    736.90    2947.5      14.3 regfile/net12139         
-    0:00:14  338758.1    736.90    2947.5      14.1 regfile/net12136         
-    0:00:14  338758.1    736.90    2947.5      14.1 regfile/net12136         
-    0:00:14  338758.1    736.90    2947.5      14.1 regfile/net12136         
-    0:00:14  338814.2    736.90    2947.5      12.8 ASYNC_FIFO/FIFO_MEM_CNTRL/net12146
-    0:00:14  338814.2    736.90    2947.5      12.8 ASYNC_FIFO/FIFO_MEM_CNTRL/net12146
-    0:00:14  338814.2    736.90    2947.5      12.8 ASYNC_FIFO/FIFO_MEM_CNTRL/net12146
-    0:00:14  338870.3    736.90    2947.5      12.6 ASYNC_FIFO/FIFO_MEM_CNTRL/net12252
-    0:00:14  338926.3    736.90    2947.5      12.3 UART_RX/deserializer/net12234
-    0:00:14  338926.3    736.90    2947.5      12.1 ASYNC_FIFO/FIFO_MEM_CNTRL/net12325
-    0:00:14  338926.3    736.90    2947.5      12.1 ASYNC_FIFO/FIFO_MEM_CNTRL/net12325
-    0:00:14  338976.5    736.90    2947.5      11.9 regfile/net12284         
-    0:00:14  339032.6    736.90    2947.5      11.5 regfile/net12301         
-    0:00:14  339032.6    736.90    2947.5      11.5 regfile/net12301         
-    0:00:14  339088.7    736.90    2947.5      10.8 regfile/net12300         
-    0:00:14  339088.7    736.90    2947.5      10.8 regfile/net12300         
-    0:00:14  339038.5    736.90    2947.5      10.8 regfile/net12139         
-    0:00:14  338982.4    736.90    2947.5      10.6 regfile/net12316         
-    0:00:14  338982.4    736.90    2947.5      10.4 regfile/net12320         
-    0:00:14  338982.4    736.90    2947.5      10.4 regfile/net12320         
-    0:00:14  339038.5    736.90    2947.5      10.2 regfile/net12286         
-    0:00:14  339038.5    736.90    2947.5      10.2 regfile/net12286         
-    0:00:14  339038.5    736.90    2947.5       9.9 regfile/net12295         
-    0:00:14  339038.5    736.90    2947.5       9.7 regfile/net12320         
-    0:00:14  339094.6    736.90    2947.5       8.9 SE                       
-    0:00:14  339318.9    736.90    2947.5       8.5 net12352                 
-    0:00:14  339318.9    736.90    2947.5       8.5 net12352                 
-    0:00:14  339318.9    736.90    2947.5       8.5 net12352                 
-    0:00:14  339569.9    736.90    2947.5       7.1 UART_TX/serializer/test_se
-    0:00:14  339569.9    736.90    2947.5       7.1 UART_TX/serializer/test_se
-    0:00:14  339569.9    736.90    2947.5       7.1 UART_TX/serializer/test_se
-    0:00:14  339569.9    736.90    2947.5       7.1 UART_TX/serializer/test_se
-    0:00:14  339820.9    736.90    2947.5       5.8 ASYNC_FIFO/DF_SYNC_W/test_se
-    0:00:14  339820.9    736.90    2947.5       5.8 ASYNC_FIFO/DF_SYNC_W/test_se
-    0:00:14  339820.9    736.90    2947.5       5.8 ASYNC_FIFO/DF_SYNC_W/test_se
-    0:00:14  340071.9    736.90    2947.5       4.3 UART_RX/edge_bit_counter/test_se
-    0:00:14  340071.9    736.90    2947.5       4.3 UART_RX/edge_bit_counter/test_se
-    0:00:14  340071.9    736.90    2947.5       4.3 UART_RX/edge_bit_counter/test_se
-    0:00:14  340322.8    736.90    2947.5       3.0 ASYNC_FIFO/FIFO_wptr/test_se
-    0:00:14  340322.8    736.90    2947.5       3.0 ASYNC_FIFO/FIFO_wptr/test_se
-    0:00:14  340322.8    736.90    2947.5       3.0 ASYNC_FIFO/FIFO_wptr/test_se
-    0:00:14  340573.8    736.90    2947.5       1.8 ASYNC_FIFO/FIFO_rptr/test_se
-    0:00:14  340573.8    736.90    2947.5       1.8 ASYNC_FIFO/FIFO_rptr/test_se
-    0:00:14  340573.8    736.90    2947.5       1.8 ASYNC_FIFO/FIFO_rptr/test_se
-    0:00:14  340798.1    736.90    2947.5       1.0 SE                       
-    0:00:14  340798.1    736.90    2947.5       1.0 SE                       
-    0:00:14  340798.1    736.90    2947.5       1.0 SE                       
-    0:00:14  341022.5    736.90    2947.5       0.0 UART_RX/test_se          
-    0:00:14  341022.5    736.90    2947.5       0.0 UART_RX/test_se          
-    0:00:14  341022.5    736.90    2947.5       0.0 UART_RX/test_se          
-    0:00:14  341022.5    736.90    2947.5       0.0 UART_RX/test_se          
-    0:00:14  341022.5    736.90    2947.5       0.0 regfile/net12294         
-    0:00:14  341022.5    736.90    2947.5       0.0 regfile/net12293         
-    0:00:14  341022.5    736.90    2947.5       0.0 SYS_CTRL/net12152        
+    0:00:14  335200.3      0.00       0.0      49.5 ASYNC_FIFO/FIFO_rptr/R_addr[1]
+    0:00:14  335200.3      0.00       0.0      49.5 ASYNC_FIFO/FIFO_rptr/R_addr[1]
+    0:00:14  335200.3      0.00       0.0      49.5 ASYNC_FIFO/FIFO_rptr/R_addr[1]
+    0:00:14  335200.3      0.00       0.0      49.5 ASYNC_FIFO/FIFO_rptr/R_addr[1]
+    0:00:14  335250.5      0.00       0.0      49.3 SYS_CTRL/n87             
+    0:00:14  335501.5      0.00       0.0     106.4 SE                       
+    0:00:14  335501.5      0.00       0.0     106.4 SE                       
+    0:00:14  335501.5      0.00       0.0     106.4 SE                       
+    0:00:14  335501.5      0.00       0.0     106.4 SE                       
+    0:00:14  335702.3      0.00       0.0     105.7 net12031                 
+    0:00:14  335702.3      0.00       0.0     105.7 net12031                 
+    0:00:14  335702.3      0.00       0.0     105.7 net12031                 
+    0:00:14  335758.4      0.00       0.0      95.4 net12038                 
+    0:00:14  335814.5      0.00       0.0      85.0 net12028                 
+    0:00:14  335814.5      0.00       0.0      85.0 net12028                 
+    0:00:14  335814.5      0.00       0.0      85.0 net12028                 
+    0:00:14  335965.0      0.00       0.0      92.6 net12048                 
+    0:00:14  335965.0      0.00       0.0      92.6 net12048                 
+    0:00:14  335965.0      0.00       0.0      92.6 net12048                 
+    0:00:14  336065.4      0.00       0.0      92.6 net12052                 
+    0:00:14  336121.5      0.00       0.0      84.6 net12058                 
+    0:00:14  336272.1      0.00       0.0      83.3 net12029                 
+    0:00:14  336272.1      0.00       0.0      83.3 net12029                 
+    0:00:14  336272.1      0.00       0.0      83.3 net12029                 
+    0:00:14  336378.4      0.00       0.0      78.1 net12047                 
+    0:00:14  336378.4      0.00       0.0      78.1 net12047                 
+    0:00:14  336378.4      0.00       0.0      78.1 net12047                 
+    0:00:14  336378.4      0.00       0.0      78.1 net12047                 
+    0:00:14  336378.4      0.00       0.0      78.1 net12047                 
+    0:00:14  336434.5      0.00       0.0      75.9 net12064                 
+    0:00:14  336490.5      0.00       0.0      74.3 net12065                 
+    0:00:14  336546.6      0.00       0.0      73.0 net12069                 
+    0:00:14  336602.7      0.00       0.0      71.9 net12029                 
+    0:00:14  336658.8      0.00       0.0      70.7 net12070                 
+    0:00:14  336714.9      0.00       0.0      69.9 net12030                 
+    0:00:14  336865.5      0.00       0.0      69.9 net12027                 
+    0:00:14  336865.5      0.00       0.0      69.9 net12027                 
+    0:00:14  336865.5      0.00       0.0      69.9 net12027                 
+    0:00:14  336759.2      0.00       0.0      59.4 net12045                 
+    0:00:14  336753.3      0.00       0.0      59.5 SE                       
+    0:00:14  336753.3      0.00       0.0      59.5 SE                       
+    0:00:14  336697.2      0.00       0.0      59.0 SE                       
+    0:00:14  336753.3      0.00       0.0      59.9 net12053                 
+    0:00:14  336753.3      0.00       0.0      59.9 net12053                 
+    0:00:14  336753.3      0.00       0.0      59.9 net12061                 
+    0:00:14  336809.4      0.00       0.0      59.9 UART_RX/stop_check/stp_err
+    0:00:14  336652.9      0.00       0.0      58.9 net12061                 
+    0:00:14  336652.9      0.00       0.0      58.9 net12052                 
+    0:00:14  336652.9      0.00       0.0      58.9 net12052                 
+    0:00:14  336596.8      0.00       0.0      49.9 net12095                 
+    0:00:14  336596.8      0.00       0.0      48.8 net12093                 
+    0:00:14  335306.6      0.00       0.0      49.2 SE                       
+    0:00:14  335507.4      0.00       0.0      48.1 regfile/test_se          
+    0:00:14  335507.4      0.00       0.0      48.1 regfile/test_se          
+    0:00:14  335507.4      0.00       0.0      48.1 regfile/test_se          
+    0:00:14  335731.7      0.00       0.0      47.7 ASYNC_FIFO/FIFO_MEM_CNTRL/test_se
+    0:00:14  335731.7      0.00       0.0      47.7 ASYNC_FIFO/FIFO_MEM_CNTRL/test_se
+    0:00:14  335731.7      0.00       0.0      47.7 ASYNC_FIFO/FIFO_MEM_CNTRL/test_se
+    0:00:14  335899.9      0.00       0.0      45.5 SYS_CTRL/test_se         
+    0:00:14  335899.9      0.00       0.0      45.5 SYS_CTRL/test_se         
+    0:00:14  335899.9      0.00       0.0      45.5 SYS_CTRL/test_se         
+    0:00:14  335899.9      0.00       0.0      45.5 SYS_CTRL/test_se         
+    0:00:14  336068.2      0.00       0.0      43.5 ClkDiv_RX/test_se        
+    0:00:14  336068.2      0.00       0.0      43.5 ClkDiv_RX/test_se        
+    0:00:14  336068.2      0.00       0.0      43.5 ClkDiv_RX/test_se        
+    0:00:14  336236.4      0.00       0.0      41.5 ClkDiv_TX/test_se        
+    0:00:14  336236.4      0.00       0.0      41.5 ClkDiv_TX/test_se        
+    0:00:14  336236.4      0.00       0.0      41.5 ClkDiv_TX/test_se        
+    0:00:14  336404.7      0.00       0.0      39.7 ALU/test_se              
+    0:00:14  336404.7      0.00       0.0      39.7 ALU/test_se              
+    0:00:14  336404.7      0.00       0.0      39.7 ALU/test_se              
+    0:00:14  336516.8      0.00       0.0      38.5 DATA_SYNC/test_se        
+    0:00:14  336516.8      0.00       0.0      38.5 DATA_SYNC/test_se        
+    0:00:14  336516.8      0.00       0.0      38.5 DATA_SYNC/test_se        
+    0:00:14  336629.0      0.00       0.0      37.4 ASYNC_FIFO/DF_SYNC_R/test_se
+    0:00:14  336629.0      0.00       0.0      37.4 ASYNC_FIFO/DF_SYNC_R/test_se
+    0:00:14  336629.0      0.00       0.0      37.4 ASYNC_FIFO/DF_SYNC_R/test_se
+    0:00:14  336685.1      0.00       0.0      36.8 UART_RX/deserializer/test_se
+    0:00:15  336741.1      0.00       0.0      36.2 UART_RX/FSM_RX/test_se   
+    0:00:15  336797.2      0.00       0.0      36.1 ASYNC_FIFO/FIFO_MEM_CNTRL/test_se
+    0:00:15  336853.3      0.00       0.0      35.9 UART_TX/FSM_TX/test_se   
+    0:00:15  336909.4      0.00       0.0      35.6 ClkDiv_RX/test_se        
+    0:00:15  336909.4      0.00       0.0      35.5 ASYNC_FIFO/DF_SYNC_R/test_se
+    0:00:15  337133.7      0.00       0.0      34.1 regfile/net12100         
+    0:00:15  337133.7      0.00       0.0      34.1 regfile/net12100         
+    0:00:15  337133.7      0.00       0.0      34.1 regfile/net12100         
+    0:00:15  337358.0      0.00       0.0      32.7 regfile/net12102         
+    0:00:15  337358.0      0.00       0.0      32.7 regfile/net12102         
+    0:00:15  337358.0      0.00       0.0      32.7 regfile/net12102         
+    0:00:15  337582.4      0.00       0.0      31.2 regfile/net12101         
+    0:00:15  337582.4      0.00       0.0      31.2 regfile/net12101         
+    0:00:15  337582.4      0.00       0.0      31.2 regfile/net12101         
+    0:00:15  337694.5      0.00       0.0      28.1 ASYNC_FIFO/FIFO_MEM_CNTRL/net12110
+    0:00:15  337694.5      0.00       0.0      28.1 ASYNC_FIFO/FIFO_MEM_CNTRL/net12110
+    0:00:15  337794.9      0.00       0.0      27.9 UART_RX/stop_error       
+    0:00:15  337895.3      0.00       0.0      27.9 UART_RX/stop_check/stp_err
+    0:00:15  338007.5      0.00       0.0      24.8 regfile/net12263         
+    0:00:15  338007.5      0.00       0.0      24.8 regfile/net12263         
+    0:00:15  338007.5      0.00       0.0      24.8 regfile/net12263         
+    0:00:15  338119.6      0.00       0.0      21.8 regfile/net12248         
+    0:00:15  338119.6      0.00       0.0      21.8 regfile/net12248         
+    0:00:15  338119.6      0.00       0.0      21.8 regfile/net12248         
+    0:00:15  338231.8      0.00       0.0      18.7 regfile/net12256         
+    0:00:15  338231.8      0.00       0.0      18.7 regfile/net12256         
+    0:00:15  338231.8      0.00       0.0      18.7 regfile/net12256         
+    0:00:15  338343.9      0.00       0.0      15.6 ASYNC_FIFO/FIFO_MEM_CNTRL/net12110
+    0:00:15  338343.9      0.00       0.0      15.6 ASYNC_FIFO/FIFO_MEM_CNTRL/net12110
+    0:00:15  338444.3      0.00       0.0      15.2 regfile/net12102         
+    0:00:15  338444.3      0.00       0.0      15.2 regfile/net12102         
+    0:00:15  338594.9      0.00       0.0      15.1 regfile/net12099         
+    0:00:15  338594.9      0.00       0.0      15.1 regfile/net12099         
+    0:00:15  338594.9      0.00       0.0      15.1 regfile/net12099         
+    0:00:15  338651.0      0.00       0.0      14.8 UART_RX/deserializer/net12197
+    0:00:15  338707.1      0.00       0.0      13.5 ASYNC_FIFO/FIFO_MEM_CNTRL/net12110
+    0:00:15  338707.1      0.00       0.0      13.5 ASYNC_FIFO/FIFO_MEM_CNTRL/net12110
+    0:00:15  338763.2      0.00       0.0      13.3 ASYNC_FIFO/FIFO_MEM_CNTRL/net12215
+    0:00:15  338763.2      0.00       0.0      13.1 ASYNC_FIFO/FIFO_MEM_CNTRL/net12110
+    0:00:15  338819.3      0.00       0.0      12.4 regfile/net12250         
+    0:00:15  338819.3      0.00       0.0      12.4 regfile/net12250         
+    0:00:15  338819.3      0.00       0.0      12.4 regfile/net12102         
+    0:00:15  338819.3      0.00       0.0      12.2 regfile/net12265         
+    0:00:15  338875.3      0.00       0.0      11.8 regfile/net12264         
+    0:00:15  338875.3      0.00       0.0      11.8 regfile/net12264         
+    0:00:15  338875.3      0.00       0.0      11.5 regfile/net12287         
+    0:00:15  338875.3      0.00       0.0      11.3 regfile/net12291         
+    0:00:15  338875.3      0.00       0.0      11.1 regfile/net12249         
+    0:00:15  338875.3      0.00       0.0      10.9 regfile/net12257         
+    0:00:15  338925.5      0.00       0.0      10.7 regfile/net12255         
+    0:00:15  338981.6      0.00       0.0       9.8 SE                       
+    0:00:15  339037.7      0.00       0.0       9.4 stop_error               
+    0:00:15  339262.0      0.00       0.0       9.0 net12321                 
+    0:00:15  339262.0      0.00       0.0       9.0 net12321                 
+    0:00:15  339262.0      0.00       0.0       9.0 net12321                 
+    0:00:15  339513.0      0.00       0.0       7.6 UART_TX/serializer/test_se
+    0:00:15  339513.0      0.00       0.0       7.6 UART_TX/serializer/test_se
+    0:00:15  339513.0      0.00       0.0       7.6 UART_TX/serializer/test_se
+    0:00:15  339513.0      0.00       0.0       7.6 UART_TX/serializer/test_se
+    0:00:15  339764.0      0.00       0.0       6.3 ASYNC_FIFO/DF_SYNC_W/test_se
+    0:00:15  339764.0      0.00       0.0       6.3 ASYNC_FIFO/DF_SYNC_W/test_se
+    0:00:15  339764.0      0.00       0.0       6.3 ASYNC_FIFO/DF_SYNC_W/test_se
+    0:00:15  340015.0      0.00       0.0       4.7 UART_RX/edge_bit_counter/test_se
+    0:00:15  340015.0      0.00       0.0       4.7 UART_RX/edge_bit_counter/test_se
+    0:00:15  340015.0      0.00       0.0       4.7 UART_RX/edge_bit_counter/test_se
+    0:00:15  340266.0      0.00       0.0       3.5 ASYNC_FIFO/FIFO_wptr/test_se
+    0:00:15  340266.0      0.00       0.0       3.5 ASYNC_FIFO/FIFO_wptr/test_se
+    0:00:15  340266.0      0.00       0.0       3.5 ASYNC_FIFO/FIFO_wptr/test_se
+    0:00:15  340516.9      0.00       0.0       2.3 ASYNC_FIFO/FIFO_rptr/test_se
+    0:00:15  340516.9      0.00       0.0       2.3 ASYNC_FIFO/FIFO_rptr/test_se
+    0:00:15  340516.9      0.00       0.0       2.3 ASYNC_FIFO/FIFO_rptr/test_se
+    0:00:15  340741.3      0.00       0.0       1.5 SE                       
+    0:00:15  340741.3      0.00       0.0       1.5 SE                       
+    0:00:15  340741.3      0.00       0.0       1.5 SE                       
+    0:00:15  340965.6      0.00       0.0       0.5 UART_RX/test_se          
+    0:00:15  340965.6      0.00       0.0       0.5 UART_RX/test_se          
+    0:00:15  340965.6      0.00       0.0       0.5 UART_RX/test_se          
+    0:00:15  340965.6      0.00       0.0       0.5 UART_RX/test_se          
+    0:00:15  340909.5      0.00       0.0       0.5 regfile/net12256         
+    0:00:15  340959.7      0.00       0.0       0.5 regfile/net12248         
 
 
-  Beginning Phase 2 Design Rule Fixing  (max_capacitance)
+  Beginning Phase 2 Design Rule Fixing  (max_transition)  (max_capacitance)
   ------------------------------------
 
                                   TOTAL                                      
    ELAPSED            WORST NEG   SETUP    DESIGN                            
     TIME      AREA      SLACK     COST    RULE COST         ENDPOINT         
   --------- --------- --------- --------- --------- -------------------------
-    0:00:14  341078.5    736.90    2947.5       0.0 UART_TX/serializer/net12364
+    0:00:15  340959.7      0.00       0.0       0.5 UART_TX/serializer/net12335
 
 1
 ######################## Optimize Logic post DFT #######################
@@ -1668,20 +1626,6 @@ scmetro_tsmc_cl013g_rvt_tt_1p2v_25c is characterized. Delays may be inaccurate a
   Updating timing information
 Information: Updating design information... (UID-85)
 Information: There are 362 clock pins driven by multiple clocks, and some of them are driven by up-to 2 clocks. (TIM-099)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
 
   Beginning Mapping Optimizations  (Medium effort)  (Incremental)
   -------------------------------
@@ -1691,9 +1635,6 @@ Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is
   Selecting implementations
   Selecting implementations
   Selecting implementations
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Information: compile falsified 4 infeasible paths. (OPT-1720)
 
   Beginning Delay Optimization Phase
   ----------------------------------
@@ -1702,18 +1643,20 @@ Information: compile falsified 4 infeasible paths. (OPT-1720)
    ELAPSED            WORST NEG   SETUP    DESIGN                            
     TIME      AREA      SLACK     COST    RULE COST         ENDPOINT         
   --------- --------- --------- --------- --------- -------------------------
-    0:00:02   28672.6      0.00       0.0       0.0                          
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-    0:00:02   28672.6      0.00       0.0       0.0                          
-    0:00:02   28672.6      0.00       0.0       0.0                          
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-Warning: Removing don't touch or size only GTECH cell CLK_GATE/C7, because it is not driving any load. (OPT-112)
-    0:00:02   28690.3      0.00       0.0       0.0                          
+    0:00:01   28553.8      0.00       0.0       0.5                          
+    0:00:02   28553.8      0.00       0.0       0.5                          
+    0:00:02   28553.8      0.00       0.0       0.5                          
+
+
+  Beginning Design Rule Fixing  (max_transition)  (max_capacitance)
+  ----------------------------
+
+                                  TOTAL                                      
+   ELAPSED            WORST NEG   SETUP    DESIGN                            
+    TIME      AREA      SLACK     COST    RULE COST         ENDPOINT         
+  --------- --------- --------- --------- --------- -------------------------
+    0:00:02   28553.8      0.00       0.0       0.5                          
+    0:00:02   28573.8      0.00       0.0       0.0                          
 Loading db file '/home/ICer/IC/Projects/System/Stdcell/scmetro_tsmc_cl013g_rvt_tt_1p2v_25c.db'
 Loading db file '/home/ICer/IC/Projects/System/Stdcell/scmetro_tsmc_cl013g_rvt_ff_1p32v_m40c.db'
 Loading db file '/home/ICer/IC/Projects/System/Stdcell/scmetro_tsmc_cl013g_rvt_ss_1p08v_125c.db'
@@ -1740,10 +1683,8 @@ set_case_analysis 0 [get_port test_mode]
 #############################################################################
 # Write out files
 #############################################################################
-write_file -format verilog -hierarchy -output netlists/$top_module.ddc
-Writing verilog file '/home/ICer/IC/Projects/System/DFT/netlists/Final_System_dft.ddc'.
-Warning: Verilog 'assign' or 'tran' statements are written out. (VO-4)
-Warning: Verilog writer has added 4 nets to module Final_System_dft using SYNOPSYS_UNCONNECTED_ as prefix.  Please use the change_names command to make the correct changes before invoking the verilog writer.  (VO-11)
+write_file -format ddc -hierarchy -output netlists/$top_module.ddc
+Writing ddc file 'netlists/Final_System_dft.ddc'.
 1
 write_file -format verilog -hierarchy -output netlists/$top_module.v
 Writing verilog file '/home/ICer/IC/Projects/System/DFT/netlists/Final_System_dft.v'.
@@ -1770,6 +1711,4 @@ gui_start
 Current design is 'Final_System_dft'.
 4.1
 #exit
-dc_shell> dc_shell> Current design is 'Final_System_dft'.
-Loading db file '/home/synopsys/syn/O-2018.06-SP1/libraries/syn/generic.sdb'
-dc_shell> 
+dc_shell> dc_shell> dc_shell> 

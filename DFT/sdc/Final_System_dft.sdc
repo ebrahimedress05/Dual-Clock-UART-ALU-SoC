@@ -1,6 +1,6 @@
 ###################################################################
 
-# Created by write_sdc on Tue Sep 29 09:32:45 2026
+# Created by write_sdc on Mon Oct 5 01:29:46 2026
 
 ###################################################################
 set sdc_version 2.1
@@ -66,10 +66,10 @@ set_input_delay -clock DFTCLK  200  [get_ports SE]
 set_output_delay -clock RX_CLK  54.2594  [get_ports stop_error]
 set_output_delay -clock RX_CLK  54.2594  [get_ports parity_error]
 set_output_delay -clock TX_CLK  1736.3  [get_ports TX_OUT]
-set_output_delay -clock DFTCLK  1736.3  [get_ports {SO[3]}]
-set_output_delay -clock DFTCLK  1736.3  [get_ports {SO[2]}]
-set_output_delay -clock DFTCLK  1736.3  [get_ports {SO[1]}]
-set_output_delay -clock DFTCLK  1736.3  [get_ports {SO[0]}]
+set_output_delay -clock DFTCLK  200  [get_ports {SO[3]}]
+set_output_delay -clock DFTCLK  200  [get_ports {SO[2]}]
+set_output_delay -clock DFTCLK  200  [get_ports {SO[1]}]
+set_output_delay -clock DFTCLK  200  [get_ports {SO[0]}]
 set_clock_groups -logically_exclusive -name REF_CLK_1 -group [get_clocks REF_CLK] -group [get_clocks DFTCLK]
 set_clock_groups -logically_exclusive -name UART_CLK_1 -group [get_clocks UART_CLK] -group [get_clocks DFTCLK]
 set_clock_groups -logically_exclusive -name TX_CLK_1 -group [get_clocks TX_CLK] -group [get_clocks DFTCLK]

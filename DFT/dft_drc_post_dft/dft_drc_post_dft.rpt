@@ -73,6 +73,7 @@ SEQUENTIAL CELLS WITHOUT VIOLATIONS
          SYS_CTRL/internal_address_reg[2]
          SYS_CTRL/internal_address_reg[3]
          SYS_CTRL/internal_ALU_FUN_reg[1]
+         SYS_CTRL/internal_ALU_FUN_reg[2]
          SYS_CTRL/internal_ALU_FUN_reg[3]
          SYS_CTRL/internal_address_reg[1]
          SYS_CTRL/internal_address_reg[0]
@@ -81,7 +82,6 @@ SEQUENTIAL CELLS WITHOUT VIOLATIONS
          SYS_CTRL/current_state_reg[1]
          SYS_CTRL/current_state_reg[0]
          SYS_CTRL/current_state_reg[3]
-         SYS_CTRL/internal_ALU_FUN_reg[2]
          regfile/RdData_reg[7]
          regfile/RdData_reg[6]
          regfile/RdData_reg[5]
@@ -130,6 +130,7 @@ SEQUENTIAL CELLS WITHOUT VIOLATIONS
          regfile/Reg_file_reg[13][2]
          regfile/Reg_file_reg[13][1]
          regfile/Reg_file_reg[13][0]
+         regfile/Reg_file_reg[15][7]
          regfile/Reg_file_reg[15][6]
          regfile/Reg_file_reg[15][5]
          regfile/Reg_file_reg[15][4]
@@ -218,7 +219,6 @@ SEQUENTIAL CELLS WITHOUT VIOLATIONS
          regfile/Reg_file_reg[1][6]
          regfile/Reg_file_reg[0][7]
          regfile/Reg_file_reg[1][4]
-         regfile/Reg_file_reg[15][7]
          ALU/ALU_OUT_reg[15]
          ALU/ALU_OUT_reg[14]
          ALU/ALU_OUT_reg[13]
@@ -341,6 +341,7 @@ SEQUENTIAL CELLS WITHOUT VIOLATIONS
          ASYNC_FIFO/FIFO_MEM_CNTRL/mem_reg[7][4]
          ASYNC_FIFO/FIFO_MEM_CNTRL/mem_reg[7][3]
          ASYNC_FIFO/FIFO_MEM_CNTRL/mem_reg[7][2]
+         ASYNC_FIFO/FIFO_MEM_CNTRL/mem_reg[7][1]
          ASYNC_FIFO/FIFO_MEM_CNTRL/mem_reg[7][0]
          ASYNC_FIFO/FIFO_MEM_CNTRL/mem_reg[6][7]
          ASYNC_FIFO/FIFO_MEM_CNTRL/mem_reg[6][6]
@@ -366,7 +367,6 @@ SEQUENTIAL CELLS WITHOUT VIOLATIONS
          ASYNC_FIFO/FIFO_MEM_CNTRL/mem_reg[2][2]
          ASYNC_FIFO/FIFO_MEM_CNTRL/mem_reg[2][1]
          ASYNC_FIFO/FIFO_MEM_CNTRL/mem_reg[2][0]
-         ASYNC_FIFO/FIFO_MEM_CNTRL/mem_reg[7][1]
          ASYNC_FIFO/FIFO_wptr/extra_bit_reg
          ASYNC_FIFO/FIFO_wptr/W_addr_reg[3]
          ASYNC_FIFO/FIFO_wptr/W_addr_reg[2]
@@ -430,25 +430,25 @@ SEQUENTIAL CELLS WITHOUT VIOLATIONS
 ....Inferring feed-through connections....
 Information: Test design rule checking completed. (TEST-123)
   Running test coverage estimation...
- 18266 faults were added to fault list.
- 0            8346   6091         1/0/0    65.68%      0.00
- 0            2009   4079         4/0/0    76.87%      0.01
- 0             923   3152         8/0/0    82.03%      0.01
- 0             655   2491        13/0/0    85.70%      0.01
- 0             437   2048        19/0/0    88.16%      0.02
- 0             336   1700        28/0/0    90.10%      0.02
- 0             245   1428        37/1/0    91.60%      0.02
- 0             199   1219        45/1/0    92.76%      0.02
- 0             108   1093        59/1/1    93.46%      0.02
- 0             134    938        77/1/2    94.32%      0.04
- 0              99    820        91/1/2    94.97%      0.04
- 0             117    656       107/1/3    95.88%      0.04
- 0              90    543       122/1/3    96.51%      0.05
- 0              82    419       141/1/5    97.20%      0.05
- 0              51    323       160/1/6    97.74%      0.05
- 0              57    216       186/1/6    98.34%      0.05
- 0              48     47       281/2/6    99.28%      0.06
- 0              23     15       284/2/8    99.47%      0.06
+ 18274 faults were added to fault list.
+ 0            8553   5893         1/0/0    66.80%      0.02
+ 0            1736   4149         4/0/0    76.49%      0.02
+ 0            1047   3095         9/0/0    82.34%      0.03
+ 0             472   2615        16/0/0    85.01%      0.03
+ 0             499   2083        23/0/0    87.95%      0.04
+ 0             309   1761        32/0/0    89.74%      0.04
+ 0             237   1515        39/0/1    91.11%      0.05
+ 0             207   1286        53/0/1    92.38%      0.05
+ 0             184   1086        66/0/1    93.49%      0.05
+ 0             124    936        86/1/2    94.32%      0.06
+ 0             105    816       100/1/2    94.99%      0.07
+ 0              94    703       116/1/2    95.62%      0.07
+ 0             110    547       131/1/2    96.48%      0.07
+ 0              80    440       149/1/3    97.08%      0.07
+ 0              59    356       169/1/3    97.55%      0.08
+ 0              55    247       190/1/4    98.16%      0.08
+ 0              66     68       267/2/7    99.16%      0.08
+ 0              30     15       284/2/8    99.47%      0.09
  
             Pattern Summary Report
  -----------------------------------------------
@@ -460,13 +460,13 @@ Information: Test design rule checking completed. (TEST-123)
  -----------------------------------------------
  fault class                     code   #faults
  ------------------------------  ----  ---------
- Detected                         DT      17414
+ Detected                         DT      17422
  Possibly detected                PT          1
  Undetectable                     UD        758
  ATPG untestable                  AU         79
  Not detected                     ND         14
  -----------------------------------------------
- total faults                             18266
+ total faults                             18274
  test coverage                            99.47%
  -----------------------------------------------
   Information: The test coverage above may be inferior

@@ -1,18 +1,8 @@
 /////////////////////////////////////////////////////////////
 // Created by: Synopsys DC Expert(TM) in wire load mode
 // Version   : O-2018.06-SP1
-// Date      : Tue Sep 29 09:32:44 2026
+// Date      : Mon Oct  5 01:29:46 2026
 /////////////////////////////////////////////////////////////
-
-
-module CLK_GATE_dft ( CLK_EN, TE, CLK, GATED_CLK );
-  input CLK_EN, TE, CLK;
-  output GATED_CLK;
-  wire   _0_net_;
-
-  TLATNCAX12M U0_TLATNCAX12M ( .E(_0_net_), .CK(CLK), .ECK(GATED_CLK) );
-  GTECH_OR2 C7 ( .A(CLK_EN), .B(TE), .Z(_0_net_) );
-endmodule
 
 
 module MUX2x1_2 ( IN_0, IN_1, sel, OUT );
@@ -488,14 +478,14 @@ module stop_check_test_1 ( stp_chk_en, sampled_bit, CLK, RST, stp_err, test_si,
         test_se );
   input stp_chk_en, sampled_bit, CLK, RST, test_si, test_se;
   output stp_err;
-  wire   n3, n1, n5, n7, n8, n9;
+  wire   n3, n1, n5, n6;
 
-  OAI2BB2X1M U2 ( .B0(sampled_bit), .B1(n1), .A0N(n9), .A1N(n1), .Y(n3) );
+  SDFFRQX2M stp_err_reg ( .D(n3), .SI(test_si), .SE(test_se), .CK(CLK), .RN(
+        RST), .Q(stp_err) );
+  OAI2BB2X1M U2 ( .B0(sampled_bit), .B1(n1), .A0N(n6), .A1N(n1), .Y(n3) );
   INVX2M U3 ( .A(stp_chk_en), .Y(n1) );
-  SDFFRX4M stp_err_reg ( .D(n3), .SI(test_si), .SE(test_se), .CK(CLK), .RN(RST), .Q(n7), .QN(n5) );
-  CLKINVX40M U5 ( .A(n5), .Y(stp_err) );
-  INVXLM U6 ( .A(n7), .Y(n8) );
-  INVXLM U7 ( .A(n8), .Y(n9) );
+  INVXLM U5 ( .A(stp_err), .Y(n5) );
+  INVXLM U6 ( .A(n5), .Y(n6) );
 endmodule
 
 
@@ -519,7 +509,7 @@ module UART_RX_test_1 ( RX_IN, prescale, PAR_EN, PAR_TYP, CLK, RST, P_DATA,
   input RX_IN, PAR_EN, PAR_TYP, CLK, RST, test_si2, test_si1, test_se;
   output parity_error, stop_error, data_valid, test_so1;
   wire   strt_glitch, dat_samp_en, enable, deser_en, par_chk_en, strt_chk_en,
-         stp_chk_en, sampled_bit, n1, n2, n4, n7, n8, n9, n10;
+         stp_chk_en, sampled_bit, n1, n2, n4, n7, n8, n9, n10, n11, n12;
   wire   [5:0] edge_cnt;
   wire   [3:0] bit_cnt;
   assign test_so1 = strt_glitch;
@@ -530,12 +520,14 @@ module UART_RX_test_1 ( RX_IN, prescale, PAR_EN, PAR_TYP, CLK, RST, P_DATA,
   DLY1X1M U4 ( .A(test_se), .Y(n8) );
   DLY1X1M U5 ( .A(test_se), .Y(n9) );
   DLY1X1M U6 ( .A(test_se), .Y(n10) );
+  INVXLM U7 ( .A(stop_error), .Y(n11) );
+  INVXLM U8 ( .A(n11), .Y(n12) );
   FSM_RX_test_1 FSM_RX ( .RX_IN(RX_IN), .PAR_EN(PAR_EN), .edge_cnt(edge_cnt), 
         .bit_cnt(bit_cnt), .par_err(parity_error), .strt_glitch(strt_glitch), 
-        .stp_err(stop_error), .prescale(prescale), .CLK(CLK), .RST(n1), 
-        .dat_samp_en(dat_samp_en), .enable(enable), .deser_en(deser_en), 
-        .par_chk_en(par_chk_en), .strt_chk_en(strt_chk_en), .stp_chk_en(
-        stp_chk_en), .data_valid(data_valid), .test_si(test_si1), .test_se(n10) );
+        .stp_err(n12), .prescale(prescale), .CLK(CLK), .RST(n1), .dat_samp_en(
+        dat_samp_en), .enable(enable), .deser_en(deser_en), .par_chk_en(
+        par_chk_en), .strt_chk_en(strt_chk_en), .stp_chk_en(stp_chk_en), 
+        .data_valid(data_valid), .test_si(test_si1), .test_se(n10) );
   data_sampling_test_1 data_sampling ( .RX_IN(RX_IN), .prescale(prescale), 
         .edge_cnt(edge_cnt), .CLK(CLK), .RST(n1), .dat_samp_en(dat_samp_en), 
         .sampled_bit(sampled_bit), .test_si(data_valid), .test_so(n4), 
@@ -632,12 +624,12 @@ module SYS_CTRL_OPER_WIDTH8_ALU_OUT_WIDTH16_Address_width4_test_1 ( ALU_OUT,
          n18, n19, n20, n21, n22, n23, n26, n27, n29, n30, n32, n34, n36, n37,
          n38, n39, n40, n41, n43, n44, n45, n46, n47, n48, n49, n50, n55, n62,
          n68, n70, n71, n72, n73, n74, n75, n76, n77, n78, n79, n80, n82, n85,
-         n86, n88, n89, n90, n91, n92, n106, n108, n110, n112, n114, n116,
+         n86, n87, n88, n89, n90, n91, n92, n106, n108, n110, n112, n114, n116,
          n118, n120, n121, n122, n123, n124, n125, n126, n127, n128, n25, n28,
          n31, n33, n35, n51, n52, n53, n54, n56, n57, n58, n59, n60, n61, n63,
          n64, n65, n66, n67, n69, n81, n83, n84, n129, n130, n131, n132, n133,
          n134, n135, n136, n137, n140, n141, n142, n143, n144, n145, n148,
-         n149, n150;
+         n149, n150, n151, n152, n24;
   wire   [3:0] current_state;
   wire   [15:8] ALU_OUT_registerd;
   wire   [3:0] next_state;
@@ -660,8 +652,9 @@ module SYS_CTRL_OPER_WIDTH8_ALU_OUT_WIDTH16_Address_width4_test_1 ( ALU_OUT,
         .CK(CLK), .RN(n31), .Q(ALU_OUT_registerd[8]) );
   SDFFRX1M \internal_address_reg[2]  ( .D(n122), .SI(n141), .SE(n148), .CK(CLK), .RN(n31), .Q(n91), .QN(n140) );
   SDFFRX1M \internal_address_reg[3]  ( .D(n123), .SI(n140), .SE(n148), .CK(CLK), .RN(n31), .Q(n90), .QN(test_so2) );
-  SDFFRX1M \internal_ALU_FUN_reg[1]  ( .D(n125), .SI(n145), .SE(n148), .CK(CLK), .RN(n31), .Q(n88), .QN(n144) );
-  SDFFRX1M \internal_ALU_FUN_reg[3]  ( .D(n127), .SI(test_si2), .SE(test_se), 
+  SDFFRX1M \internal_ALU_FUN_reg[1]  ( .D(n125), .SI(n145), .SE(n150), .CK(CLK), .RN(n31), .Q(n88), .QN(n144) );
+  SDFFRX1M \internal_ALU_FUN_reg[2]  ( .D(n126), .SI(n144), .SE(n149), .CK(CLK), .RN(n31), .Q(n87), .QN(n151) );
+  SDFFRX1M \internal_ALU_FUN_reg[3]  ( .D(n127), .SI(test_si2), .SE(n148), 
         .CK(CLK), .RN(n31), .Q(n86), .QN(n143) );
   SDFFRX1M \internal_address_reg[1]  ( .D(n121), .SI(n142), .SE(n148), .CK(CLK), .RN(n31), .Q(n92), .QN(n141) );
   SDFFRX1M \internal_address_reg[0]  ( .D(n124), .SI(n143), .SE(n148), .CK(CLK), .RN(n31), .Q(n89), .QN(n142) );
@@ -675,7 +668,7 @@ module SYS_CTRL_OPER_WIDTH8_ALU_OUT_WIDTH16_Address_width4_test_1 ( ALU_OUT,
         ALU_OUT_registerd[15]), .SE(n150), .CK(CLK), .RN(n31), .Q(
         current_state[0]) );
   SDFFRQX2M \current_state_reg[3]  ( .D(next_state[3]), .SI(current_state[2]), 
-        .SE(n150), .CK(CLK), .RN(n31), .Q(current_state[3]) );
+        .SE(n149), .CK(CLK), .RN(n31), .Q(current_state[3]) );
   OAI21X2M U5 ( .A0(n82), .A1(n83), .B0(n7), .Y(Address[0]) );
   NOR2X2M U6 ( .A(n82), .B(n67), .Y(Address[1]) );
   NOR2X2M U7 ( .A(n82), .B(n69), .Y(Address[2]) );
@@ -800,7 +793,7 @@ module SYS_CTRL_OPER_WIDTH8_ALU_OUT_WIDTH16_Address_width4_test_1 ( ALU_OUT,
   AND2X2M U113 ( .A(RX_P_Data[6]), .B(WrEN), .Y(WrData[6]) );
   INVX2M U114 ( .A(n86), .Y(n130) );
   INVX2M U115 ( .A(n88), .Y(n84) );
-  INVX2M U116 ( .A(test_so1), .Y(n129) );
+  INVX2M U116 ( .A(n152), .Y(n129) );
   INVX2M U117 ( .A(n90), .Y(n81) );
   INVX2M U118 ( .A(n91), .Y(n69) );
   NAND4X2M U119 ( .A(RX_P_Data[7]), .B(RX_P_Data[3]), .C(n14), .D(n16), .Y(n27) );
@@ -840,12 +833,13 @@ module SYS_CTRL_OPER_WIDTH8_ALU_OUT_WIDTH16_Address_width4_test_1 ( ALU_OUT,
   AO22X1M U161 ( .A0(n53), .A1(ALU_OUT_registerd[15]), .B0(ALU_OUT[15]), .B1(
         OUT_Valid), .Y(n120) );
   BUFX2M U162 ( .A(ALU_EN), .Y(CLK_EN) );
-  SDFFRHQX8M \internal_ALU_FUN_reg[2]  ( .D(n126), .SI(n144), .SE(n149), .CK(
-        CLK), .RN(n31), .Q(test_so1) );
   DLY1X1M U163 ( .A(test_se), .Y(n148) );
   DLY1X1M U164 ( .A(test_se), .Y(n149) );
   DLY1X1M U165 ( .A(test_se), .Y(n150) );
+  INVXLM U166 ( .A(n151), .Y(n152) );
   INVX2M U3 ( .A(1'b0), .Y(clk_div_en) );
+  INVXLM U135 ( .A(n87), .Y(n24) );
+  INVX2M U136 ( .A(n24), .Y(test_so1) );
 endmodule
 
 
@@ -890,272 +884,275 @@ module regfile_Address_width4_Data_width8_depth16_test_1 ( WrData, Address,
          \Reg_file[13][2] , \Reg_file[13][1] , \Reg_file[13][0] ,
          \Reg_file[14][7] , \Reg_file[14][6] , \Reg_file[14][5] ,
          \Reg_file[14][4] , \Reg_file[14][3] , \Reg_file[14][2] ,
-         \Reg_file[14][1] , \Reg_file[14][0] , \Reg_file[15][6] ,
-         \Reg_file[15][5] , \Reg_file[15][4] , \Reg_file[15][3] ,
-         \Reg_file[15][2] , \Reg_file[15][1] , \Reg_file[15][0] , N19, N20,
-         N21, N22, N23, N24, N25, N26, n150, n151, n152, n153, n154, n155,
-         n156, n157, n158, n159, n160, n161, n162, n163, n164, n165, n166,
-         n167, n168, n169, n170, n171, n172, n173, n174, n175, n176, n177,
-         n178, n179, n180, n181, n182, n183, n184, n185, n186, n187, n188,
-         n189, n190, n191, n192, n193, n194, n195, n196, n197, n198, n199,
-         n200, n201, n202, n203, n204, n205, n206, n207, n208, n209, n210,
-         n211, n212, n213, n214, n215, n216, n217, n218, n219, n220, n221,
-         n222, n223, n224, n225, n226, n227, n228, n229, n230, n231, n232,
-         n233, n234, n235, n236, n237, n238, n239, n240, n241, n242, n243,
-         n244, n245, n246, n247, n248, n249, n250, n251, n252, n253, n254,
-         n255, n256, n257, n258, n259, n260, n261, n262, n263, n264, n265,
-         n266, n267, n268, n269, n270, n271, n272, n273, n274, n275, n276,
-         n277, n278, n279, n280, n281, n282, n283, n284, n285, n286, n287,
-         n288, n289, n290, n291, n292, n293, n294, n295, n296, n297, n298,
-         n299, n300, n301, n302, n303, n304, n305, n306, n307, n308, n309,
-         n310, n311, n312, n313, n138, n139, n140, n141, n142, n143, n144,
-         n145, n146, n147, n148, n149, n314, n315, n316, n317, n318, n319,
-         n320, n321, n322, n323, n324, n325, n326, n327, n328, n329, n330,
-         n331, n332, n333, n334, n335, n336, n337, n338, n339, n340, n341,
-         n342, n343, n344, n345, n346, n347, n348, n349, n350, n351, n352,
-         n353, n354, n355, n356, n357, n358, n359, n360, n361, n362, n363,
-         n364, n365, n366, n367, n368, n369, n370, n371, n372, n373, n374,
-         n375, n376, n377, n378, n379, n380, n381, n382, n383, n384, n385,
-         n386, n387, n388, n389, n390, n391, n392, n393, n394, n395, n396,
-         n397, n398, n399, n400, n401, n402, n403, n404, n405, n406, n407,
-         n408, n409, n410, n411, n412, n413, n414, n415, n416, n417, n418,
-         n419, n420, n421, n422, n423, n424, n425, n426, n427, n428, n429,
-         n430, n431, n432, n433, n434, n435, n436, n437, n438, n439, n440,
-         n441, n442, n443, n444, n445, n446, n447, n448, n449, n450, n451,
-         n452, n453, n454, n455, n456, n457, n458, n459, n460, n464, n465,
-         n466, n467, n468, n469, n470, n471, n472, n473, n474, n475, n476,
-         n477, n478, n479, n480, n481, n482, n483, n484, n485, n486, n487,
-         n488, n489, n490, n491, n492, n495;
+         \Reg_file[14][1] , \Reg_file[14][0] , \Reg_file[15][7] ,
+         \Reg_file[15][6] , \Reg_file[15][5] , \Reg_file[15][4] ,
+         \Reg_file[15][3] , \Reg_file[15][2] , \Reg_file[15][1] ,
+         \Reg_file[15][0] , N19, N20, N21, N22, N23, N24, N25, N26, n150, n151,
+         n152, n153, n154, n155, n156, n157, n158, n159, n160, n161, n162,
+         n163, n164, n165, n166, n167, n168, n169, n170, n171, n172, n173,
+         n174, n175, n176, n177, n178, n179, n180, n181, n182, n183, n184,
+         n185, n186, n187, n188, n189, n190, n191, n192, n193, n194, n195,
+         n196, n197, n198, n199, n200, n201, n202, n203, n204, n205, n206,
+         n207, n208, n209, n210, n211, n212, n213, n214, n215, n216, n217,
+         n218, n219, n220, n221, n222, n223, n224, n225, n226, n227, n228,
+         n229, n230, n231, n232, n233, n234, n235, n236, n237, n238, n239,
+         n240, n241, n242, n243, n244, n245, n246, n247, n248, n249, n250,
+         n251, n252, n253, n254, n255, n256, n257, n258, n259, n260, n261,
+         n262, n263, n264, n265, n266, n267, n268, n269, n270, n271, n272,
+         n273, n274, n275, n276, n277, n278, n279, n280, n281, n282, n283,
+         n284, n285, n286, n287, n288, n289, n290, n291, n292, n293, n294,
+         n295, n296, n297, n298, n299, n300, n301, n302, n303, n304, n305,
+         n306, n307, n308, n309, n310, n311, n312, n313, n138, n139, n140,
+         n141, n142, n143, n144, n145, n146, n147, n148, n149, n314, n315,
+         n316, n317, n318, n319, n320, n321, n322, n323, n324, n325, n326,
+         n327, n328, n329, n330, n331, n332, n333, n334, n335, n336, n337,
+         n338, n339, n340, n341, n342, n343, n344, n345, n346, n347, n348,
+         n349, n350, n351, n352, n353, n354, n355, n356, n357, n358, n359,
+         n360, n361, n362, n363, n364, n365, n366, n367, n368, n369, n370,
+         n371, n372, n373, n374, n375, n376, n377, n378, n379, n380, n381,
+         n382, n383, n384, n385, n386, n387, n388, n389, n390, n391, n392,
+         n393, n394, n395, n396, n397, n398, n399, n400, n401, n402, n403,
+         n404, n405, n406, n407, n408, n409, n410, n411, n412, n413, n414,
+         n415, n416, n417, n418, n419, n420, n421, n422, n423, n424, n425,
+         n426, n427, n428, n429, n430, n431, n432, n433, n434, n435, n436,
+         n437, n438, n439, n440, n441, n442, n443, n444, n445, n446, n447,
+         n448, n449, n450, n451, n452, n453, n454, n455, n456, n457, n458,
+         n459, n460, n464, n465, n466, n467, n468, n469, n470, n471, n472,
+         n473, n474, n475, n476, n477, n478, n479, n480, n481, n482, n483,
+         n484, n485, n486, n487, n488, n489, n490, n491, n492, n493, n494;
   assign N10 = Address[0];
   assign N11 = Address[1];
   assign N12 = Address[2];
   assign N13 = Address[3];
   assign test_so1 = \Reg_file[4][1] ;
+  assign test_so2 = \Reg_file[15][7] ;
 
-  SDFFRQX2M \RdData_reg[7]  ( .D(n185), .SI(RdData[6]), .SE(n465), .CK(CLK), 
+  SDFFRQX2M \RdData_reg[7]  ( .D(n185), .SI(RdData[6]), .SE(n481), .CK(CLK), 
         .RN(n437), .Q(RdData[7]) );
-  SDFFRQX2M \RdData_reg[6]  ( .D(n184), .SI(RdData[5]), .SE(n483), .CK(CLK), 
+  SDFFRQX2M \RdData_reg[6]  ( .D(n184), .SI(RdData[5]), .SE(test_se), .CK(CLK), 
         .RN(n437), .Q(RdData[6]) );
-  SDFFRQX2M \RdData_reg[5]  ( .D(n183), .SI(RdData[4]), .SE(n487), .CK(CLK), 
+  SDFFRQX2M \RdData_reg[5]  ( .D(n183), .SI(RdData[4]), .SE(n466), .CK(CLK), 
         .RN(n437), .Q(RdData[5]) );
-  SDFFRQX2M \RdData_reg[4]  ( .D(n182), .SI(RdData[3]), .SE(n488), .CK(CLK), 
+  SDFFRQX2M \RdData_reg[4]  ( .D(n182), .SI(RdData[3]), .SE(n487), .CK(CLK), 
         .RN(n437), .Q(RdData[4]) );
-  SDFFRQX2M \RdData_reg[3]  ( .D(n181), .SI(RdData[2]), .SE(n485), .CK(CLK), 
+  SDFFRQX2M \RdData_reg[3]  ( .D(n181), .SI(RdData[2]), .SE(n484), .CK(CLK), 
         .RN(n437), .Q(RdData[3]) );
-  SDFFRQX2M \RdData_reg[2]  ( .D(n180), .SI(RdData[1]), .SE(n489), .CK(CLK), 
+  SDFFRQX2M \RdData_reg[2]  ( .D(n180), .SI(RdData[1]), .SE(n479), .CK(CLK), 
         .RN(n437), .Q(RdData[2]) );
-  SDFFRQX2M \RdData_reg[1]  ( .D(n179), .SI(RdData[0]), .SE(n475), .CK(CLK), 
+  SDFFRQX2M \RdData_reg[1]  ( .D(n179), .SI(RdData[0]), .SE(n488), .CK(CLK), 
         .RN(n437), .Q(RdData[1]) );
-  SDFFRQX2M \RdData_reg[0]  ( .D(n178), .SI(RdData_Valid), .SE(n478), .CK(CLK), 
+  SDFFRQX2M \RdData_reg[0]  ( .D(n178), .SI(RdData_Valid), .SE(n474), .CK(CLK), 
         .RN(n442), .Q(RdData[0]) );
-  SDFFRQX2M \Reg_file_reg[5][7]  ( .D(n273), .SI(\Reg_file[5][6] ), .SE(n474), 
+  SDFFRQX2M \Reg_file_reg[5][7]  ( .D(n273), .SI(\Reg_file[5][6] ), .SE(n477), 
         .CK(CLK), .RN(n444), .Q(\Reg_file[5][7] ) );
-  SDFFRQX2M \Reg_file_reg[5][6]  ( .D(n272), .SI(\Reg_file[5][5] ), .SE(n484), 
+  SDFFRQX2M \Reg_file_reg[5][6]  ( .D(n272), .SI(\Reg_file[5][5] ), .SE(n476), 
         .CK(CLK), .RN(n444), .Q(\Reg_file[5][6] ) );
-  SDFFRQX2M \Reg_file_reg[5][5]  ( .D(n271), .SI(\Reg_file[5][4] ), .SE(n486), 
+  SDFFRQX2M \Reg_file_reg[5][5]  ( .D(n271), .SI(\Reg_file[5][4] ), .SE(n467), 
         .CK(CLK), .RN(n444), .Q(\Reg_file[5][5] ) );
-  SDFFRQX2M \Reg_file_reg[5][4]  ( .D(n270), .SI(\Reg_file[5][3] ), .SE(n484), 
+  SDFFRQX2M \Reg_file_reg[5][4]  ( .D(n270), .SI(\Reg_file[5][3] ), .SE(n486), 
         .CK(CLK), .RN(n444), .Q(\Reg_file[5][4] ) );
-  SDFFRQX2M \Reg_file_reg[5][3]  ( .D(n269), .SI(\Reg_file[5][2] ), .SE(n477), 
+  SDFFRQX2M \Reg_file_reg[5][3]  ( .D(n269), .SI(\Reg_file[5][2] ), .SE(n479), 
         .CK(CLK), .RN(n444), .Q(\Reg_file[5][3] ) );
-  SDFFRQX2M \Reg_file_reg[5][2]  ( .D(n268), .SI(\Reg_file[5][1] ), .SE(n486), 
+  SDFFRQX2M \Reg_file_reg[5][2]  ( .D(n268), .SI(\Reg_file[5][1] ), .SE(n478), 
         .CK(CLK), .RN(n444), .Q(\Reg_file[5][2] ) );
-  SDFFRQX2M \Reg_file_reg[5][1]  ( .D(n267), .SI(\Reg_file[5][0] ), .SE(n486), 
+  SDFFRQX2M \Reg_file_reg[5][1]  ( .D(n267), .SI(\Reg_file[5][0] ), .SE(n476), 
         .CK(CLK), .RN(n444), .Q(\Reg_file[5][1] ) );
-  SDFFRQX2M \Reg_file_reg[5][0]  ( .D(n266), .SI(\Reg_file[4][7] ), .SE(n474), 
+  SDFFRQX2M \Reg_file_reg[5][0]  ( .D(n266), .SI(\Reg_file[4][7] ), .SE(n478), 
         .CK(CLK), .RN(n444), .Q(\Reg_file[5][0] ) );
-  SDFFRQX2M \Reg_file_reg[7][7]  ( .D(n257), .SI(\Reg_file[7][6] ), .SE(n482), 
+  SDFFRQX2M \Reg_file_reg[7][7]  ( .D(n257), .SI(\Reg_file[7][6] ), .SE(n484), 
         .CK(CLK), .RN(n443), .Q(\Reg_file[7][7] ) );
-  SDFFRQX2M \Reg_file_reg[7][6]  ( .D(n256), .SI(\Reg_file[7][5] ), .SE(n485), 
+  SDFFRQX2M \Reg_file_reg[7][6]  ( .D(n256), .SI(\Reg_file[7][5] ), .SE(n482), 
         .CK(CLK), .RN(n443), .Q(\Reg_file[7][6] ) );
-  SDFFRQX2M \Reg_file_reg[7][5]  ( .D(n255), .SI(\Reg_file[7][4] ), .SE(n466), 
+  SDFFRQX2M \Reg_file_reg[7][5]  ( .D(n255), .SI(\Reg_file[7][4] ), .SE(n488), 
         .CK(CLK), .RN(n443), .Q(\Reg_file[7][5] ) );
-  SDFFRQX2M \Reg_file_reg[7][4]  ( .D(n254), .SI(\Reg_file[7][3] ), .SE(n478), 
+  SDFFRQX2M \Reg_file_reg[7][4]  ( .D(n254), .SI(\Reg_file[7][3] ), .SE(n483), 
         .CK(CLK), .RN(n443), .Q(\Reg_file[7][4] ) );
-  SDFFRQX2M \Reg_file_reg[7][3]  ( .D(n253), .SI(\Reg_file[7][2] ), .SE(n466), 
+  SDFFRQX2M \Reg_file_reg[7][3]  ( .D(n253), .SI(\Reg_file[7][2] ), .SE(n489), 
         .CK(CLK), .RN(n443), .Q(\Reg_file[7][3] ) );
-  SDFFRQX2M \Reg_file_reg[7][2]  ( .D(n252), .SI(\Reg_file[7][1] ), .SE(n481), 
+  SDFFRQX2M \Reg_file_reg[7][2]  ( .D(n252), .SI(\Reg_file[7][1] ), .SE(n478), 
         .CK(CLK), .RN(n443), .Q(\Reg_file[7][2] ) );
-  SDFFRQX2M \Reg_file_reg[7][1]  ( .D(n251), .SI(\Reg_file[7][0] ), .SE(n466), 
+  SDFFRQX2M \Reg_file_reg[7][1]  ( .D(n251), .SI(\Reg_file[7][0] ), .SE(n488), 
         .CK(CLK), .RN(n443), .Q(\Reg_file[7][1] ) );
   SDFFRQX2M \Reg_file_reg[7][0]  ( .D(n250), .SI(\Reg_file[6][7] ), .SE(n473), 
         .CK(CLK), .RN(n442), .Q(\Reg_file[7][0] ) );
-  SDFFRQX2M \Reg_file_reg[9][7]  ( .D(n241), .SI(\Reg_file[9][6] ), .SE(n480), 
+  SDFFRQX2M \Reg_file_reg[9][7]  ( .D(n241), .SI(\Reg_file[9][6] ), .SE(n476), 
         .CK(CLK), .RN(n442), .Q(\Reg_file[9][7] ) );
-  SDFFRQX2M \Reg_file_reg[9][6]  ( .D(n240), .SI(\Reg_file[9][5] ), .SE(n481), 
+  SDFFRQX2M \Reg_file_reg[9][6]  ( .D(n240), .SI(\Reg_file[9][5] ), .SE(n483), 
         .CK(CLK), .RN(n442), .Q(\Reg_file[9][6] ) );
-  SDFFRQX2M \Reg_file_reg[9][5]  ( .D(n239), .SI(\Reg_file[9][4] ), .SE(n466), 
+  SDFFRQX2M \Reg_file_reg[9][5]  ( .D(n239), .SI(\Reg_file[9][4] ), .SE(n477), 
         .CK(CLK), .RN(n442), .Q(\Reg_file[9][5] ) );
-  SDFFRQX2M \Reg_file_reg[9][4]  ( .D(n238), .SI(\Reg_file[9][3] ), .SE(n480), 
+  SDFFRQX2M \Reg_file_reg[9][4]  ( .D(n238), .SI(\Reg_file[9][3] ), .SE(n476), 
         .CK(CLK), .RN(n441), .Q(\Reg_file[9][4] ) );
-  SDFFRQX2M \Reg_file_reg[9][3]  ( .D(n237), .SI(\Reg_file[9][2] ), .SE(n474), 
+  SDFFRQX2M \Reg_file_reg[9][3]  ( .D(n237), .SI(\Reg_file[9][2] ), .SE(n489), 
         .CK(CLK), .RN(n441), .Q(\Reg_file[9][3] ) );
-  SDFFRQX2M \Reg_file_reg[9][2]  ( .D(n236), .SI(\Reg_file[9][1] ), .SE(n474), 
+  SDFFRQX2M \Reg_file_reg[9][2]  ( .D(n236), .SI(\Reg_file[9][1] ), .SE(n467), 
         .CK(CLK), .RN(n441), .Q(\Reg_file[9][2] ) );
-  SDFFRQX2M \Reg_file_reg[9][1]  ( .D(n235), .SI(\Reg_file[9][0] ), .SE(n465), 
+  SDFFRQX2M \Reg_file_reg[9][1]  ( .D(n235), .SI(\Reg_file[9][0] ), .SE(n485), 
         .CK(CLK), .RN(n441), .Q(\Reg_file[9][1] ) );
-  SDFFRQX2M \Reg_file_reg[9][0]  ( .D(n234), .SI(\Reg_file[8][7] ), .SE(n464), 
+  SDFFRQX2M \Reg_file_reg[9][0]  ( .D(n234), .SI(\Reg_file[8][7] ), .SE(n484), 
         .CK(CLK), .RN(n441), .Q(\Reg_file[9][0] ) );
-  SDFFRQX2M \Reg_file_reg[11][7]  ( .D(n225), .SI(\Reg_file[11][6] ), .SE(n473), .CK(CLK), .RN(n440), .Q(\Reg_file[11][7] ) );
-  SDFFRQX2M \Reg_file_reg[11][6]  ( .D(n224), .SI(\Reg_file[11][5] ), .SE(n465), .CK(CLK), .RN(n440), .Q(\Reg_file[11][6] ) );
-  SDFFRQX2M \Reg_file_reg[11][5]  ( .D(n223), .SI(\Reg_file[11][4] ), .SE(n464), .CK(CLK), .RN(n440), .Q(\Reg_file[11][5] ) );
-  SDFFRQX2M \Reg_file_reg[11][4]  ( .D(n222), .SI(\Reg_file[11][3] ), .SE(n485), .CK(CLK), .RN(n440), .Q(\Reg_file[11][4] ) );
-  SDFFRQX2M \Reg_file_reg[11][3]  ( .D(n221), .SI(\Reg_file[11][2] ), .SE(n487), .CK(CLK), .RN(n440), .Q(\Reg_file[11][3] ) );
-  SDFFRQX2M \Reg_file_reg[11][2]  ( .D(n220), .SI(\Reg_file[11][1] ), .SE(n487), .CK(CLK), .RN(n440), .Q(\Reg_file[11][2] ) );
-  SDFFRQX2M \Reg_file_reg[11][1]  ( .D(n219), .SI(\Reg_file[11][0] ), .SE(n485), .CK(CLK), .RN(n440), .Q(\Reg_file[11][1] ) );
-  SDFFRQX2M \Reg_file_reg[11][0]  ( .D(n218), .SI(\Reg_file[10][7] ), .SE(n477), .CK(CLK), .RN(n440), .Q(\Reg_file[11][0] ) );
-  SDFFRQX2M \Reg_file_reg[13][7]  ( .D(n209), .SI(\Reg_file[13][6] ), .SE(n466), .CK(CLK), .RN(n439), .Q(\Reg_file[13][7] ) );
-  SDFFRQX2M \Reg_file_reg[13][6]  ( .D(n208), .SI(\Reg_file[13][5] ), .SE(n483), .CK(CLK), .RN(n439), .Q(\Reg_file[13][6] ) );
-  SDFFRQX2M \Reg_file_reg[13][5]  ( .D(n207), .SI(\Reg_file[13][4] ), .SE(n476), .CK(CLK), .RN(n439), .Q(\Reg_file[13][5] ) );
-  SDFFRQX2M \Reg_file_reg[13][4]  ( .D(n206), .SI(\Reg_file[13][3] ), .SE(n477), .CK(CLK), .RN(n439), .Q(\Reg_file[13][4] ) );
-  SDFFRQX2M \Reg_file_reg[13][3]  ( .D(n205), .SI(\Reg_file[13][2] ), .SE(n465), .CK(CLK), .RN(n439), .Q(\Reg_file[13][3] ) );
-  SDFFRQX2M \Reg_file_reg[13][2]  ( .D(n204), .SI(\Reg_file[13][1] ), .SE(n480), .CK(CLK), .RN(n439), .Q(\Reg_file[13][2] ) );
-  SDFFRQX2M \Reg_file_reg[13][1]  ( .D(n203), .SI(\Reg_file[13][0] ), .SE(n467), .CK(CLK), .RN(n439), .Q(\Reg_file[13][1] ) );
-  SDFFRQX2M \Reg_file_reg[13][0]  ( .D(n202), .SI(\Reg_file[12][7] ), .SE(n474), .CK(CLK), .RN(n439), .Q(\Reg_file[13][0] ) );
-  SDFFRQX2M \Reg_file_reg[15][6]  ( .D(n192), .SI(\Reg_file[15][5] ), .SE(n479), .CK(CLK), .RN(n438), .Q(\Reg_file[15][6] ) );
-  SDFFRQX2M \Reg_file_reg[15][5]  ( .D(n191), .SI(\Reg_file[15][4] ), .SE(n489), .CK(CLK), .RN(n438), .Q(\Reg_file[15][5] ) );
-  SDFFRQX2M \Reg_file_reg[15][4]  ( .D(n190), .SI(\Reg_file[15][3] ), .SE(n482), .CK(CLK), .RN(n438), .Q(\Reg_file[15][4] ) );
-  SDFFRQX2M \Reg_file_reg[15][3]  ( .D(n189), .SI(\Reg_file[15][2] ), .SE(n479), .CK(CLK), .RN(n438), .Q(\Reg_file[15][3] ) );
-  SDFFRQX2M \Reg_file_reg[15][2]  ( .D(n188), .SI(\Reg_file[15][1] ), .SE(n483), .CK(CLK), .RN(n438), .Q(\Reg_file[15][2] ) );
-  SDFFRQX2M \Reg_file_reg[15][1]  ( .D(n187), .SI(\Reg_file[15][0] ), .SE(n488), .CK(CLK), .RN(n437), .Q(\Reg_file[15][1] ) );
-  SDFFRQX2M \Reg_file_reg[15][0]  ( .D(n186), .SI(\Reg_file[14][7] ), .SE(n464), .CK(CLK), .RN(n438), .Q(\Reg_file[15][0] ) );
-  SDFFRQX2M \Reg_file_reg[4][7]  ( .D(n281), .SI(\Reg_file[4][6] ), .SE(n478), 
+  SDFFRQX2M \Reg_file_reg[11][7]  ( .D(n225), .SI(\Reg_file[11][6] ), .SE(n481), .CK(CLK), .RN(n440), .Q(\Reg_file[11][7] ) );
+  SDFFRQX2M \Reg_file_reg[11][6]  ( .D(n224), .SI(\Reg_file[11][5] ), .SE(n475), .CK(CLK), .RN(n440), .Q(\Reg_file[11][6] ) );
+  SDFFRQX2M \Reg_file_reg[11][5]  ( .D(n223), .SI(\Reg_file[11][4] ), .SE(n484), .CK(CLK), .RN(n440), .Q(\Reg_file[11][5] ) );
+  SDFFRQX2M \Reg_file_reg[11][4]  ( .D(n222), .SI(\Reg_file[11][3] ), .SE(n477), .CK(CLK), .RN(n440), .Q(\Reg_file[11][4] ) );
+  SDFFRQX2M \Reg_file_reg[11][3]  ( .D(n221), .SI(\Reg_file[11][2] ), .SE(n485), .CK(CLK), .RN(n440), .Q(\Reg_file[11][3] ) );
+  SDFFRQX2M \Reg_file_reg[11][2]  ( .D(n220), .SI(\Reg_file[11][1] ), .SE(n467), .CK(CLK), .RN(n440), .Q(\Reg_file[11][2] ) );
+  SDFFRQX2M \Reg_file_reg[11][1]  ( .D(n219), .SI(\Reg_file[11][0] ), .SE(n484), .CK(CLK), .RN(n440), .Q(\Reg_file[11][1] ) );
+  SDFFRQX2M \Reg_file_reg[11][0]  ( .D(n218), .SI(\Reg_file[10][7] ), .SE(n478), .CK(CLK), .RN(n440), .Q(\Reg_file[11][0] ) );
+  SDFFRQX2M \Reg_file_reg[13][7]  ( .D(n209), .SI(\Reg_file[13][6] ), .SE(n465), .CK(CLK), .RN(n439), .Q(\Reg_file[13][7] ) );
+  SDFFRQX2M \Reg_file_reg[13][6]  ( .D(n208), .SI(\Reg_file[13][5] ), .SE(n481), .CK(CLK), .RN(n439), .Q(\Reg_file[13][6] ) );
+  SDFFRQX2M \Reg_file_reg[13][5]  ( .D(n207), .SI(\Reg_file[13][4] ), .SE(n487), .CK(CLK), .RN(n439), .Q(\Reg_file[13][5] ) );
+  SDFFRQX2M \Reg_file_reg[13][4]  ( .D(n206), .SI(\Reg_file[13][3] ), .SE(n474), .CK(CLK), .RN(n439), .Q(\Reg_file[13][4] ) );
+  SDFFRQX2M \Reg_file_reg[13][3]  ( .D(n205), .SI(\Reg_file[13][2] ), .SE(n479), .CK(CLK), .RN(n439), .Q(\Reg_file[13][3] ) );
+  SDFFRQX2M \Reg_file_reg[13][2]  ( .D(n204), .SI(\Reg_file[13][1] ), .SE(n476), .CK(CLK), .RN(n439), .Q(\Reg_file[13][2] ) );
+  SDFFRQX2M \Reg_file_reg[13][1]  ( .D(n203), .SI(\Reg_file[13][0] ), .SE(n486), .CK(CLK), .RN(n439), .Q(\Reg_file[13][1] ) );
+  SDFFRQX2M \Reg_file_reg[13][0]  ( .D(n202), .SI(\Reg_file[12][7] ), .SE(n489), .CK(CLK), .RN(n439), .Q(\Reg_file[13][0] ) );
+  SDFFRQX2M \Reg_file_reg[15][7]  ( .D(n193), .SI(\Reg_file[15][6] ), .SE(n475), .CK(CLK), .RN(n438), .Q(\Reg_file[15][7] ) );
+  SDFFRQX2M \Reg_file_reg[15][6]  ( .D(n192), .SI(\Reg_file[15][5] ), .SE(n466), .CK(CLK), .RN(n438), .Q(\Reg_file[15][6] ) );
+  SDFFRQX2M \Reg_file_reg[15][5]  ( .D(n191), .SI(\Reg_file[15][4] ), .SE(n474), .CK(CLK), .RN(n438), .Q(\Reg_file[15][5] ) );
+  SDFFRQX2M \Reg_file_reg[15][4]  ( .D(n190), .SI(\Reg_file[15][3] ), .SE(n466), .CK(CLK), .RN(n438), .Q(\Reg_file[15][4] ) );
+  SDFFRQX2M \Reg_file_reg[15][3]  ( .D(n189), .SI(\Reg_file[15][2] ), .SE(
+        test_se), .CK(CLK), .RN(n438), .Q(\Reg_file[15][3] ) );
+  SDFFRQX2M \Reg_file_reg[15][2]  ( .D(n188), .SI(\Reg_file[15][1] ), .SE(n480), .CK(CLK), .RN(n438), .Q(\Reg_file[15][2] ) );
+  SDFFRQX2M \Reg_file_reg[15][1]  ( .D(n187), .SI(\Reg_file[15][0] ), .SE(n487), .CK(CLK), .RN(n437), .Q(\Reg_file[15][1] ) );
+  SDFFRQX2M \Reg_file_reg[15][0]  ( .D(n186), .SI(\Reg_file[14][7] ), .SE(n483), .CK(CLK), .RN(n438), .Q(\Reg_file[15][0] ) );
+  SDFFRQX2M \Reg_file_reg[4][7]  ( .D(n281), .SI(\Reg_file[4][6] ), .SE(n474), 
         .CK(CLK), .RN(n445), .Q(\Reg_file[4][7] ) );
-  SDFFRQX2M \Reg_file_reg[4][6]  ( .D(n280), .SI(\Reg_file[4][5] ), .SE(n476), 
+  SDFFRQX2M \Reg_file_reg[4][6]  ( .D(n280), .SI(\Reg_file[4][5] ), .SE(n481), 
         .CK(CLK), .RN(n445), .Q(\Reg_file[4][6] ) );
-  SDFFRQX2M \Reg_file_reg[4][5]  ( .D(n279), .SI(\Reg_file[4][4] ), .SE(n488), 
+  SDFFRQX2M \Reg_file_reg[4][5]  ( .D(n279), .SI(\Reg_file[4][4] ), .SE(n482), 
         .CK(CLK), .RN(n445), .Q(\Reg_file[4][5] ) );
-  SDFFRQX2M \Reg_file_reg[4][4]  ( .D(n278), .SI(\Reg_file[4][3] ), .SE(n465), 
+  SDFFRQX2M \Reg_file_reg[4][4]  ( .D(n278), .SI(\Reg_file[4][3] ), .SE(n475), 
         .CK(CLK), .RN(n445), .Q(\Reg_file[4][4] ) );
   SDFFRQX2M \Reg_file_reg[4][3]  ( .D(n277), .SI(\Reg_file[4][2] ), .SE(n473), 
         .CK(CLK), .RN(n445), .Q(\Reg_file[4][3] ) );
-  SDFFRQX2M \Reg_file_reg[4][2]  ( .D(n276), .SI(test_si2), .SE(n478), .CK(CLK), .RN(n444), .Q(\Reg_file[4][2] ) );
-  SDFFRQX2M \Reg_file_reg[4][1]  ( .D(n275), .SI(\Reg_file[4][0] ), .SE(n476), 
+  SDFFRQX2M \Reg_file_reg[4][2]  ( .D(n276), .SI(test_si2), .SE(n480), .CK(CLK), .RN(n444), .Q(\Reg_file[4][2] ) );
+  SDFFRQX2M \Reg_file_reg[4][1]  ( .D(n275), .SI(\Reg_file[4][0] ), .SE(n481), 
         .CK(CLK), .RN(n444), .Q(\Reg_file[4][1] ) );
-  SDFFRQX2M \Reg_file_reg[4][0]  ( .D(n274), .SI(REG3[7]), .SE(n486), .CK(CLK), 
+  SDFFRQX2M \Reg_file_reg[4][0]  ( .D(n274), .SI(REG3[7]), .SE(n489), .CK(CLK), 
         .RN(n444), .Q(\Reg_file[4][0] ) );
-  SDFFRQX2M \Reg_file_reg[6][7]  ( .D(n265), .SI(\Reg_file[6][6] ), .SE(n482), 
+  SDFFRQX2M \Reg_file_reg[6][7]  ( .D(n265), .SI(\Reg_file[6][6] ), .SE(n486), 
         .CK(CLK), .RN(n444), .Q(\Reg_file[6][7] ) );
-  SDFFRQX2M \Reg_file_reg[6][6]  ( .D(n264), .SI(\Reg_file[6][5] ), .SE(n475), 
+  SDFFRQX2M \Reg_file_reg[6][6]  ( .D(n264), .SI(\Reg_file[6][5] ), .SE(n482), 
         .CK(CLK), .RN(n444), .Q(\Reg_file[6][6] ) );
-  SDFFRQX2M \Reg_file_reg[6][5]  ( .D(n263), .SI(\Reg_file[6][4] ), .SE(n473), 
+  SDFFRQX2M \Reg_file_reg[6][5]  ( .D(n263), .SI(\Reg_file[6][4] ), .SE(n477), 
         .CK(CLK), .RN(n443), .Q(\Reg_file[6][5] ) );
-  SDFFRQX2M \Reg_file_reg[6][4]  ( .D(n262), .SI(\Reg_file[6][3] ), .SE(n480), 
+  SDFFRQX2M \Reg_file_reg[6][4]  ( .D(n262), .SI(\Reg_file[6][3] ), .SE(n488), 
         .CK(CLK), .RN(n443), .Q(\Reg_file[6][4] ) );
-  SDFFRQX2M \Reg_file_reg[6][3]  ( .D(n261), .SI(\Reg_file[6][2] ), .SE(n482), 
+  SDFFRQX2M \Reg_file_reg[6][3]  ( .D(n261), .SI(\Reg_file[6][2] ), .SE(n486), 
         .CK(CLK), .RN(n443), .Q(\Reg_file[6][3] ) );
-  SDFFRQX2M \Reg_file_reg[6][2]  ( .D(n260), .SI(\Reg_file[6][1] ), .SE(n482), 
+  SDFFRQX2M \Reg_file_reg[6][2]  ( .D(n260), .SI(\Reg_file[6][1] ), .SE(n483), 
         .CK(CLK), .RN(n443), .Q(\Reg_file[6][2] ) );
-  SDFFRQX2M \Reg_file_reg[6][1]  ( .D(n259), .SI(\Reg_file[6][0] ), .SE(n474), 
+  SDFFRQX2M \Reg_file_reg[6][1]  ( .D(n259), .SI(\Reg_file[6][0] ), .SE(n477), 
         .CK(CLK), .RN(n443), .Q(\Reg_file[6][1] ) );
-  SDFFRQX2M \Reg_file_reg[6][0]  ( .D(n258), .SI(\Reg_file[5][7] ), .SE(n475), 
+  SDFFRQX2M \Reg_file_reg[6][0]  ( .D(n258), .SI(\Reg_file[5][7] ), .SE(n474), 
         .CK(CLK), .RN(n443), .Q(\Reg_file[6][0] ) );
-  SDFFRQX2M \Reg_file_reg[8][7]  ( .D(n249), .SI(\Reg_file[8][6] ), .SE(n485), 
+  SDFFRQX2M \Reg_file_reg[8][7]  ( .D(n249), .SI(\Reg_file[8][6] ), .SE(n466), 
         .CK(CLK), .RN(n442), .Q(\Reg_file[8][7] ) );
-  SDFFRQX2M \Reg_file_reg[8][6]  ( .D(n248), .SI(\Reg_file[8][5] ), .SE(n465), 
+  SDFFRQX2M \Reg_file_reg[8][6]  ( .D(n248), .SI(\Reg_file[8][5] ), .SE(n488), 
         .CK(CLK), .RN(n442), .Q(\Reg_file[8][6] ) );
-  SDFFRQX2M \Reg_file_reg[8][5]  ( .D(n247), .SI(\Reg_file[8][4] ), .SE(n482), 
+  SDFFRQX2M \Reg_file_reg[8][5]  ( .D(n247), .SI(\Reg_file[8][4] ), .SE(n474), 
         .CK(CLK), .RN(n442), .Q(\Reg_file[8][5] ) );
-  SDFFRQX2M \Reg_file_reg[8][4]  ( .D(n246), .SI(\Reg_file[8][3] ), .SE(n465), 
+  SDFFRQX2M \Reg_file_reg[8][4]  ( .D(n246), .SI(\Reg_file[8][3] ), .SE(n480), 
         .CK(CLK), .RN(n442), .Q(\Reg_file[8][4] ) );
-  SDFFRQX2M \Reg_file_reg[8][3]  ( .D(n245), .SI(\Reg_file[8][2] ), .SE(n476), 
+  SDFFRQX2M \Reg_file_reg[8][3]  ( .D(n245), .SI(\Reg_file[8][2] ), .SE(n475), 
         .CK(CLK), .RN(n442), .Q(\Reg_file[8][3] ) );
-  SDFFRQX2M \Reg_file_reg[8][2]  ( .D(n244), .SI(\Reg_file[8][1] ), .SE(n466), 
+  SDFFRQX2M \Reg_file_reg[8][2]  ( .D(n244), .SI(\Reg_file[8][1] ), .SE(n475), 
         .CK(CLK), .RN(n442), .Q(\Reg_file[8][2] ) );
-  SDFFRQX2M \Reg_file_reg[8][1]  ( .D(n243), .SI(\Reg_file[8][0] ), .SE(n481), 
+  SDFFRQX2M \Reg_file_reg[8][1]  ( .D(n243), .SI(\Reg_file[8][0] ), .SE(n474), 
         .CK(CLK), .RN(n442), .Q(\Reg_file[8][1] ) );
-  SDFFRQX2M \Reg_file_reg[8][0]  ( .D(n242), .SI(\Reg_file[7][7] ), .SE(n464), 
+  SDFFRQX2M \Reg_file_reg[8][0]  ( .D(n242), .SI(\Reg_file[7][7] ), .SE(n466), 
         .CK(CLK), .RN(n442), .Q(\Reg_file[8][0] ) );
-  SDFFRQX2M \Reg_file_reg[10][7]  ( .D(n233), .SI(\Reg_file[10][6] ), .SE(n487), .CK(CLK), .RN(n441), .Q(\Reg_file[10][7] ) );
-  SDFFRQX2M \Reg_file_reg[10][6]  ( .D(n232), .SI(\Reg_file[10][5] ), .SE(n484), .CK(CLK), .RN(n441), .Q(\Reg_file[10][6] ) );
-  SDFFRQX2M \Reg_file_reg[10][5]  ( .D(n231), .SI(\Reg_file[10][4] ), .SE(n479), .CK(CLK), .RN(n441), .Q(\Reg_file[10][5] ) );
-  SDFFRQX2M \Reg_file_reg[10][4]  ( .D(n230), .SI(\Reg_file[10][3] ), .SE(n486), .CK(CLK), .RN(n441), .Q(\Reg_file[10][4] ) );
-  SDFFRQX2M \Reg_file_reg[10][3]  ( .D(n229), .SI(\Reg_file[10][2] ), .SE(n480), .CK(CLK), .RN(n441), .Q(\Reg_file[10][3] ) );
-  SDFFRQX2M \Reg_file_reg[10][2]  ( .D(n228), .SI(\Reg_file[10][1] ), .SE(n475), .CK(CLK), .RN(n441), .Q(\Reg_file[10][2] ) );
-  SDFFRQX2M \Reg_file_reg[10][1]  ( .D(n227), .SI(\Reg_file[10][0] ), .SE(n481), .CK(CLK), .RN(n441), .Q(\Reg_file[10][1] ) );
-  SDFFRQX2M \Reg_file_reg[10][0]  ( .D(n226), .SI(\Reg_file[9][7] ), .SE(n482), 
+  SDFFRQX2M \Reg_file_reg[10][7]  ( .D(n233), .SI(\Reg_file[10][6] ), .SE(n473), .CK(CLK), .RN(n441), .Q(\Reg_file[10][7] ) );
+  SDFFRQX2M \Reg_file_reg[10][6]  ( .D(n232), .SI(\Reg_file[10][5] ), .SE(n480), .CK(CLK), .RN(n441), .Q(\Reg_file[10][6] ) );
+  SDFFRQX2M \Reg_file_reg[10][5]  ( .D(n231), .SI(\Reg_file[10][4] ), .SE(n475), .CK(CLK), .RN(n441), .Q(\Reg_file[10][5] ) );
+  SDFFRQX2M \Reg_file_reg[10][4]  ( .D(n230), .SI(\Reg_file[10][3] ), .SE(n467), .CK(CLK), .RN(n441), .Q(\Reg_file[10][4] ) );
+  SDFFRQX2M \Reg_file_reg[10][3]  ( .D(n229), .SI(\Reg_file[10][2] ), .SE(n479), .CK(CLK), .RN(n441), .Q(\Reg_file[10][3] ) );
+  SDFFRQX2M \Reg_file_reg[10][2]  ( .D(n228), .SI(\Reg_file[10][1] ), .SE(n486), .CK(CLK), .RN(n441), .Q(\Reg_file[10][2] ) );
+  SDFFRQX2M \Reg_file_reg[10][1]  ( .D(n227), .SI(\Reg_file[10][0] ), .SE(n483), .CK(CLK), .RN(n441), .Q(\Reg_file[10][1] ) );
+  SDFFRQX2M \Reg_file_reg[10][0]  ( .D(n226), .SI(\Reg_file[9][7] ), .SE(n477), 
         .CK(CLK), .RN(n441), .Q(\Reg_file[10][0] ) );
-  SDFFRQX2M \Reg_file_reg[12][7]  ( .D(n217), .SI(\Reg_file[12][6] ), .SE(n474), .CK(CLK), .RN(n440), .Q(\Reg_file[12][7] ) );
-  SDFFRQX2M \Reg_file_reg[12][6]  ( .D(n216), .SI(\Reg_file[12][5] ), .SE(n486), .CK(CLK), .RN(n440), .Q(\Reg_file[12][6] ) );
-  SDFFRQX2M \Reg_file_reg[12][5]  ( .D(n215), .SI(\Reg_file[12][4] ), .SE(n484), .CK(CLK), .RN(n440), .Q(\Reg_file[12][5] ) );
-  SDFFRQX2M \Reg_file_reg[12][4]  ( .D(n214), .SI(\Reg_file[12][3] ), .SE(n489), .CK(CLK), .RN(n440), .Q(\Reg_file[12][4] ) );
-  SDFFRQX2M \Reg_file_reg[12][3]  ( .D(n213), .SI(\Reg_file[12][2] ), .SE(n486), .CK(CLK), .RN(n440), .Q(\Reg_file[12][3] ) );
-  SDFFRQX2M \Reg_file_reg[12][2]  ( .D(n212), .SI(\Reg_file[12][1] ), .SE(n464), .CK(CLK), .RN(n439), .Q(\Reg_file[12][2] ) );
-  SDFFRQX2M \Reg_file_reg[12][1]  ( .D(n211), .SI(\Reg_file[12][0] ), .SE(n476), .CK(CLK), .RN(n439), .Q(\Reg_file[12][1] ) );
-  SDFFRQX2M \Reg_file_reg[12][0]  ( .D(n210), .SI(\Reg_file[11][7] ), .SE(n489), .CK(CLK), .RN(n439), .Q(\Reg_file[12][0] ) );
-  SDFFRQX2M \Reg_file_reg[14][7]  ( .D(n201), .SI(\Reg_file[14][6] ), .SE(n475), .CK(CLK), .RN(n439), .Q(\Reg_file[14][7] ) );
-  SDFFRQX2M \Reg_file_reg[14][6]  ( .D(n200), .SI(\Reg_file[14][5] ), .SE(n480), .CK(CLK), .RN(n439), .Q(\Reg_file[14][6] ) );
-  SDFFRQX2M \Reg_file_reg[14][5]  ( .D(n199), .SI(\Reg_file[14][4] ), .SE(n479), .CK(CLK), .RN(n438), .Q(\Reg_file[14][5] ) );
-  SDFFRQX2M \Reg_file_reg[14][4]  ( .D(n198), .SI(\Reg_file[14][3] ), .SE(n473), .CK(CLK), .RN(n438), .Q(\Reg_file[14][4] ) );
-  SDFFRQX2M \Reg_file_reg[14][3]  ( .D(n197), .SI(\Reg_file[14][2] ), .SE(n489), .CK(CLK), .RN(n438), .Q(\Reg_file[14][3] ) );
-  SDFFRQX2M \Reg_file_reg[14][2]  ( .D(n196), .SI(\Reg_file[14][1] ), .SE(n481), .CK(CLK), .RN(n438), .Q(\Reg_file[14][2] ) );
+  SDFFRQX2M \Reg_file_reg[12][7]  ( .D(n217), .SI(\Reg_file[12][6] ), .SE(n478), .CK(CLK), .RN(n440), .Q(\Reg_file[12][7] ) );
+  SDFFRQX2M \Reg_file_reg[12][6]  ( .D(n216), .SI(\Reg_file[12][5] ), .SE(n489), .CK(CLK), .RN(n440), .Q(\Reg_file[12][6] ) );
+  SDFFRQX2M \Reg_file_reg[12][5]  ( .D(n215), .SI(\Reg_file[12][4] ), .SE(n485), .CK(CLK), .RN(n440), .Q(\Reg_file[12][5] ) );
+  SDFFRQX2M \Reg_file_reg[12][4]  ( .D(n214), .SI(\Reg_file[12][3] ), .SE(n467), .CK(CLK), .RN(n440), .Q(\Reg_file[12][4] ) );
+  SDFFRQX2M \Reg_file_reg[12][3]  ( .D(n213), .SI(\Reg_file[12][2] ), .SE(n467), .CK(CLK), .RN(n440), .Q(\Reg_file[12][3] ) );
+  SDFFRQX2M \Reg_file_reg[12][2]  ( .D(n212), .SI(\Reg_file[12][1] ), .SE(n481), .CK(CLK), .RN(n439), .Q(\Reg_file[12][2] ) );
+  SDFFRQX2M \Reg_file_reg[12][1]  ( .D(n211), .SI(\Reg_file[12][0] ), .SE(n487), .CK(CLK), .RN(n439), .Q(\Reg_file[12][1] ) );
+  SDFFRQX2M \Reg_file_reg[12][0]  ( .D(n210), .SI(\Reg_file[11][7] ), .SE(n473), .CK(CLK), .RN(n439), .Q(\Reg_file[12][0] ) );
+  SDFFRQX2M \Reg_file_reg[14][7]  ( .D(n201), .SI(\Reg_file[14][6] ), .SE(n479), .CK(CLK), .RN(n439), .Q(\Reg_file[14][7] ) );
+  SDFFRQX2M \Reg_file_reg[14][6]  ( .D(n200), .SI(\Reg_file[14][5] ), .SE(n485), .CK(CLK), .RN(n439), .Q(\Reg_file[14][6] ) );
+  SDFFRQX2M \Reg_file_reg[14][5]  ( .D(n199), .SI(\Reg_file[14][4] ), .SE(n473), .CK(CLK), .RN(n438), .Q(\Reg_file[14][5] ) );
+  SDFFRQX2M \Reg_file_reg[14][4]  ( .D(n198), .SI(\Reg_file[14][3] ), .SE(n486), .CK(CLK), .RN(n438), .Q(\Reg_file[14][4] ) );
+  SDFFRQX2M \Reg_file_reg[14][3]  ( .D(n197), .SI(\Reg_file[14][2] ), .SE(n488), .CK(CLK), .RN(n438), .Q(\Reg_file[14][3] ) );
+  SDFFRQX2M \Reg_file_reg[14][2]  ( .D(n196), .SI(\Reg_file[14][1] ), .SE(n488), .CK(CLK), .RN(n438), .Q(\Reg_file[14][2] ) );
   SDFFRQX2M \Reg_file_reg[14][1]  ( .D(n195), .SI(\Reg_file[14][0] ), .SE(n473), .CK(CLK), .RN(n438), .Q(\Reg_file[14][1] ) );
   SDFFRQX2M \Reg_file_reg[14][0]  ( .D(n194), .SI(\Reg_file[13][7] ), .SE(n479), .CK(CLK), .RN(n438), .Q(\Reg_file[14][0] ) );
-  SDFFSQX2M \Reg_file_reg[3][5]  ( .D(n287), .SI(REG3[4]), .SE(n488), .CK(CLK), 
+  SDFFSQX2M \Reg_file_reg[3][5]  ( .D(n287), .SI(REG3[4]), .SE(n464), .CK(CLK), 
         .SN(n437), .Q(REG3[5]) );
-  SDFFRQX2M \Reg_file_reg[2][1]  ( .D(n291), .SI(REG2[0]), .SE(n488), .CK(CLK), 
+  SDFFRQX2M \Reg_file_reg[2][1]  ( .D(n291), .SI(REG2[0]), .SE(n466), .CK(CLK), 
         .RN(n445), .Q(REG2[1]) );
-  SDFFSQX2M \Reg_file_reg[2][0]  ( .D(n290), .SI(REG1[7]), .SE(n483), .CK(CLK), 
+  SDFFSQX2M \Reg_file_reg[2][0]  ( .D(n290), .SI(REG1[7]), .SE(n465), .CK(CLK), 
         .SN(n437), .Q(REG2[0]) );
-  SDFFRQX2M \Reg_file_reg[3][1]  ( .D(n283), .SI(REG3[0]), .SE(n488), .CK(CLK), 
+  SDFFRQX2M \Reg_file_reg[3][1]  ( .D(n283), .SI(REG3[0]), .SE(n475), .CK(CLK), 
         .RN(n445), .Q(REG3[1]) );
   SDFFRQX2M \Reg_file_reg[3][3]  ( .D(n285), .SI(REG3[2]), .SE(n473), .CK(CLK), 
         .RN(n445), .Q(REG3[3]) );
-  SDFFRQX2M \Reg_file_reg[3][2]  ( .D(n284), .SI(REG3[1]), .SE(n481), .CK(CLK), 
+  SDFFRQX2M \Reg_file_reg[3][2]  ( .D(n284), .SI(REG3[1]), .SE(n482), .CK(CLK), 
         .RN(n445), .Q(REG3[2]) );
-  SDFFRQX2M \Reg_file_reg[3][6]  ( .D(n288), .SI(REG3[5]), .SE(n478), .CK(CLK), 
+  SDFFRQX2M \Reg_file_reg[3][6]  ( .D(n288), .SI(REG3[5]), .SE(n467), .CK(CLK), 
         .RN(n445), .Q(REG3[6]) );
-  SDFFRQX2M \Reg_file_reg[3][4]  ( .D(n286), .SI(REG3[3]), .SE(n477), .CK(CLK), 
+  SDFFRQX2M \Reg_file_reg[3][4]  ( .D(n286), .SI(REG3[3]), .SE(n487), .CK(CLK), 
         .RN(n445), .Q(REG3[4]) );
-  SDFFRQX2M \Reg_file_reg[3][7]  ( .D(n289), .SI(REG3[6]), .SE(n483), .CK(CLK), 
+  SDFFRQX2M \Reg_file_reg[3][7]  ( .D(n289), .SI(REG3[6]), .SE(n478), .CK(CLK), 
         .RN(n445), .Q(REG3[7]) );
-  SDFFRQX2M \Reg_file_reg[3][0]  ( .D(n282), .SI(REG2[7]), .SE(n485), .CK(CLK), 
+  SDFFRQX2M \Reg_file_reg[3][0]  ( .D(n282), .SI(REG2[7]), .SE(n478), .CK(CLK), 
         .RN(n445), .Q(REG3[0]) );
-  SDFFSQX4M \Reg_file_reg[2][7]  ( .D(n297), .SI(REG2[6]), .SE(n487), .CK(CLK), 
+  SDFFSQX4M \Reg_file_reg[2][7]  ( .D(n297), .SI(REG2[6]), .SE(n480), .CK(CLK), 
         .SN(n437), .Q(REG2[7]) );
-  SDFFRQX2M \Reg_file_reg[2][2]  ( .D(n292), .SI(REG2[1]), .SE(n466), .CK(CLK), 
+  SDFFRQX2M \Reg_file_reg[2][2]  ( .D(n292), .SI(REG2[1]), .SE(n484), .CK(CLK), 
         .RN(n446), .Q(REG2[2]) );
-  SDFFRQX4M \Reg_file_reg[2][4]  ( .D(n294), .SI(REG2[3]), .SE(n478), .CK(CLK), 
+  SDFFRQX4M \Reg_file_reg[2][4]  ( .D(n294), .SI(REG2[3]), .SE(n486), .CK(CLK), 
         .RN(n446), .Q(REG2[4]) );
-  SDFFRQX4M \Reg_file_reg[2][3]  ( .D(n293), .SI(REG2[2]), .SE(n479), .CK(CLK), 
+  SDFFRQX4M \Reg_file_reg[2][3]  ( .D(n293), .SI(REG2[2]), .SE(n482), .CK(CLK), 
         .RN(n446), .Q(REG2[3]) );
-  SDFFRQX4M \Reg_file_reg[2][5]  ( .D(n295), .SI(REG2[4]), .SE(n481), .CK(CLK), 
+  SDFFRQX4M \Reg_file_reg[2][5]  ( .D(n295), .SI(REG2[4]), .SE(n489), .CK(CLK), 
         .RN(n446), .Q(REG2[5]) );
-  SDFFRQX4M \Reg_file_reg[2][6]  ( .D(n296), .SI(REG2[5]), .SE(n464), .CK(CLK), 
+  SDFFRQX4M \Reg_file_reg[2][6]  ( .D(n296), .SI(REG2[5]), .SE(n479), .CK(CLK), 
         .RN(n446), .Q(REG2[6]) );
-  SDFFRQX2M RdData_Valid_reg ( .D(n452), .SI(test_si1), .SE(n475), .CK(CLK), 
+  SDFFRQX2M RdData_Valid_reg ( .D(n452), .SI(test_si1), .SE(n480), .CK(CLK), 
         .RN(n437), .Q(RdData_Valid) );
-  SDFFRQX2M \Reg_file_reg[0][1]  ( .D(n307), .SI(REG0[0]), .SE(n479), .CK(CLK), 
+  SDFFRQX2M \Reg_file_reg[0][1]  ( .D(n307), .SI(REG0[0]), .SE(n476), .CK(CLK), 
         .RN(n447), .Q(REG0[1]) );
-  SDFFRQX2M \Reg_file_reg[0][0]  ( .D(n306), .SI(RdData[7]), .SE(n476), .CK(
+  SDFFRQX2M \Reg_file_reg[0][0]  ( .D(n306), .SI(RdData[7]), .SE(n483), .CK(
         CLK), .RN(n447), .Q(REG0[0]) );
-  SDFFRQX2M \Reg_file_reg[0][2]  ( .D(n308), .SI(REG0[1]), .SE(n489), .CK(CLK), 
+  SDFFRQX2M \Reg_file_reg[0][2]  ( .D(n308), .SI(REG0[1]), .SE(n476), .CK(CLK), 
         .RN(n447), .Q(REG0[2]) );
-  SDFFRQX2M \Reg_file_reg[0][3]  ( .D(n309), .SI(REG0[2]), .SE(n476), .CK(CLK), 
+  SDFFRQX2M \Reg_file_reg[0][3]  ( .D(n309), .SI(REG0[2]), .SE(n481), .CK(CLK), 
         .RN(n447), .Q(REG0[3]) );
-  SDFFRQX2M \Reg_file_reg[0][4]  ( .D(n310), .SI(REG0[3]), .SE(n475), .CK(CLK), 
+  SDFFRQX2M \Reg_file_reg[0][4]  ( .D(n310), .SI(REG0[3]), .SE(n483), .CK(CLK), 
         .RN(n447), .Q(REG0[4]) );
-  SDFFRQX2M \Reg_file_reg[0][5]  ( .D(n311), .SI(REG0[4]), .SE(n478), .CK(CLK), 
+  SDFFRQX2M \Reg_file_reg[0][5]  ( .D(n311), .SI(REG0[4]), .SE(n485), .CK(CLK), 
         .RN(n447), .Q(REG0[5]) );
-  SDFFRQX2M \Reg_file_reg[0][6]  ( .D(n312), .SI(REG0[5]), .SE(n489), .CK(CLK), 
+  SDFFRQX2M \Reg_file_reg[0][6]  ( .D(n312), .SI(REG0[5]), .SE(n482), .CK(CLK), 
         .RN(n447), .Q(REG0[6]) );
-  SDFFRQX4M \Reg_file_reg[1][7]  ( .D(n305), .SI(REG1[6]), .SE(n477), .CK(CLK), 
+  SDFFRQX4M \Reg_file_reg[1][7]  ( .D(n305), .SI(REG1[6]), .SE(n466), .CK(CLK), 
         .RN(n446), .Q(REG1[7]) );
-  SDFFRQX2M \Reg_file_reg[1][2]  ( .D(n300), .SI(REG1[1]), .SE(n483), .CK(CLK), 
+  SDFFRQX2M \Reg_file_reg[1][2]  ( .D(n300), .SI(REG1[1]), .SE(n485), .CK(CLK), 
         .RN(n446), .Q(REG1[2]) );
-  SDFFRQX2M \Reg_file_reg[1][1]  ( .D(n299), .SI(n495), .SE(n484), .CK(CLK), 
+  SDFFRQX2M \Reg_file_reg[1][1]  ( .D(n299), .SI(n494), .SE(n477), .CK(CLK), 
         .RN(n446), .Q(REG1[1]) );
   SDFFRQX2M \Reg_file_reg[1][0]  ( .D(n298), .SI(REG0[7]), .SE(n487), .CK(CLK), 
         .RN(n446), .Q(REG1[0]) );
-  SDFFRQX2M \Reg_file_reg[1][5]  ( .D(n303), .SI(REG1[4]), .SE(n464), .CK(CLK), 
+  SDFFRQX2M \Reg_file_reg[1][5]  ( .D(n303), .SI(REG1[4]), .SE(n484), .CK(CLK), 
         .RN(n446), .Q(REG1[5]) );
-  SDFFRQX2M \Reg_file_reg[1][3]  ( .D(n301), .SI(REG1[2]), .SE(n477), .CK(CLK), 
+  SDFFRQX2M \Reg_file_reg[1][3]  ( .D(n301), .SI(REG1[2]), .SE(n482), .CK(CLK), 
         .RN(n446), .Q(REG1[3]) );
-  SDFFRQX2M \Reg_file_reg[1][6]  ( .D(n304), .SI(REG1[5]), .SE(n485), .CK(CLK), 
+  SDFFRQX2M \Reg_file_reg[1][6]  ( .D(n304), .SI(REG1[5]), .SE(n489), .CK(CLK), 
         .RN(n446), .Q(REG1[6]) );
-  SDFFRQX2M \Reg_file_reg[0][7]  ( .D(n313), .SI(REG0[6]), .SE(n480), .CK(CLK), 
+  SDFFRQX2M \Reg_file_reg[0][7]  ( .D(n313), .SI(REG0[6]), .SE(n485), .CK(CLK), 
         .RN(n437), .Q(REG0[7]) );
-  SDFFRQX4M \Reg_file_reg[1][4]  ( .D(n302), .SI(REG1[3]), .SE(n477), .CK(CLK), 
+  SDFFRQX4M \Reg_file_reg[1][4]  ( .D(n302), .SI(REG1[3]), .SE(n465), .CK(CLK), 
         .RN(n446), .Q(REG1[4]) );
   NAND2X2M U140 ( .A(N13), .B(n451), .Y(n386) );
   AOI21XLM U141 ( .A0(n391), .A1(n390), .B0(n389), .Y(n404) );
@@ -1166,7 +1163,8 @@ module regfile_Address_width4_Data_width8_depth16_test_1 ( WrData, Address,
   NOR2X2M U146 ( .A(n407), .B(N12), .Y(n160) );
   NOR2X2M U147 ( .A(N11), .B(N12), .Y(n163) );
   NAND2BX2M U148 ( .AN(WrEn), .B(RdEN), .Y(n150) );
-  AOI22XLM U149 ( .A0(REG0[0]), .A1(n420), .B0(n495), .B1(n417), .Y(n142) );
+  AOI22XLM U149 ( .A0(REG0[0]), .A1(n420), .B0(REG1[0]), .B1(n417), .Y(n142)
+         );
   AOI22XLM U150 ( .A0(REG0[1]), .A1(n420), .B0(REG1[1]), .B1(n417), .Y(n318)
          );
   AOI22XLM U151 ( .A0(REG0[2]), .A1(n420), .B0(REG1[2]), .B1(n417), .Y(n330)
@@ -1181,7 +1179,7 @@ module regfile_Address_width4_Data_width8_depth16_test_1 ( WrData, Address,
          );
   AOI22XLM U156 ( .A0(REG0[7]), .A1(n418), .B0(REG1[7]), .B1(n415), .Y(n393)
          );
-  OAI2BB2XLM U157 ( .B0(n459), .B1(n422), .A0N(n495), .A1N(n422), .Y(n298) );
+  OAI2BB2XLM U157 ( .B0(n459), .B1(n422), .A0N(n494), .A1N(n422), .Y(n298) );
   OAI2BB2XLM U158 ( .B0(n458), .B1(n422), .A0N(REG1[1]), .A1N(n422), .Y(n299)
          );
   OAI2BB2XLM U159 ( .B0(n457), .B1(n422), .A0N(REG1[2]), .A1N(n422), .Y(n300)
@@ -1516,8 +1514,8 @@ module regfile_Address_width4_Data_width8_depth16_test_1 ( WrData, Address,
         .Y(n241) );
   OAI2BB2X1M U366 ( .B0(n151), .B1(n455), .A0N(\Reg_file[15][4] ), .A1N(n436), 
         .Y(n190) );
-  OAI2BB2X1M U367 ( .B0(n151), .B1(n453), .A0N(test_so2), .A1N(n436), .Y(n193)
-         );
+  OAI2BB2X1M U367 ( .B0(n151), .B1(n453), .A0N(\Reg_file[15][7] ), .A1N(n436), 
+        .Y(n193) );
   OAI2BB2X1M U368 ( .B0(n151), .B1(n460), .A0N(\Reg_file[15][6] ), .A1N(n436), 
         .Y(n192) );
   NOR2X1M U369 ( .A(n407), .B(N10), .Y(n396) );
@@ -1665,8 +1663,8 @@ module regfile_Address_width4_Data_width8_depth16_test_1 ( WrData, Address,
   AOI22X1M U461 ( .A0(\Reg_file[8][7] ), .A1(n418), .B0(\Reg_file[9][7] ), 
         .B1(n415), .Y(n387) );
   AOI21X1M U462 ( .A0(n388), .A1(n387), .B0(n386), .Y(n405) );
-  AOI22X1M U463 ( .A0(\Reg_file[14][7] ), .A1(n412), .B0(test_so2), .B1(n409), 
-        .Y(n391) );
+  AOI22X1M U463 ( .A0(\Reg_file[14][7] ), .A1(n412), .B0(\Reg_file[15][7] ), 
+        .B1(n409), .Y(n391) );
   AOI22X1M U464 ( .A0(\Reg_file[12][7] ), .A1(n418), .B0(\Reg_file[13][7] ), 
         .B1(n415), .Y(n390) );
   AOI22X1M U465 ( .A0(REG2[7]), .A1(n412), .B0(REG3[7]), .B1(n409), .Y(n394)
@@ -1678,38 +1676,37 @@ module regfile_Address_width4_Data_width8_depth16_test_1 ( WrData, Address,
         .B1(n415), .Y(n400) );
   AOI21X1M U469 ( .A0(n401), .A1(n400), .B0(n399), .Y(n402) );
   OR4X1M U470 ( .A(n405), .B(n404), .C(n403), .D(n402), .Y(N19) );
-  SDFFRHQX8M \Reg_file_reg[15][7]  ( .D(n193), .SI(\Reg_file[15][6] ), .SE(
-        n484), .CK(CLK), .RN(n438), .Q(test_so2) );
-  DLY1X1M U471 ( .A(n492), .Y(n464) );
-  DLY1X1M U472 ( .A(n467), .Y(n465) );
-  DLY1X1M U473 ( .A(n472), .Y(n466) );
-  INVXLM U474 ( .A(n469), .Y(n467) );
+  INVXLM U471 ( .A(n490), .Y(n464) );
+  INVXLM U472 ( .A(n469), .Y(n465) );
+  DLY1X1M U473 ( .A(n471), .Y(n466) );
+  DLY1X1M U474 ( .A(n493), .Y(n467) );
   INVXLM U475 ( .A(n490), .Y(n468) );
   INVXLM U476 ( .A(n468), .Y(n469) );
   INVXLM U477 ( .A(n468), .Y(n470) );
   INVXLM U478 ( .A(n469), .Y(n471) );
   INVXLM U479 ( .A(n470), .Y(n472) );
-  DLY1X1M U480 ( .A(n471), .Y(n473) );
-  DLY1X1M U481 ( .A(n471), .Y(n474) );
+  DLY1X1M U480 ( .A(n492), .Y(n473) );
+  DLY1X1M U481 ( .A(n472), .Y(n474) );
   DLY1X1M U482 ( .A(n472), .Y(n475) );
   DLY1X1M U483 ( .A(n491), .Y(n476) );
   DLY1X1M U484 ( .A(n492), .Y(n477) );
-  DLY1X1M U485 ( .A(n467), .Y(n478) );
-  DLY1X1M U486 ( .A(n472), .Y(n479) );
+  DLY1X1M U485 ( .A(n493), .Y(n478) );
+  DLY1X1M U486 ( .A(n471), .Y(n479) );
   DLY1X1M U487 ( .A(n471), .Y(n480) );
-  DLY1X1M U488 ( .A(n468), .Y(n481) );
-  DLY1X1M U489 ( .A(n472), .Y(n482) );
+  DLY1X1M U488 ( .A(n491), .Y(n481) );
+  DLY1X1M U489 ( .A(n471), .Y(n482) );
   DLY1X1M U490 ( .A(n491), .Y(n483) );
-  DLY1X1M U491 ( .A(n471), .Y(n484) );
-  DLY1X1M U492 ( .A(n491), .Y(n485) );
-  DLY1X1M U493 ( .A(n491), .Y(n486) );
-  DLY1X1M U494 ( .A(n492), .Y(n487) );
-  DLY1X1M U495 ( .A(n492), .Y(n488) );
-  DLY1X1M U496 ( .A(n468), .Y(n489) );
+  DLY1X1M U491 ( .A(n492), .Y(n484) );
+  DLY1X1M U492 ( .A(n493), .Y(n485) );
+  DLY1X1M U493 ( .A(n493), .Y(n486) );
+  DLY1X1M U494 ( .A(n491), .Y(n487) );
+  DLY1X1M U495 ( .A(n472), .Y(n488) );
+  DLY1X1M U496 ( .A(n472), .Y(n489) );
   INVXLM U497 ( .A(test_se), .Y(n490) );
   INVXLM U498 ( .A(n469), .Y(n491) );
   INVXLM U499 ( .A(n470), .Y(n492) );
-  DLY1X1M U500 ( .A(REG1[0]), .Y(n495) );
+  INVXLM U500 ( .A(n469), .Y(n493) );
+  DLY1X1M U501 ( .A(REG1[0]), .Y(n494) );
 endmodule
 
 
@@ -2566,6 +2563,16 @@ module ALU_OPER_WIDTH8_OUT_WIDTH16_test_1 ( A, B, EN, ALU_FUN, CLK, RST,
 endmodule
 
 
+module CLK_GATE_dft ( CLK_EN, TE, CLK, GATED_CLK );
+  input CLK_EN, TE, CLK;
+  output GATED_CLK;
+  wire   _0_net_;
+
+  TLATNCAX12M U0_TLATNCAX12M ( .E(_0_net_), .CK(CLK), .ECK(GATED_CLK) );
+  OR2X2M U1 ( .A(CLK_EN), .B(TE), .Y(_0_net_) );
+endmodule
+
+
 module FIFO_MEM_CNTRL_data_width8_depth8_addr_width4_test_1 ( W_data, W_inc, 
         W_full, W_RST, W_addr, W_CLK, R_addr, R_data, test_si2, test_si1, 
         test_so2, test_so1, test_se );
@@ -2576,114 +2583,116 @@ module FIFO_MEM_CNTRL_data_width8_depth8_addr_width4_test_1 ( W_data, W_inc,
   input W_inc, W_full, W_RST, W_CLK, test_si2, test_si1, test_se;
   output test_so2, test_so1;
   wire   N10, N11, N12, \mem[7][7] , \mem[7][6] , \mem[7][5] , \mem[7][4] ,
-         \mem[7][3] , \mem[7][2] , \mem[7][0] , \mem[6][7] , \mem[6][6] ,
-         \mem[6][5] , \mem[6][4] , \mem[6][3] , \mem[6][2] , \mem[6][1] ,
-         \mem[6][0] , \mem[5][7] , \mem[5][6] , \mem[5][5] , \mem[5][4] ,
-         \mem[5][3] , \mem[5][2] , \mem[5][1] , \mem[5][0] , \mem[4][7] ,
-         \mem[4][6] , \mem[4][5] , \mem[4][4] , \mem[4][3] , \mem[4][2] ,
-         \mem[4][1] , \mem[4][0] , \mem[3][7] , \mem[3][6] , \mem[3][5] ,
-         \mem[3][4] , \mem[3][3] , \mem[3][2] , \mem[3][1] , \mem[3][0] ,
-         \mem[2][7] , \mem[2][6] , \mem[2][5] , \mem[2][4] , \mem[2][3] ,
-         \mem[2][2] , \mem[2][1] , \mem[2][0] , \mem[1][7] , \mem[1][6] ,
-         \mem[1][5] , \mem[1][4] , \mem[1][3] , \mem[1][2] , \mem[1][1] ,
-         \mem[1][0] , \mem[0][7] , \mem[0][6] , \mem[0][5] , \mem[0][4] ,
-         \mem[0][3] , \mem[0][2] , \mem[0][1] , \mem[0][0] , n75, n76, n77,
-         n78, n79, n80, n81, n82, n83, n84, n85, n86, n87, n88, n89, n90, n91,
-         n92, n93, n94, n95, n96, n97, n98, n99, n100, n101, n102, n103, n104,
-         n105, n106, n107, n108, n109, n110, n111, n112, n113, n114, n115,
-         n116, n117, n118, n119, n120, n121, n122, n123, n124, n125, n126,
-         n127, n128, n129, n130, n131, n132, n133, n134, n135, n136, n137,
-         n138, n139, n140, n141, n142, n143, n144, n145, n146, n147, n148,
-         n149, n150, n65, n66, n67, n68, n69, n70, n71, n72, n73, n74, n151,
-         n152, n153, n154, n155, n156, n157, n158, n159, n160, n161, n162,
-         n163, n164, n165, n166, n167, n168, n169, n170, n171, n172, n173,
-         n174, n175, n176, n177, n178, n179, n180, n181, n182, n183, n184,
-         n185, n186, n187, n188, n189, n190, n191, n192, n193, n194, n195,
-         n196, n197, n198, n199, n200, n201, n202, n203, n204, n205, n206,
-         n210, n211, n212, n213, n214, n215, n216, n217, n218, n219, n220,
-         n221;
+         \mem[7][3] , \mem[7][2] , \mem[7][1] , \mem[7][0] , \mem[6][7] ,
+         \mem[6][6] , \mem[6][5] , \mem[6][4] , \mem[6][3] , \mem[6][2] ,
+         \mem[6][1] , \mem[6][0] , \mem[5][7] , \mem[5][6] , \mem[5][5] ,
+         \mem[5][4] , \mem[5][3] , \mem[5][2] , \mem[5][1] , \mem[5][0] ,
+         \mem[4][7] , \mem[4][6] , \mem[4][5] , \mem[4][4] , \mem[4][3] ,
+         \mem[4][2] , \mem[4][1] , \mem[4][0] , \mem[3][7] , \mem[3][6] ,
+         \mem[3][5] , \mem[3][4] , \mem[3][3] , \mem[3][2] , \mem[3][1] ,
+         \mem[3][0] , \mem[2][7] , \mem[2][6] , \mem[2][5] , \mem[2][4] ,
+         \mem[2][3] , \mem[2][2] , \mem[2][1] , \mem[2][0] , \mem[1][7] ,
+         \mem[1][6] , \mem[1][5] , \mem[1][4] , \mem[1][3] , \mem[1][2] ,
+         \mem[1][1] , \mem[1][0] , \mem[0][7] , \mem[0][6] , \mem[0][5] ,
+         \mem[0][4] , \mem[0][3] , \mem[0][2] , \mem[0][1] , \mem[0][0] , n75,
+         n76, n77, n78, n79, n80, n81, n82, n83, n84, n85, n86, n87, n88, n89,
+         n90, n91, n92, n93, n94, n95, n96, n97, n98, n99, n100, n101, n102,
+         n103, n104, n105, n106, n107, n108, n109, n110, n111, n112, n113,
+         n114, n115, n116, n117, n118, n119, n120, n121, n122, n123, n124,
+         n125, n126, n127, n128, n129, n130, n131, n132, n133, n134, n135,
+         n136, n137, n138, n139, n140, n141, n142, n143, n144, n145, n146,
+         n147, n148, n149, n150, n65, n66, n67, n68, n69, n70, n71, n72, n73,
+         n74, n151, n152, n153, n154, n155, n156, n157, n158, n159, n160, n161,
+         n162, n163, n164, n165, n166, n167, n168, n169, n170, n171, n172,
+         n173, n174, n175, n176, n177, n178, n179, n180, n181, n182, n183,
+         n184, n185, n186, n187, n188, n189, n190, n191, n192, n193, n194,
+         n195, n196, n197, n198, n199, n200, n201, n202, n203, n204, n205,
+         n206, n210, n211, n212, n213, n214, n215, n216, n217, n218, n219,
+         n220;
   assign N10 = R_addr[0];
   assign N11 = R_addr[1];
   assign N12 = R_addr[2];
   assign test_so2 = \mem[7][7] ;
+  assign test_so1 = \mem[7][1] ;
 
-  SDFFRQX2M \mem_reg[1][7]  ( .D(n102), .SI(\mem[1][6] ), .SE(n219), .CK(W_CLK), .RN(n196), .Q(\mem[1][7] ) );
-  SDFFRQX2M \mem_reg[1][6]  ( .D(n101), .SI(\mem[1][5] ), .SE(n215), .CK(W_CLK), .RN(n196), .Q(\mem[1][6] ) );
-  SDFFRQX2M \mem_reg[1][5]  ( .D(n100), .SI(\mem[1][4] ), .SE(n217), .CK(W_CLK), .RN(n196), .Q(\mem[1][5] ) );
+  SDFFRQX2M \mem_reg[1][7]  ( .D(n102), .SI(\mem[1][6] ), .SE(n210), .CK(W_CLK), .RN(n196), .Q(\mem[1][7] ) );
+  SDFFRQX2M \mem_reg[1][6]  ( .D(n101), .SI(\mem[1][5] ), .SE(n217), .CK(W_CLK), .RN(n196), .Q(\mem[1][6] ) );
+  SDFFRQX2M \mem_reg[1][5]  ( .D(n100), .SI(\mem[1][4] ), .SE(n215), .CK(W_CLK), .RN(n196), .Q(\mem[1][5] ) );
   SDFFRQX2M \mem_reg[1][4]  ( .D(n99), .SI(\mem[1][3] ), .SE(n213), .CK(W_CLK), 
         .RN(n196), .Q(\mem[1][4] ) );
-  SDFFRQX2M \mem_reg[1][3]  ( .D(n98), .SI(\mem[1][2] ), .SE(n217), .CK(W_CLK), 
+  SDFFRQX2M \mem_reg[1][3]  ( .D(n98), .SI(\mem[1][2] ), .SE(n212), .CK(W_CLK), 
         .RN(n193), .Q(\mem[1][3] ) );
-  SDFFRQX2M \mem_reg[1][2]  ( .D(n97), .SI(\mem[1][1] ), .SE(n214), .CK(W_CLK), 
+  SDFFRQX2M \mem_reg[1][2]  ( .D(n97), .SI(\mem[1][1] ), .SE(n220), .CK(W_CLK), 
         .RN(n196), .Q(\mem[1][2] ) );
-  SDFFRQX2M \mem_reg[1][1]  ( .D(n96), .SI(\mem[1][0] ), .SE(n215), .CK(W_CLK), 
+  SDFFRQX2M \mem_reg[1][1]  ( .D(n96), .SI(\mem[1][0] ), .SE(n217), .CK(W_CLK), 
         .RN(n194), .Q(\mem[1][1] ) );
-  SDFFRQX2M \mem_reg[1][0]  ( .D(n95), .SI(\mem[0][7] ), .SE(n214), .CK(W_CLK), 
+  SDFFRQX2M \mem_reg[1][0]  ( .D(n95), .SI(\mem[0][7] ), .SE(n211), .CK(W_CLK), 
         .RN(n195), .Q(\mem[1][0] ) );
-  SDFFRQX2M \mem_reg[0][7]  ( .D(n94), .SI(\mem[0][6] ), .SE(n215), .CK(W_CLK), 
+  SDFFRQX2M \mem_reg[0][7]  ( .D(n94), .SI(\mem[0][6] ), .SE(n220), .CK(W_CLK), 
         .RN(n193), .Q(\mem[0][7] ) );
-  SDFFRQX2M \mem_reg[0][6]  ( .D(n93), .SI(\mem[0][5] ), .SE(n212), .CK(W_CLK), 
+  SDFFRQX2M \mem_reg[0][6]  ( .D(n93), .SI(\mem[0][5] ), .SE(n214), .CK(W_CLK), 
         .RN(n196), .Q(\mem[0][6] ) );
-  SDFFRQX2M \mem_reg[0][5]  ( .D(n92), .SI(\mem[0][4] ), .SE(n214), .CK(W_CLK), 
+  SDFFRQX2M \mem_reg[0][5]  ( .D(n92), .SI(\mem[0][4] ), .SE(n217), .CK(W_CLK), 
         .RN(n194), .Q(\mem[0][5] ) );
-  SDFFRQX2M \mem_reg[0][4]  ( .D(n91), .SI(\mem[0][3] ), .SE(n220), .CK(W_CLK), 
+  SDFFRQX2M \mem_reg[0][4]  ( .D(n91), .SI(\mem[0][3] ), .SE(n219), .CK(W_CLK), 
         .RN(W_RST), .Q(\mem[0][4] ) );
-  SDFFRQX2M \mem_reg[0][3]  ( .D(n90), .SI(\mem[0][2] ), .SE(n220), .CK(W_CLK), 
+  SDFFRQX2M \mem_reg[0][3]  ( .D(n90), .SI(\mem[0][2] ), .SE(n217), .CK(W_CLK), 
         .RN(W_RST), .Q(\mem[0][3] ) );
-  SDFFRQX2M \mem_reg[0][2]  ( .D(n89), .SI(\mem[0][1] ), .SE(n219), .CK(W_CLK), 
+  SDFFRQX2M \mem_reg[0][2]  ( .D(n89), .SI(\mem[0][1] ), .SE(n218), .CK(W_CLK), 
         .RN(W_RST), .Q(\mem[0][2] ) );
-  SDFFRQX2M \mem_reg[0][1]  ( .D(n88), .SI(\mem[0][0] ), .SE(n212), .CK(W_CLK), 
+  SDFFRQX2M \mem_reg[0][1]  ( .D(n88), .SI(\mem[0][0] ), .SE(n214), .CK(W_CLK), 
         .RN(W_RST), .Q(\mem[0][1] ) );
-  SDFFRQX2M \mem_reg[0][0]  ( .D(n87), .SI(test_si1), .SE(n218), .CK(W_CLK), 
+  SDFFRQX2M \mem_reg[0][0]  ( .D(n87), .SI(test_si1), .SE(n215), .CK(W_CLK), 
         .RN(W_RST), .Q(\mem[0][0] ) );
   SDFFRQX2M \mem_reg[5][7]  ( .D(n134), .SI(\mem[5][6] ), .SE(n212), .CK(W_CLK), .RN(n194), .Q(\mem[5][7] ) );
-  SDFFRQX2M \mem_reg[5][6]  ( .D(n133), .SI(\mem[5][5] ), .SE(n213), .CK(W_CLK), .RN(n194), .Q(\mem[5][6] ) );
-  SDFFRQX2M \mem_reg[5][5]  ( .D(n132), .SI(\mem[5][4] ), .SE(n213), .CK(W_CLK), .RN(n194), .Q(\mem[5][5] ) );
-  SDFFRQX2M \mem_reg[5][4]  ( .D(n131), .SI(\mem[5][3] ), .SE(n211), .CK(W_CLK), .RN(n194), .Q(\mem[5][4] ) );
-  SDFFRQX2M \mem_reg[5][3]  ( .D(n130), .SI(\mem[5][2] ), .SE(n212), .CK(W_CLK), .RN(n194), .Q(\mem[5][3] ) );
-  SDFFRQX2M \mem_reg[5][2]  ( .D(n129), .SI(\mem[5][1] ), .SE(n211), .CK(W_CLK), .RN(n194), .Q(\mem[5][2] ) );
+  SDFFRQX2M \mem_reg[5][6]  ( .D(n133), .SI(\mem[5][5] ), .SE(n215), .CK(W_CLK), .RN(n194), .Q(\mem[5][6] ) );
+  SDFFRQX2M \mem_reg[5][5]  ( .D(n132), .SI(\mem[5][4] ), .SE(n211), .CK(W_CLK), .RN(n194), .Q(\mem[5][5] ) );
+  SDFFRQX2M \mem_reg[5][4]  ( .D(n131), .SI(\mem[5][3] ), .SE(n217), .CK(W_CLK), .RN(n194), .Q(\mem[5][4] ) );
+  SDFFRQX2M \mem_reg[5][3]  ( .D(n130), .SI(\mem[5][2] ), .SE(n213), .CK(W_CLK), .RN(n194), .Q(\mem[5][3] ) );
+  SDFFRQX2M \mem_reg[5][2]  ( .D(n129), .SI(\mem[5][1] ), .SE(n213), .CK(W_CLK), .RN(n194), .Q(\mem[5][2] ) );
   SDFFRQX2M \mem_reg[5][1]  ( .D(n128), .SI(\mem[5][0] ), .SE(n220), .CK(W_CLK), .RN(n194), .Q(\mem[5][1] ) );
-  SDFFRQX2M \mem_reg[5][0]  ( .D(n127), .SI(\mem[4][7] ), .SE(n214), .CK(W_CLK), .RN(n194), .Q(\mem[5][0] ) );
-  SDFFRQX2M \mem_reg[4][7]  ( .D(n126), .SI(\mem[4][6] ), .SE(n220), .CK(W_CLK), .RN(n194), .Q(\mem[4][7] ) );
-  SDFFRQX2M \mem_reg[4][6]  ( .D(n125), .SI(\mem[4][5] ), .SE(n212), .CK(W_CLK), .RN(n194), .Q(\mem[4][6] ) );
-  SDFFRQX2M \mem_reg[4][5]  ( .D(n124), .SI(\mem[4][4] ), .SE(n218), .CK(W_CLK), .RN(n195), .Q(\mem[4][5] ) );
-  SDFFRQX2M \mem_reg[4][4]  ( .D(n123), .SI(\mem[4][3] ), .SE(n218), .CK(W_CLK), .RN(n195), .Q(\mem[4][4] ) );
-  SDFFRQX2M \mem_reg[4][3]  ( .D(n122), .SI(\mem[4][2] ), .SE(n217), .CK(W_CLK), .RN(n195), .Q(\mem[4][3] ) );
-  SDFFRQX2M \mem_reg[4][2]  ( .D(n121), .SI(\mem[4][1] ), .SE(n211), .CK(W_CLK), .RN(n195), .Q(\mem[4][2] ) );
-  SDFFRQX2M \mem_reg[4][1]  ( .D(n120), .SI(\mem[4][0] ), .SE(n214), .CK(W_CLK), .RN(n195), .Q(\mem[4][1] ) );
-  SDFFRQX2M \mem_reg[4][0]  ( .D(n119), .SI(\mem[3][7] ), .SE(n212), .CK(W_CLK), .RN(n195), .Q(\mem[4][0] ) );
-  SDFFRQX2M \mem_reg[7][7]  ( .D(n150), .SI(\mem[7][6] ), .SE(n215), .CK(W_CLK), .RN(n193), .Q(\mem[7][7] ) );
-  SDFFRQX2M \mem_reg[7][6]  ( .D(n149), .SI(\mem[7][5] ), .SE(n214), .CK(W_CLK), .RN(n193), .Q(\mem[7][6] ) );
-  SDFFRQX2M \mem_reg[7][5]  ( .D(n148), .SI(\mem[7][4] ), .SE(n218), .CK(W_CLK), .RN(n193), .Q(\mem[7][5] ) );
-  SDFFRQX2M \mem_reg[7][4]  ( .D(n147), .SI(\mem[7][3] ), .SE(n217), .CK(W_CLK), .RN(n193), .Q(\mem[7][4] ) );
-  SDFFRQX2M \mem_reg[7][3]  ( .D(n146), .SI(\mem[7][2] ), .SE(n211), .CK(W_CLK), .RN(n193), .Q(\mem[7][3] ) );
-  SDFFRQX2M \mem_reg[7][2]  ( .D(n145), .SI(test_si2), .SE(n219), .CK(W_CLK), 
+  SDFFRQX2M \mem_reg[5][0]  ( .D(n127), .SI(\mem[4][7] ), .SE(n211), .CK(W_CLK), .RN(n194), .Q(\mem[5][0] ) );
+  SDFFRQX2M \mem_reg[4][7]  ( .D(n126), .SI(\mem[4][6] ), .SE(n213), .CK(W_CLK), .RN(n194), .Q(\mem[4][7] ) );
+  SDFFRQX2M \mem_reg[4][6]  ( .D(n125), .SI(\mem[4][5] ), .SE(n210), .CK(W_CLK), .RN(n194), .Q(\mem[4][6] ) );
+  SDFFRQX2M \mem_reg[4][5]  ( .D(n124), .SI(\mem[4][4] ), .SE(n212), .CK(W_CLK), .RN(n195), .Q(\mem[4][5] ) );
+  SDFFRQX2M \mem_reg[4][4]  ( .D(n123), .SI(\mem[4][3] ), .SE(n215), .CK(W_CLK), .RN(n195), .Q(\mem[4][4] ) );
+  SDFFRQX2M \mem_reg[4][3]  ( .D(n122), .SI(\mem[4][2] ), .SE(n220), .CK(W_CLK), .RN(n195), .Q(\mem[4][3] ) );
+  SDFFRQX2M \mem_reg[4][2]  ( .D(n121), .SI(\mem[4][1] ), .SE(n220), .CK(W_CLK), .RN(n195), .Q(\mem[4][2] ) );
+  SDFFRQX2M \mem_reg[4][1]  ( .D(n120), .SI(\mem[4][0] ), .SE(n213), .CK(W_CLK), .RN(n195), .Q(\mem[4][1] ) );
+  SDFFRQX2M \mem_reg[4][0]  ( .D(n119), .SI(\mem[3][7] ), .SE(n211), .CK(W_CLK), .RN(n195), .Q(\mem[4][0] ) );
+  SDFFRQX2M \mem_reg[7][7]  ( .D(n150), .SI(\mem[7][6] ), .SE(n219), .CK(W_CLK), .RN(n193), .Q(\mem[7][7] ) );
+  SDFFRQX2M \mem_reg[7][6]  ( .D(n149), .SI(\mem[7][5] ), .SE(n211), .CK(W_CLK), .RN(n193), .Q(\mem[7][6] ) );
+  SDFFRQX2M \mem_reg[7][5]  ( .D(n148), .SI(\mem[7][4] ), .SE(n210), .CK(W_CLK), .RN(n193), .Q(\mem[7][5] ) );
+  SDFFRQX2M \mem_reg[7][4]  ( .D(n147), .SI(\mem[7][3] ), .SE(n218), .CK(W_CLK), .RN(n193), .Q(\mem[7][4] ) );
+  SDFFRQX2M \mem_reg[7][3]  ( .D(n146), .SI(\mem[7][2] ), .SE(n217), .CK(W_CLK), .RN(n193), .Q(\mem[7][3] ) );
+  SDFFRQX2M \mem_reg[7][2]  ( .D(n145), .SI(test_si2), .SE(n212), .CK(W_CLK), 
         .RN(n193), .Q(\mem[7][2] ) );
-  SDFFRQX2M \mem_reg[7][0]  ( .D(n143), .SI(\mem[6][7] ), .SE(n219), .CK(W_CLK), .RN(n193), .Q(\mem[7][0] ) );
-  SDFFRQX2M \mem_reg[6][7]  ( .D(n142), .SI(\mem[6][6] ), .SE(n215), .CK(W_CLK), .RN(n193), .Q(\mem[6][7] ) );
-  SDFFRQX2M \mem_reg[6][6]  ( .D(n141), .SI(\mem[6][5] ), .SE(n211), .CK(W_CLK), .RN(n193), .Q(\mem[6][6] ) );
-  SDFFRQX2M \mem_reg[6][5]  ( .D(n140), .SI(\mem[6][4] ), .SE(n217), .CK(W_CLK), .RN(n193), .Q(\mem[6][5] ) );
-  SDFFRQX2M \mem_reg[6][4]  ( .D(n139), .SI(\mem[6][3] ), .SE(n213), .CK(W_CLK), .RN(n193), .Q(\mem[6][4] ) );
-  SDFFRQX2M \mem_reg[6][3]  ( .D(n138), .SI(\mem[6][2] ), .SE(n220), .CK(W_CLK), .RN(n193), .Q(\mem[6][3] ) );
-  SDFFRQX2M \mem_reg[6][2]  ( .D(n137), .SI(\mem[6][1] ), .SE(n220), .CK(W_CLK), .RN(n194), .Q(\mem[6][2] ) );
-  SDFFRQX2M \mem_reg[6][1]  ( .D(n136), .SI(\mem[6][0] ), .SE(n217), .CK(W_CLK), .RN(n194), .Q(\mem[6][1] ) );
-  SDFFRQX2M \mem_reg[6][0]  ( .D(n135), .SI(\mem[5][7] ), .SE(n211), .CK(W_CLK), .RN(n194), .Q(\mem[6][0] ) );
+  SDFFRQX2M \mem_reg[7][1]  ( .D(n144), .SI(\mem[7][0] ), .SE(n219), .CK(W_CLK), .RN(n193), .Q(\mem[7][1] ) );
+  SDFFRQX2M \mem_reg[7][0]  ( .D(n143), .SI(\mem[6][7] ), .SE(n210), .CK(W_CLK), .RN(n193), .Q(\mem[7][0] ) );
+  SDFFRQX2M \mem_reg[6][7]  ( .D(n142), .SI(\mem[6][6] ), .SE(n218), .CK(W_CLK), .RN(n193), .Q(\mem[6][7] ) );
+  SDFFRQX2M \mem_reg[6][6]  ( .D(n141), .SI(\mem[6][5] ), .SE(n220), .CK(W_CLK), .RN(n193), .Q(\mem[6][6] ) );
+  SDFFRQX2M \mem_reg[6][5]  ( .D(n140), .SI(\mem[6][4] ), .SE(n218), .CK(W_CLK), .RN(n193), .Q(\mem[6][5] ) );
+  SDFFRQX2M \mem_reg[6][4]  ( .D(n139), .SI(\mem[6][3] ), .SE(n214), .CK(W_CLK), .RN(n193), .Q(\mem[6][4] ) );
+  SDFFRQX2M \mem_reg[6][3]  ( .D(n138), .SI(\mem[6][2] ), .SE(n218), .CK(W_CLK), .RN(n193), .Q(\mem[6][3] ) );
+  SDFFRQX2M \mem_reg[6][2]  ( .D(n137), .SI(\mem[6][1] ), .SE(n213), .CK(W_CLK), .RN(n194), .Q(\mem[6][2] ) );
+  SDFFRQX2M \mem_reg[6][1]  ( .D(n136), .SI(\mem[6][0] ), .SE(n214), .CK(W_CLK), .RN(n194), .Q(\mem[6][1] ) );
+  SDFFRQX2M \mem_reg[6][0]  ( .D(n135), .SI(\mem[5][7] ), .SE(n210), .CK(W_CLK), .RN(n194), .Q(\mem[6][0] ) );
   SDFFRQX2M \mem_reg[3][7]  ( .D(n118), .SI(\mem[3][6] ), .SE(n219), .CK(W_CLK), .RN(n195), .Q(\mem[3][7] ) );
-  SDFFRQX2M \mem_reg[3][6]  ( .D(n117), .SI(\mem[3][5] ), .SE(n219), .CK(W_CLK), .RN(n195), .Q(\mem[3][6] ) );
-  SDFFRQX2M \mem_reg[3][5]  ( .D(n116), .SI(\mem[3][4] ), .SE(n213), .CK(W_CLK), .RN(n195), .Q(\mem[3][5] ) );
-  SDFFRQX2M \mem_reg[3][4]  ( .D(n115), .SI(\mem[3][3] ), .SE(n215), .CK(W_CLK), .RN(n195), .Q(\mem[3][4] ) );
+  SDFFRQX2M \mem_reg[3][6]  ( .D(n117), .SI(\mem[3][5] ), .SE(n218), .CK(W_CLK), .RN(n195), .Q(\mem[3][6] ) );
+  SDFFRQX2M \mem_reg[3][5]  ( .D(n116), .SI(\mem[3][4] ), .SE(n211), .CK(W_CLK), .RN(n195), .Q(\mem[3][5] ) );
+  SDFFRQX2M \mem_reg[3][4]  ( .D(n115), .SI(\mem[3][3] ), .SE(n214), .CK(W_CLK), .RN(n195), .Q(\mem[3][4] ) );
   SDFFRQX2M \mem_reg[3][3]  ( .D(n114), .SI(\mem[3][2] ), .SE(n219), .CK(W_CLK), .RN(n195), .Q(\mem[3][3] ) );
-  SDFFRQX2M \mem_reg[3][2]  ( .D(n113), .SI(\mem[3][1] ), .SE(n215), .CK(W_CLK), .RN(n195), .Q(\mem[3][2] ) );
-  SDFFRQX2M \mem_reg[3][1]  ( .D(n112), .SI(\mem[3][0] ), .SE(n211), .CK(W_CLK), .RN(n195), .Q(\mem[3][1] ) );
-  SDFFRQX2M \mem_reg[3][0]  ( .D(n111), .SI(\mem[2][7] ), .SE(n217), .CK(W_CLK), .RN(n196), .Q(\mem[3][0] ) );
-  SDFFRQX2M \mem_reg[2][7]  ( .D(n110), .SI(\mem[2][6] ), .SE(n213), .CK(W_CLK), .RN(n196), .Q(\mem[2][7] ) );
-  SDFFRQX2M \mem_reg[2][6]  ( .D(n109), .SI(\mem[2][5] ), .SE(n212), .CK(W_CLK), .RN(n196), .Q(\mem[2][6] ) );
-  SDFFRQX2M \mem_reg[2][5]  ( .D(n108), .SI(\mem[2][4] ), .SE(n218), .CK(W_CLK), .RN(n196), .Q(\mem[2][5] ) );
-  SDFFRQX2M \mem_reg[2][4]  ( .D(n107), .SI(\mem[2][3] ), .SE(n220), .CK(W_CLK), .RN(n196), .Q(\mem[2][4] ) );
+  SDFFRQX2M \mem_reg[3][2]  ( .D(n113), .SI(\mem[3][1] ), .SE(n219), .CK(W_CLK), .RN(n195), .Q(\mem[3][2] ) );
+  SDFFRQX2M \mem_reg[3][1]  ( .D(n112), .SI(\mem[3][0] ), .SE(n210), .CK(W_CLK), .RN(n195), .Q(\mem[3][1] ) );
+  SDFFRQX2M \mem_reg[3][0]  ( .D(n111), .SI(\mem[2][7] ), .SE(n219), .CK(W_CLK), .RN(n196), .Q(\mem[3][0] ) );
+  SDFFRQX2M \mem_reg[2][7]  ( .D(n110), .SI(\mem[2][6] ), .SE(n215), .CK(W_CLK), .RN(n196), .Q(\mem[2][7] ) );
+  SDFFRQX2M \mem_reg[2][6]  ( .D(n109), .SI(\mem[2][5] ), .SE(n214), .CK(W_CLK), .RN(n196), .Q(\mem[2][6] ) );
+  SDFFRQX2M \mem_reg[2][5]  ( .D(n108), .SI(\mem[2][4] ), .SE(n215), .CK(W_CLK), .RN(n196), .Q(\mem[2][5] ) );
+  SDFFRQX2M \mem_reg[2][4]  ( .D(n107), .SI(\mem[2][3] ), .SE(n217), .CK(W_CLK), .RN(n196), .Q(\mem[2][4] ) );
   SDFFRQX2M \mem_reg[2][3]  ( .D(n106), .SI(\mem[2][2] ), .SE(n218), .CK(W_CLK), .RN(n196), .Q(\mem[2][3] ) );
-  SDFFRQX2M \mem_reg[2][2]  ( .D(n105), .SI(\mem[2][1] ), .SE(n218), .CK(W_CLK), .RN(n196), .Q(\mem[2][2] ) );
-  SDFFRQX2M \mem_reg[2][1]  ( .D(n104), .SI(\mem[2][0] ), .SE(n213), .CK(W_CLK), .RN(n196), .Q(\mem[2][1] ) );
-  SDFFRQX2M \mem_reg[2][0]  ( .D(n103), .SI(\mem[1][7] ), .SE(n214), .CK(W_CLK), .RN(n196), .Q(\mem[2][0] ) );
+  SDFFRQX2M \mem_reg[2][2]  ( .D(n105), .SI(\mem[2][1] ), .SE(n212), .CK(W_CLK), .RN(n196), .Q(\mem[2][2] ) );
+  SDFFRQX2M \mem_reg[2][1]  ( .D(n104), .SI(\mem[2][0] ), .SE(n212), .CK(W_CLK), .RN(n196), .Q(\mem[2][1] ) );
+  SDFFRQX2M \mem_reg[2][0]  ( .D(n103), .SI(\mem[1][7] ), .SE(n213), .CK(W_CLK), .RN(n196), .Q(\mem[2][0] ) );
   CLKBUFX4M U66 ( .A(W_RST), .Y(n193) );
   BUFX4M U67 ( .A(n77), .Y(n191) );
   BUFX4M U68 ( .A(n78), .Y(n190) );
@@ -2804,8 +2813,8 @@ module FIFO_MEM_CNTRL_data_width8_depth8_addr_width4_test_1 ( W_data, W_inc,
         n142) );
   OAI2BB2X1M U141 ( .B0(n197), .B1(n185), .A0N(\mem[7][0] ), .A1N(n185), .Y(
         n143) );
-  OAI2BB2X1M U142 ( .B0(n198), .B1(n185), .A0N(test_so1), .A1N(n185), .Y(n144)
-         );
+  OAI2BB2X1M U142 ( .B0(n198), .B1(n185), .A0N(\mem[7][1] ), .A1N(n185), .Y(
+        n144) );
   OAI2BB2X1M U143 ( .B0(n199), .B1(n185), .A0N(\mem[7][2] ), .A1N(n185), .Y(
         n145) );
   OAI2BB2X1M U144 ( .B0(n200), .B1(n185), .A0N(\mem[7][3] ), .A1N(n185), .Y(
@@ -2860,8 +2869,8 @@ module FIFO_MEM_CNTRL_data_width8_depth8_addr_width4_test_1 ( W_data, W_inc,
   OAI22X1M U180 ( .A0(n179), .A1(n68), .B0(n180), .B1(n67), .Y(R_data[0]) );
   AO22X1M U181 ( .A0(\mem[3][1] ), .A1(n183), .B0(\mem[1][1] ), .B1(n184), .Y(
         n69) );
-  AOI221XLM U182 ( .A0(\mem[5][1] ), .A1(n181), .B0(test_so1), .B1(n182), .C0(
-        n69), .Y(n72) );
+  AOI221XLM U182 ( .A0(\mem[5][1] ), .A1(n181), .B0(\mem[7][1] ), .B1(n182), 
+        .C0(n69), .Y(n72) );
   AO22X1M U183 ( .A0(\mem[2][1] ), .A1(n183), .B0(\mem[0][1] ), .B1(n184), .Y(
         n70) );
   AOI221XLM U184 ( .A0(\mem[4][1] ), .A1(n181), .B0(\mem[6][1] ), .B1(n182), 
@@ -2921,8 +2930,6 @@ module FIFO_MEM_CNTRL_data_width8_depth8_addr_width4_test_1 ( W_data, W_inc,
   AOI221XLM U214 ( .A0(\mem[4][7] ), .A1(n181), .B0(\mem[6][7] ), .B1(n182), 
         .C0(n172), .Y(n175) );
   OAI22X1M U215 ( .A0(n176), .A1(n179), .B0(n180), .B1(n175), .Y(R_data[7]) );
-  SDFFRX4M \mem_reg[7][1]  ( .D(n144), .SI(\mem[7][0] ), .SE(n210), .CK(W_CLK), 
-        .RN(n193), .QN(n221) );
   DLY1X1M U216 ( .A(n216), .Y(n210) );
   DLY1X1M U217 ( .A(n216), .Y(n211) );
   DLY1X1M U218 ( .A(n216), .Y(n212) );
@@ -2930,11 +2937,10 @@ module FIFO_MEM_CNTRL_data_width8_depth8_addr_width4_test_1 ( W_data, W_inc,
   DLY1X1M U220 ( .A(n216), .Y(n214) );
   DLY1X1M U221 ( .A(n216), .Y(n215) );
   DLY1X1M U222 ( .A(test_se), .Y(n216) );
-  DLY1X1M U223 ( .A(n210), .Y(n217) );
-  DLY1X1M U224 ( .A(n210), .Y(n218) );
-  DLY1X1M U225 ( .A(n216), .Y(n219) );
-  DLY1X1M U226 ( .A(n210), .Y(n220) );
-  CLKINVX40M U227 ( .A(n221), .Y(test_so1) );
+  DLY1X1M U223 ( .A(n211), .Y(n217) );
+  DLY1X1M U224 ( .A(n220), .Y(n218) );
+  DLY1X1M U225 ( .A(n210), .Y(n219) );
+  DLY1X1M U226 ( .A(n216), .Y(n220) );
 endmodule
 
 
@@ -3265,27 +3271,28 @@ module serializer_test_1 ( P_DATA, ser_en, RST, CLK, Data_Valid, Busy,
   output ser_data, ser_done, test_so;
   wire   N27, n14, n20, n21, n22, n23, n24, n25, n26, n27, n28, n29, n30, n31,
          n32, n33, n34, n35, n36, n37, n38, n39, n40, n41, n42, n43, n44, n15,
-         n16, n17, n18, n19, n45, n46, n48, n50, n51, n52, n53, n54, n55;
+         n16, n17, n18, n19, n45, n46, n48, n50, n51, n52, n53, n54;
   wire   [7:0] shift_register;
   wire   [2:0] count;
   assign test_so = shift_register[7];
 
-  SDFFRQX1M \shift_register_reg[7]  ( .D(n38), .SI(shift_register[6]), .SE(n52), .CK(CLK), .RN(n15), .Q(shift_register[7]) );
-  SDFFRQX1M \shift_register_reg[6]  ( .D(n39), .SI(shift_register[5]), .SE(n52), .CK(CLK), .RN(n15), .Q(shift_register[6]) );
-  SDFFRQX1M \shift_register_reg[5]  ( .D(n40), .SI(shift_register[4]), .SE(n50), .CK(CLK), .RN(n15), .Q(shift_register[5]) );
-  SDFFRQX1M \shift_register_reg[4]  ( .D(n41), .SI(shift_register[3]), .SE(n55), .CK(CLK), .RN(n15), .Q(shift_register[4]) );
-  SDFFRQX1M \shift_register_reg[3]  ( .D(n42), .SI(shift_register[2]), .SE(n54), .CK(CLK), .RN(n15), .Q(shift_register[3]) );
-  SDFFRQX1M \shift_register_reg[2]  ( .D(n43), .SI(shift_register[1]), .SE(n50), .CK(CLK), .RN(n15), .Q(shift_register[2]) );
-  SDFFRQX1M ser_data_reg ( .D(n36), .SI(count[2]), .SE(n50), .CK(CLK), .RN(n15), .Q(ser_data) );
-  SDFFRX1M \shift_register_reg[0]  ( .D(n37), .SI(ser_done), .SE(n52), .CK(CLK), .RN(n15), .Q(n48), .QN(n14) );
-  SDFFRQX1M ser_done_reg ( .D(N27), .SI(ser_data), .SE(n54), .CK(CLK), .RN(n15), .Q(ser_done) );
-  SDFFRQX1M \shift_register_reg[1]  ( .D(n44), .SI(n48), .SE(n55), .CK(CLK), 
+  SDFFRQX1M \shift_register_reg[7]  ( .D(n38), .SI(shift_register[6]), .SE(n51), .CK(CLK), .RN(n15), .Q(shift_register[7]) );
+  SDFFRQX1M \shift_register_reg[6]  ( .D(n39), .SI(shift_register[5]), .SE(n51), .CK(CLK), .RN(n15), .Q(shift_register[6]) );
+  SDFFRQX1M \shift_register_reg[5]  ( .D(n40), .SI(shift_register[4]), .SE(
+        test_se), .CK(CLK), .RN(n15), .Q(shift_register[5]) );
+  SDFFRQX1M \shift_register_reg[4]  ( .D(n41), .SI(shift_register[3]), .SE(n54), .CK(CLK), .RN(n15), .Q(shift_register[4]) );
+  SDFFRQX1M \shift_register_reg[3]  ( .D(n42), .SI(shift_register[2]), .SE(n53), .CK(CLK), .RN(n15), .Q(shift_register[3]) );
+  SDFFRQX1M \shift_register_reg[2]  ( .D(n43), .SI(shift_register[1]), .SE(n52), .CK(CLK), .RN(n15), .Q(shift_register[2]) );
+  SDFFRQX1M ser_data_reg ( .D(n36), .SI(count[2]), .SE(n52), .CK(CLK), .RN(n15), .Q(ser_data) );
+  SDFFRX1M \shift_register_reg[0]  ( .D(n37), .SI(ser_done), .SE(n51), .CK(CLK), .RN(n15), .Q(n48), .QN(n14) );
+  SDFFRQX1M ser_done_reg ( .D(N27), .SI(ser_data), .SE(n53), .CK(CLK), .RN(n15), .Q(ser_done) );
+  SDFFRQX1M \shift_register_reg[1]  ( .D(n44), .SI(n48), .SE(n54), .CK(CLK), 
         .RN(n15), .Q(shift_register[1]) );
-  SDFFRQX1M \count_reg[2]  ( .D(n33), .SI(count[1]), .SE(n55), .CK(CLK), .RN(
+  SDFFRQX1M \count_reg[2]  ( .D(n33), .SI(count[1]), .SE(n54), .CK(CLK), .RN(
         n15), .Q(count[2]) );
-  SDFFRQX1M \count_reg[1]  ( .D(n34), .SI(count[0]), .SE(n54), .CK(CLK), .RN(
+  SDFFRQX1M \count_reg[1]  ( .D(n34), .SI(count[0]), .SE(n53), .CK(CLK), .RN(
         n15), .Q(count[1]) );
-  SDFFRQX1M \count_reg[0]  ( .D(n35), .SI(test_si), .SE(n50), .CK(CLK), .RN(
+  SDFFRQX1M \count_reg[0]  ( .D(n35), .SI(test_si), .SE(n52), .CK(CLK), .RN(
         n15), .Q(count[0]) );
   INVX2M U16 ( .A(n24), .Y(n46) );
   NAND2X2M U17 ( .A(n23), .B(n24), .Y(n25) );
@@ -3328,12 +3335,11 @@ module serializer_test_1 ( P_DATA, ser_en, RST, CLK, Data_Valid, Busy,
   INVX2M U46 ( .A(count[1]), .Y(n18) );
   INVX2M U47 ( .A(count[0]), .Y(n17) );
   INVX2M U48 ( .A(count[2]), .Y(n19) );
-  DLY1X1M U49 ( .A(n53), .Y(n50) );
-  INVXLM U50 ( .A(test_se), .Y(n51) );
-  INVXLM U51 ( .A(n51), .Y(n52) );
-  INVXLM U52 ( .A(n51), .Y(n53) );
-  INVXLM U53 ( .A(n51), .Y(n54) );
-  INVXLM U54 ( .A(n51), .Y(n55) );
+  INVXLM U49 ( .A(test_se), .Y(n50) );
+  INVXLM U50 ( .A(n50), .Y(n51) );
+  INVXLM U51 ( .A(n50), .Y(n52) );
+  INVXLM U52 ( .A(n50), .Y(n53) );
+  INVXLM U53 ( .A(n50), .Y(n54) );
 endmodule
 
 
@@ -3936,8 +3942,8 @@ module Final_System_dft ( scan_CLK, scan_RST, test_mode, SE, SI, RX_IN,
          scan_CLK_TX, CLK_RX, scan_CLK_RX, data_valid_RX, SYNC_Valid,
          ALU_OUT_Valid, RdData_Valid, W_full, ALU_EN, CLK_EN, WrEn, RdEN,
          W_inc, CLK_ALU, R_inc, R_empty, Data_Valid_TX, Busy, n2, n3, n4, n5,
-         n6, n10, n11, n12, n13, n35, n16, n17, n18, n19, n20, n24, n25, n26,
-         n27, n28, n29, n30, n31, n32;
+         n6, n10, n11, n12, n13, n16, n17, n18, n19, n20, n24, n25, n26, n27,
+         n28, n29, n30, n31, n33;
   wire   [7:0] REG2;
   wire   [7:0] P_DATA_RX;
   wire   [7:0] SYNC_P_DATA;
@@ -3955,8 +3961,6 @@ module Final_System_dft ( scan_CLK, scan_RST, test_mode, SE, SI, RX_IN,
   wire   SYNOPSYS_UNCONNECTED__0, SYNOPSYS_UNCONNECTED__1, 
         SYNOPSYS_UNCONNECTED__2, SYNOPSYS_UNCONNECTED__3;
 
-  CLK_GATE_dft CLK_GATE ( .CLK_EN(CLK_EN), .TE(n2), .CLK(scan_REF_CLK), 
-        .GATED_CLK(CLK_ALU) );
   INVX2M U2 ( .A(n6), .Y(n5) );
   INVX2M U3 ( .A(n4), .Y(n3) );
   BUFX2M U4 ( .A(test_mode), .Y(n2) );
@@ -3967,13 +3971,11 @@ module Final_System_dft ( scan_CLK, scan_RST, test_mode, SE, SI, RX_IN,
   DLY1X1M U14 ( .A(SE), .Y(n25) );
   DLY1X1M U15 ( .A(SE), .Y(n26) );
   DLY1X1M U16 ( .A(SE), .Y(n27) );
-  DLY1X1M U17 ( .A(n32), .Y(n28) );
-  DLY1X1M U18 ( .A(n32), .Y(n29) );
-  DLY1X1M U19 ( .A(n32), .Y(n30) );
-  DLY1X1M U20 ( .A(n32), .Y(n31) );
-  DLY1X1M U21 ( .A(n25), .Y(n32) );
-  CLKBUFX40M U22 ( .A(SO[1]), .Y(stop_error) );
-  CLKBUFX40M U23 ( .A(n35), .Y(SO[2]) );
+  DLY1X1M U17 ( .A(n33), .Y(n28) );
+  DLY1X1M U18 ( .A(n33), .Y(n29) );
+  DLY1X1M U19 ( .A(n33), .Y(n30) );
+  DLY1X1M U20 ( .A(n33), .Y(n31) );
+  DLY1X1M U22 ( .A(n25), .Y(n33) );
   MUX2x1_2 U0_MUX ( .IN_0(RST), .IN_1(scan_RST), .sel(n2), .OUT(RST_M) );
   MUX2x1_1 U1_MUX ( .IN_0(SYNC_RST_1), .IN_1(scan_RST), .sel(n2), .OUT(
         scan_SYNC_RST_1) );
@@ -3993,7 +3995,7 @@ module Final_System_dft ( scan_CLK, scan_RST, test_mode, SE, SI, RX_IN,
   RST_SYNC_NUM_STAGES2_test_1 RST_SYNC_2 ( .RST(RST_M), .CLK(scan_UART_CLK_pos), .SYNC_RST(SYNC_RST_2), .test_si(n17), .test_so(n16), .test_se(n29) );
   UART_RX_test_1 UART_RX ( .RX_IN(RX_IN), .prescale(REG2[7:2]), .PAR_EN(
         REG2[0]), .PAR_TYP(REG2[1]), .CLK(scan_CLK_RX), .RST(n3), .P_DATA(
-        P_DATA_RX), .parity_error(parity_error), .stop_error(SO[1]), 
+        P_DATA_RX), .parity_error(parity_error), .stop_error(stop_error), 
         .data_valid(data_valid_RX), .test_si2(n10), .test_si1(n13), .test_so1(
         n12), .test_se(n27) );
   DATA_SYNC_BUS_WIDTH8_NUM_STAGES2_test_1 DATA_SYNC ( .unsync_bus(P_DATA_RX), 
@@ -4006,7 +4008,7 @@ module Final_System_dft ( scan_CLK, scan_RST, test_mode, SE, SI, RX_IN,
         .FIFO_FULL(W_full), .CLK(scan_REF_CLK), .RST(n5), .ALU_EN(ALU_EN), 
         .ALU_FUN(ALU_FUN), .CLK_EN(CLK_EN), .Address(Address), .WrEN(WrEn), 
         .RdEN(RdEN), .WrData(WrData), .TX_P_DATA(W_data), .TX_D_VLD(W_inc), 
-        .test_si2(SI[1]), .test_si1(n16), .test_so2(n13), .test_so1(n35), 
+        .test_si2(SI[1]), .test_si1(n16), .test_so2(n13), .test_so1(SO[2]), 
         .test_se(n26) );
   regfile_Address_width4_Data_width8_depth16_test_1 regfile ( .WrData(WrData), 
         .Address(Address), .WrEn(WrEn), .RdEN(RdEN), .CLK(scan_REF_CLK), .RST(
@@ -4016,6 +4018,8 @@ module Final_System_dft ( scan_CLK, scan_RST, test_mode, SE, SI, RX_IN,
   ALU_OPER_WIDTH8_OUT_WIDTH16_test_1 ALU ( .A(REG0), .B(REG1), .EN(ALU_EN), 
         .ALU_FUN(ALU_FUN), .CLK(CLK_ALU), .RST(n5), .ALU_OUT(ALU_OUT), 
         .OUT_VALID(ALU_OUT_Valid), .test_si(SI[3]), .test_se(n28) );
+  CLK_GATE_dft CLK_GATE ( .CLK_EN(CLK_EN), .TE(n2), .CLK(scan_REF_CLK), 
+        .GATED_CLK(CLK_ALU) );
   ASYNC_FIFO_data_width8_depth8_addr_width4_NUM_STAGES2_test_1 ASYNC_FIFO ( 
         .W_data(W_data), .W_inc(W_inc), .R_inc(R_inc), .W_CLK(scan_REF_CLK), 
         .W_RST(n5), .R_CLK(scan_CLK_TX), .R_RST(n3), .R_data(R_data), .W_full(
@@ -4040,5 +4044,6 @@ module Final_System_dft ( scan_CLK, scan_RST, test_mode, SE, SI, RX_IN,
         SYNOPSYS_UNCONNECTED__0, SYNOPSYS_UNCONNECTED__1, 
         SYNOPSYS_UNCONNECTED__2, SYNOPSYS_UNCONNECTED__3, Div_Ratio_RX[3:0]})
          );
+  BUFX2M U21 ( .A(stop_error), .Y(SO[1]) );
 endmodule
 

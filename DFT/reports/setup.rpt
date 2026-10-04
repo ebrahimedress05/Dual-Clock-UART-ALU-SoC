@@ -1,4 +1,3 @@
-Warning: There are infeasible paths detected in your design that were ignored during optimization. Please run 'report_timing -attributes' and/or 'create_qor_snapshot/query_qor_snapshot -infeasible_paths' to identify these paths.  (OPT-1721)
  
 ****************************************
 Report : timing
@@ -7,7 +6,7 @@ Report : timing
         -max_paths 1
 Design : Final_System_dft
 Version: O-2018.06-SP1
-Date   : Tue Sep 29 09:32:46 2026
+Date   : Mon Oct  5 01:29:47 2026
 ****************************************
 
 Operating Conditions: scmetro_tsmc_cl013g_rvt_ss_1p08v_125c   Library: scmetro_tsmc_cl013g_rvt_ss_1p08v_125c

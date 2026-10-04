@@ -19,7 +19,7 @@
 
 Build: 4031317
 Hostname: IC_EDA (RHEL64)
-Current time: Tue Sep 29 09:39:31 2026
+Current time: Mon Oct  5 01:31:40 2026
 
 Loading db file '/home/synopsys/Formality2016/libraries/syn/gtech.db'
 ########################### Define Top Module ############################
@@ -236,7 +236,7 @@ match
 Reference design is 'Ref:/WORK/Final_System_dft'
 Implementation design is 'Imp:/WORK/Final_System_dft'
 Status:  Checking designs...
-    Warning: 4 (12) undriven nets found in reference (implementation) design; see formality2.log for list (FM-399)
+    Warning: 4 (12) undriven nets found in reference (implementation) design; see formality5.log for list (FM-399)
 Status:  Building verification models...
 Status:  Processing Guide Commands...
     Set 'Ref:/WORK/Final_System_dft/SE' to constant 0    
@@ -268,7 +268,7 @@ SVF files read:
       /home/ICer/IC/Projects/System/DFT/Final_System_dft.svf
 
 SVF files produced:
-  /home/ICer/IC/Projects/System/Formality/post-dft/formality2_svf/
+  /home/ICer/IC/Projects/System/Formality/post-dft/formality5_svf/
     svf.txt
 ****************************************************************************
 
@@ -366,3 +366,7 @@ report_failing_points > "reports/failing_points.rpt"
 report_aborted_points > "reports/aborted_points.rpt"
 report_unverified_points > "reports/unverified_points.rpt"
 start_gui
+     1  source -echo -verbose dft_fm_script.tcl
+1
+1
+fm_shell (verify)> 
