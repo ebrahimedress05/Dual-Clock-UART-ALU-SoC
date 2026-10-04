@@ -321,7 +321,9 @@ tb/
 └── top_tb/
     ├── system_tb.sv    Self-checking testbench for Final_System
     ├── run.do           ModelSim compile + simulate script
-    ├── wave.do           Waveform layout (grouped by UART, DATA_SYNC, SYS_CTRL, ...)
+    ├── wave.do           Full waveform layout (every internal signal, for debug)
+    ├── wave_reduced.do    Curated 7-group waveform layout (clocks, UART pins, FSM, RegFile, ALU, TX flow, error flags) used for the report below, with quick-zoom macros (`c1`…`c6`) for each test window
+    ├── filelist.f         Explicit RTL + testbench file list for `vlog -f filelist.f`, as an alternative to globbing `*.*v`
     └── logs/
         └── simulation_log.txt   Transcript from the latest passing ModelSim run
 ```
@@ -368,7 +370,11 @@ TEST SUMMARY: PASSED = 9 | FAILED = 0
 
 Full transcript: [`tb/top_tb/logs/simulation_log.txt`](tb/top_tb/logs/simulation_log.txt).
 
-> **Note:** the logged run above was captured while `REF_period` was set for a 100 MHz reference clock. `REF_period` has since been corrected to 50 MHz to match the system specification; the pass/fail results are expected to hold (only the clock period scales, not the command sequencing), but the log has not yet been re-captured at 50 MHz. A refreshed `simulation_log.txt` will be committed once the testbench is re-run.
+> **Note:** the logged transcript above was captured while `REF_period` was set for a 100 MHz reference clock; `REF_period` has since been corrected to 50 MHz. The waveform report below is from a fresh run at the corrected 50 MHz period (frame timing throughout it — e.g. ~96 µs per UART frame — matches the 50 MHz / 3.6864 MHz spec), so it supersedes this note's concern. A refreshed `simulation_log.txt` transcript at 50 MHz is still queued to replace the one above.
+
+### 📄 Visual Waveform Report
+
+[`docs/verification/System_Waveform_Report.pdf`](docs/verification/System_Waveform_Report.pdf) is a designed, waveform-annotated walkthrough of all 6 scenarios above — one spread per test, each with the command/response frame breakdown, the exact FSM path taken (states read directly from `SYS_CTRL.sv` / `FSM_RX.sv`, including the short `wait_*`/`send_*`/`check` states that are too brief to label on the waveform itself), a decoded bit-level UART frame, a verification checklist, and a timestamped event timeline. Tests 5 and 6 additionally document the `UART_RX`/`FSM_RX` rejection path for a corrupted-parity and a corrupted-stop-bit frame respectively, including the testbench's own `[PASS]` self-check print. Generated with the `wave_reduced.do` layout above.
 
 ## Lint (`lint_reports/`)
 
