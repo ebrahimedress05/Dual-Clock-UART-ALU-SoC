@@ -1,0 +1,796 @@
+
+                                 PrimeTime (R)
+
+               Version O-2018.06-SP1 for linux64 - Jul 19, 2018 
+
+                    Copyright (c) 1988 - 2018 Synopsys, Inc.
+   This software and the associated documentation are proprietary to Synopsys,
+ Inc. This software may only be used in accordance with the terms and conditions
+ of a written license agreement with Synopsys, Inc. All other use, reproduction,
+            or distribution of this software is strictly prohibited.
+set_app_var power_enable_analysis true
+Information: Checked out license 'PrimePower' (PT-019)
+true
+set_app_var power_analysis_mode time_based
+time_based
+set power_vcd_time_unit 1ns
+1ns
+set report_dir ./report
+./report
+file mkdir $report_dir
+set Out_report System_pw
+System_pw
+#------------------------------------------------------------------------------
+# Libraries
+#------------------------------------------------------------------------------
+lappend search_path ../std_cells
+../std_cells
+set TTLIB   scmetro_tsmc_cl013g_rvt_tt_1p2v_25c.db
+scmetro_tsmc_cl013g_rvt_tt_1p2v_25c.db
+set SSLIB   scmetro_tsmc_cl013g_rvt_ss_1p08v_125c.db
+scmetro_tsmc_cl013g_rvt_ss_1p08v_125c.db
+set FFLIB   scmetro_tsmc_cl013g_rvt_ff_1p32v_m40c.db
+scmetro_tsmc_cl013g_rvt_ff_1p32v_m40c.db
+set target_library [list $TTLIB $SSLIB $FFLIB]
+scmetro_tsmc_cl013g_rvt_tt_1p2v_25c.db scmetro_tsmc_cl013g_rvt_ss_1p08v_125c.db scmetro_tsmc_cl013g_rvt_ff_1p32v_m40c.db
+set link_library   [list * $TTLIB $SSLIB $FFLIB]
+* scmetro_tsmc_cl013g_rvt_tt_1p2v_25c.db scmetro_tsmc_cl013g_rvt_ss_1p08v_125c.db scmetro_tsmc_cl013g_rvt_ff_1p32v_m40c.db
+#------------------------------------------------------------------------------
+# Read Design Files
+#------------------------------------------------------------------------------
+# Read Verilog Netlist (post-PNR)
+read_verilog ../netlist/Final_System_pnr.v
+1
+current_design Final_System_dft
+Information: current_design won't return any data before link (DES-071)
+link_design
+Loading verilog file '/home/ICer/IC/Projects/System/GLS/netlist/Final_System_pnr.v'
+Loading db file '/home/ICer/IC/Projects/System/GLS/std_cells/scmetro_tsmc_cl013g_rvt_tt_1p2v_25c.db'
+Loading db file '/home/ICer/IC/Projects/System/GLS/std_cells/scmetro_tsmc_cl013g_rvt_ss_1p08v_125c.db'
+Loading db file '/home/ICer/IC/Projects/System/GLS/std_cells/scmetro_tsmc_cl013g_rvt_ff_1p32v_m40c.db'
+Linking design Final_System_dft...
+Information: Removing 50 unneeded designs..... (LNK-034)
+Information: 484 (78.32%) library cells are unused in library scmetro_tsmc_cl013g_rvt_tt_1p2v_25c..... (LNK-045)
+Information: 618 (100.00%) library cells are unused in library scmetro_tsmc_cl013g_rvt_ss_1p08v_125c..... (LNK-045)
+Information: 618 (100.00%) library cells are unused in library scmetro_tsmc_cl013g_rvt_ff_1p32v_m40c..... (LNK-045)
+Information: total 1720 library cells are unused (LNK-046)
+Design 'Final_System_dft' was successfully linked.
+Information: There are 2297 leaf cells, ports, hiers and 3405 nets in the design (LNK-047)
+1
+# Read post-PNR SDC File
+read_sdc ../netlist/Final_System_pnr.sdc
+
+Reading SDC version 2.1...
+Information: Loading library 'scmetro_tsmc_cl013g_rvt_ss_1p08v_125c' data due to accessing lib cells not linked in the current design. (LNK-041)
+Warning: Creating a generated clock on hierarchical pin 'CLK_GATE/GATED_CLK'. (UITE-136)
+Warning: Creating a generated clock on hierarchical pin 'ClkDiv_TX/o_div_clk'. (UITE-136)
+Warning: Creating a generated clock on hierarchical pin 'ClkDiv_RX/o_div_clk'. (UITE-136)
+1
+1
+# Read post-PNR SDF File
+#read_sdf ../netlist/Final_System_pnr.sdf
+#------------------------------------------------------------------------------
+# Read Switching Activity
+#------------------------------------------------------------------------------
+# NOTE: point this at the VCD produced by run.do (dumped as UART_TX.vcd
+# from the sim/ directory - copy or update the path below accordingly)
+read_vcd -strip_path system_tb/DUT ../sim/System.vcd
+
+======================================================================
+Summary:
+Total number of nets = 2435
+Number of annotated nets = 2435 (100.00%)
+Total number of leaf cells = 2220
+Number of fully annotated leaf cells = 2220 (100.00%)
+======================================================================
+
+1
+update_power
+Warning: Some timing arcs have been disabled for breaking timing loops or because of constant propagation. Use the 'report_disable_timing' command to get the list of these disabled timing arcs. (PTE-003)
+Warning: No clock-gating check is inferred for clock UART_CLK at pins ClkDiv_RX/U55/B and ClkDiv_RX/U55/A of cell ClkDiv_RX/U55. (PTE-060)
+Warning: No clock-gating check is inferred for clock UART_CLK at pins ClkDiv_RX/U55/S0 and ClkDiv_RX/U55/A of cell ClkDiv_RX/U55. (PTE-060)
+Warning: No clock-gating check is inferred for clock UART_CLK at pins ClkDiv_TX/U55/B and ClkDiv_TX/U55/A of cell ClkDiv_TX/U55. (PTE-060)
+Warning: No clock-gating check is inferred for clock UART_CLK at pins ClkDiv_TX/U55/S0 and ClkDiv_TX/U55/A of cell ClkDiv_TX/U55. (PTE-060)
+Information: Expanding clock 'UART_CLK' to base period of 8681.514 (old period was 271.297, added 62 edges). (PTE-016)
+Information: Expanding clock 'RX_CLK' to base period of 8681.514 (old period was 271.297, added 62 edges). (PTE-016)
+Information: Running time_based power analysis... (PWR-601)
+Information: The waveform options are:
+		File name:	primetime_px.fsdb
+		File format:	fsdb
+		Time interval:	1e-06ns
+		Hierarchical level:	all
+
+Information: Power analysis is running, please wait ...
+
+ Last event time =   3530.3 ns 
+ Last event time =  7000.33 ns 
+ Last event time =  10444.3 ns 
+ Last event time =  13910.7 ns 
+ Last event time =  17370.7 ns 
+ Last event time =  20810.8 ns 
+ Last event time =  24280.3 ns 
+ Last event time =  27710.8 ns 
+ Last event time =  31196.2 ns 
+ Last event time =  34650.7 ns 
+ Last event time =  38113.4 ns 
+ Last event time =  41550.6 ns 
+ Last event time =  44990.8 ns 
+ Last event time =    48460 ns 
+ Last event time =  51940.8 ns 
+ Last event time =  55370.8 ns 
+ Last event time =  58830.6 ns 
+ Last event time =  62259.1 ns 
+ Last event time =    65770 ns 
+ Last event time =  69190.8 ns 
+ Last event time =  72640.8 ns 
+ Last event time =  76093.1 ns 
+ Last event time =  79540.8 ns 
+ Last event time =  83010.4 ns 
+ Last event time =  86460.5 ns 
+ Last event time =  89920.5 ns 
+ Last event time =  93350.3 ns 
+ Last event time =  96780.8 ns 
+ Last event time =   100236 ns 
+ Last event time =   103701 ns 
+ Last event time =   107141 ns 
+ Last event time =   110591 ns 
+ Last event time =   114069 ns 
+ Last event time =   117541 ns 
+ Last event time =   120986 ns 
+ Last event time =   124411 ns 
+ Last event time =   127900 ns 
+ Last event time =   131341 ns 
+ Last event time =   134820 ns 
+ Last event time =   138241 ns 
+ Last event time =   141721 ns 
+ Last event time =   145161 ns 
+ Last event time =   148631 ns 
+ Last event time =   152091 ns 
+ Last event time =   155571 ns 
+ Last event time =   158990 ns 
+ Last event time =   162451 ns 
+ Last event time =   165901 ns 
+ Last event time =   169390 ns 
+ Last event time =   172840 ns 
+ Last event time =   176270 ns 
+ Last event time =   179717 ns 
+ Last event time =   183191 ns 
+ Last event time =   186634 ns 
+ Last event time =   190091 ns 
+ Last event time =   193511 ns 
+ Last event time =   196970 ns 
+ Last event time =   200411 ns 
+ Last event time =   203860 ns 
+ Last event time =   207331 ns 
+ Last event time =   210775 ns 
+ Last event time =   214241 ns 
+ Last event time =   217695 ns 
+ Last event time =   221141 ns 
+ Last event time =   224610 ns 
+ Last event time =   228041 ns 
+ Last event time =   231528 ns 
+ Last event time =   234991 ns 
+ Last event time =   238430 ns 
+ Last event time =   241871 ns 
+ Last event time =   245331 ns 
+ Last event time =   248791 ns 
+ Last event time =   252271 ns 
+ Last event time =   255681 ns 
+ Last event time =   259160 ns 
+ Last event time =   262588 ns 
+ Last event time =   266061 ns 
+ Last event time =   269521 ns 
+ Last event time =   272990 ns 
+ Last event time =   276422 ns 
+ Last event time =   279851 ns 
+ Last event time =   283340 ns 
+ Last event time =   286791 ns 
+ Last event time =   290241 ns 
+ Last event time =   293800 ns 
+ Last event time =   297391 ns 
+ Last event time =   300870 ns 
+ Last event time =   304331 ns 
+ Last event time =   307756 ns 
+ Last event time =   311231 ns 
+ Last event time =   314691 ns 
+ Last event time =   318150 ns 
+ Last event time =   321591 ns 
+ Last event time =   325071 ns 
+ Last event time =   328506 ns 
+ Last event time =   331981 ns 
+ Last event time =   335423 ns 
+ Last event time =   338910 ns 
+ Last event time =   342340 ns 
+ Last event time =   345790 ns 
+ Last event time =   349258 ns 
+ Last event time =   352710 ns 
+ Last event time =   356181 ns 
+ Last event time =   359611 ns 
+ Last event time =   363092 ns 
+ Last event time =   366540 ns 
+ Last event time =   369981 ns 
+ Last event time =   373450 ns 
+ Last event time =   376901 ns 
+ Last event time =   380341 ns 
+ Last event time =   383801 ns 
+ Last event time =   387236 ns 
+ Last event time =   390711 ns 
+ Last event time =   394111 ns 
+ Last event time =   397571 ns 
+ Last event time =   401051 ns 
+ Last event time =   404461 ns 
+ Last event time =   407950 ns 
+ Last event time =   411379 ns 
+ Last event time =   414881 ns 
+ Last event time =   418311 ns 
+ Last event time =   421751 ns 
+ Last event time =   425214 ns 
+ Last event time =   428671 ns 
+ Last event time =   432141 ns 
+ Last event time =   435591 ns 
+ Last event time =   439048 ns 
+ Last event time =   442510 ns 
+ Last event time =   445960 ns 
+ Last event time =   449430 ns 
+ Last event time =   452882 ns 
+ Last event time =   456351 ns 
+ Last event time =   459798 ns 
+ Last event time =   463221 ns 
+ Last event time =   466716 ns 
+ Last event time =   470161 ns 
+ Last event time =   473631 ns 
+ Last event time =   477050 ns 
+ Last event time =   480521 ns 
+ Last event time =   483971 ns 
+ Last event time =   487421 ns 
+ Last event time =   490858 ns 
+ Last event time =   494410 ns 
+ Last event time =   498001 ns 
+ Last event time =   501574 ns 
+ Last event time =   505151 ns 
+ Last event time =   508741 ns 
+ Last event time =   512301 ns 
+ Last event time =   515900 ns 
+ Last event time =   519460 ns 
+ Last event time =   523031 ns 
+ Last event time =   526591 ns 
+ Last event time =   530192 ns 
+ Last event time =   533761 ns 
+ Last event time =   537341 ns 
+ Last event time =   540911 ns 
+ Last event time =   544481 ns 
+ Last event time =   548071 ns 
+ Last event time =   551651 ns 
+ Last event time =   555231 ns 
+ Last event time =   558811 ns 
+ Last event time =   562391 ns 
+ Last event time =   565980 ns 
+ Last event time =   569528 ns 
+ Last event time =   573141 ns 
+ Last event time =   576715 ns 
+ Last event time =   580281 ns 
+ Last event time =   583881 ns 
+ Last event time =   587431 ns 
+ Last event time =   591011 ns 
+ Last event time =   594618 ns 
+ Last event time =   598190 ns 
+ Last event time =   601720 ns 
+ Last event time =   605161 ns 
+ Last event time =   608591 ns 
+ Last event time =   612091 ns 
+ Last event time =   615541 ns 
+ Last event time =   619001 ns 
+ Last event time =   622431 ns 
+ Last event time =   625931 ns 
+ Last event time =   629371 ns 
+ Last event time =   632831 ns 
+ Last event time =   636270 ns 
+ Last event time =   639750 ns 
+ Last event time =   643191 ns 
+ Last event time =   646661 ns 
+ Last event time =   650100 ns 
+ Last event time =   653571 ns 
+ Last event time =   657011 ns 
+ Last event time =   660481 ns 
+ Last event time =   663929 ns 
+ Last event time =   667391 ns 
+ Last event time =   670844 ns 
+ Last event time =   674291 ns 
+ Last event time =   677763 ns 
+ Last event time =   681211 ns 
+ Last event time =   684661 ns 
+ Last event time =   688091 ns 
+ Last event time =   691570 ns 
+ Last event time =   695021 ns 
+ Last event time =   698430 ns 
+ Last event time =   701904 ns 
+ Last event time =   705331 ns 
+ Last event time =   708791 ns 
+ Last event time =   712261 ns 
+ Last event time =   715738 ns 
+ Last event time =   719170 ns 
+ Last event time =   722621 ns 
+ Last event time =   726051 ns 
+ Last event time =   729561 ns 
+ Last event time =   732991 ns 
+ Last event time =   736441 ns 
+ Last event time =   739884 ns 
+ Last event time =   743371 ns 
+ Last event time =   746821 ns 
+ Last event time =   750271 ns 
+ Last event time =   753718 ns 
+ Last event time =   757171 ns 
+ Last event time =   760635 ns 
+ Last event time =   764111 ns 
+ Last event time =   767552 ns 
+ Last event time =   771021 ns 
+ Last event time =   774451 ns 
+ Last event time =   777911 ns 
+ Last event time =   781387 ns 
+ Last event time =   784830 ns 
+ Last event time =   788281 ns 
+ Last event time =   791695 ns 
+ Last event time =   795131 ns 
+ Last event time =   798610 ns 
+ Last event time =   802040 ns 
+ Last event time =   805511 ns 
+ Last event time =   808931 ns 
+ Last event time =   812410 ns 
+ Last event time =   815861 ns 
+ Last event time =   819331 ns 
+ Last event time =   822771 ns 
+ Last event time =   826211 ns 
+ Last event time =   829673 ns 
+ Last event time =   833150 ns 
+ Last event time =   836590 ns 
+ Last event time =   840060 ns 
+ Last event time =   843508 ns 
+ Last event time =   846981 ns 
+ Last event time =   850424 ns 
+ Last event time =   853880 ns 
+ Last event time =   857341 ns 
+ Last event time =   860811 ns 
+ Last event time =   864259 ns 
+ Last event time =   867711 ns 
+ Last event time =   871171 ns 
+ Last event time =   874630 ns 
+ Last event time =   878091 ns 
+ Last event time =   881530 ns 
+ Last event time =   884991 ns 
+ Last event time =   888267 ns 
+ Last event time =   891751 ns 
+ Last event time =   895200 ns 
+ Last event time =   898671 ns 
+ Last event time =   902120 ns 
+ Last event time =   905581 ns 
+ Last event time =   909018 ns 
+ Last event time =   912490 ns 
+ Last event time =   915941 ns 
+ Last event time =   919431 ns 
+ Last event time =   922852 ns 
+ Last event time =   926311 ns 
+ Last event time =   929770 ns 
+ Last event time =   933251 ns 
+ Last event time =   936701 ns 
+ Last event time =   940151 ns 
+ Last event time =   943605 ns 
+ Last event time =   947080 ns 
+ Last event time =   950522 ns 
+ Last event time =   954001 ns 
+ Last event time =   957439 ns 
+ Last event time =   960911 ns 
+ Last event time =   964355 ns 
+ Last event time =   967810 ns 
+ Last event time =   971273 ns 
+ Last event time =   974711 ns 
+ Last event time =   978190 ns 
+ Last event time =   981601 ns 
+ Last event time =   985031 ns 
+ Last event time =   988621 ns 
+ Last event time =   992191 ns 
+ Last event time =   995761 ns 
+ Last event time =   999348 ns 
+ Last event time = 1.00294e+06 ns 
+ Last event time = 1.00652e+06 ns 
+ Last event time = 1.01007e+06 ns 
+ Last event time = 1.01366e+06 ns 
+ Last event time = 1.01725e+06 ns 
+ Last event time = 1.02081e+06 ns 
+ Last event time = 1.02439e+06 ns 
+ Last event time = 1.02797e+06 ns 
+ Last event time = 1.03153e+06 ns 
+ Last event time = 1.03513e+06 ns 
+ Last event time = 1.03869e+06 ns 
+ Last event time = 1.0423e+06 ns 
+ Last event time = 1.04587e+06 ns 
+ Last event time = 1.04944e+06 ns 
+ Last event time = 1.05304e+06 ns 
+ Last event time = 1.05659e+06 ns 
+ Last event time = 1.06018e+06 ns 
+ Last event time = 1.06378e+06 ns 
+ Last event time = 1.06735e+06 ns 
+ Last event time = 1.07094e+06 ns 
+ Last event time = 1.07451e+06 ns 
+ Last event time = 1.0781e+06 ns 
+ Last event time = 1.08168e+06 ns 
+ Last event time = 1.08525e+06 ns 
+ Last event time = 1.08884e+06 ns 
+ Last event time = 1.09239e+06 ns 
+ Last event time = 1.09599e+06 ns 
+ Last event time = 1.09958e+06 ns 
+ Last event time = 1.10313e+06 ns 
+ Last event time = 1.10674e+06 ns 
+ Last event time = 1.1103e+06 ns 
+ Last event time = 1.1139e+06 ns 
+ Last event time = 1.11747e+06 ns 
+ Last event time = 1.12103e+06 ns 
+ Last event time = 1.12464e+06 ns 
+ Last event time = 1.1282e+06 ns 
+ Last event time = 1.13178e+06 ns 
+ Last event time = 1.13537e+06 ns 
+ Last event time = 1.13892e+06 ns 
+ Last event time = 1.1425e+06 ns 
+ Last event time = 1.1461e+06 ns 
+ Last event time = 1.14969e+06 ns 
+ Last event time = 1.15327e+06 ns 
+ Last event time = 1.15684e+06 ns 
+ Last event time = 1.16042e+06 ns 
+ Last event time = 1.16401e+06 ns 
+ Last event time = 1.16759e+06 ns 
+ Last event time = 1.17118e+06 ns 
+ Last event time = 1.17473e+06 ns 
+ Last event time = 1.17833e+06 ns 
+ Last event time = 1.18191e+06 ns 
+ Last event time = 1.1855e+06 ns 
+ Last event time = 1.18907e+06 ns 
+ Last event time = 1.19264e+06 ns 
+ Last event time = 1.19623e+06 ns 
+ Last event time = 1.19978e+06 ns 
+ Last event time = 1.20321e+06 ns 
+ Last event time = 1.20672e+06 ns 
+ Last event time = 1.21014e+06 ns 
+ Last event time = 1.21361e+06 ns 
+ Last event time = 1.21704e+06 ns 
+ Last event time = 1.22053e+06 ns 
+ Last event time = 1.22397e+06 ns 
+ Last event time = 1.22743e+06 ns 
+ Last event time = 1.23088e+06 ns 
+ Last event time = 1.23433e+06 ns 
+ Last event time = 1.23779e+06 ns 
+ Last event time = 1.24125e+06 ns 
+ Last event time = 1.24471e+06 ns 
+ Last event time = 1.24818e+06 ns 
+ Last event time = 1.25162e+06 ns 
+ Last event time = 1.25508e+06 ns 
+ Last event time = 1.25855e+06 ns 
+ Last event time = 1.26198e+06 ns 
+ Last event time = 1.26545e+06 ns 
+ Last event time = 1.26887e+06 ns 
+ Last event time = 1.27238e+06 ns 
+ Last event time = 1.27582e+06 ns 
+ Last event time = 1.27925e+06 ns 
+ Last event time = 1.2827e+06 ns 
+ Last event time = 1.28615e+06 ns 
+ Last event time = 1.28963e+06 ns 
+ Last event time = 1.29307e+06 ns 
+ Last event time = 1.29649e+06 ns 
+ Last event time = 1.29993e+06 ns 
+ Last event time = 1.30338e+06 ns 
+ Last event time = 1.30684e+06 ns 
+ Last event time = 1.31032e+06 ns 
+ Last event time = 1.31375e+06 ns 
+ Last event time = 1.31721e+06 ns 
+ Last event time = 1.32067e+06 ns 
+ Last event time = 1.32415e+06 ns 
+ Last event time = 1.32759e+06 ns 
+ Last event time = 1.33103e+06 ns 
+ Last event time = 1.3345e+06 ns 
+ Last event time = 1.33797e+06 ns 
+ Last event time = 1.34142e+06 ns 
+ Last event time = 1.34488e+06 ns 
+ Last event time = 1.34833e+06 ns 
+ Last event time = 1.35179e+06 ns 
+ Last event time = 1.35525e+06 ns 
+ Last event time = 1.35871e+06 ns 
+ Last event time = 1.36217e+06 ns 
+ Last event time = 1.36562e+06 ns 
+ Last event time = 1.36908e+06 ns 
+ Last event time = 1.37252e+06 ns 
+ Last event time = 1.376e+06 ns 
+ Last event time = 1.37944e+06 ns 
+ Last event time = 1.38289e+06 ns 
+ Last event time = 1.38632e+06 ns 
+ Last event time = 1.38981e+06 ns 
+ Last event time = 1.39323e+06 ns 
+ Last event time = 1.3968e+06 ns 
+ Last event time = 1.40039e+06 ns 
+ Last event time = 1.40394e+06 ns 
+ Last event time = 1.40753e+06 ns 
+ Last event time = 1.41113e+06 ns 
+ Last event time = 1.41469e+06 ns 
+ Last event time = 1.41828e+06 ns 
+ Last event time = 1.42185e+06 ns 
+ Last event time = 1.42541e+06 ns 
+ Last event time = 1.42897e+06 ns 
+ Last event time = 1.43256e+06 ns 
+ Last event time = 1.43615e+06 ns 
+ Last event time = 1.43973e+06 ns 
+ Last event time = 1.4433e+06 ns 
+ Last event time = 1.44688e+06 ns 
+ Last event time = 1.45046e+06 ns 
+ Last event time = 1.45405e+06 ns 
+ Last event time = 1.45764e+06 ns 
+ Last event time = 1.46119e+06 ns 
+ Last event time = 1.46479e+06 ns 
+ Last event time = 1.46837e+06 ns 
+ Last event time = 1.47196e+06 ns 
+ Last event time = 1.47554e+06 ns 
+ Last event time = 1.47911e+06 ns 
+ Last event time = 1.4827e+06 ns 
+ Last event time = 1.48627e+06 ns 
+ Last event time = 1.48983e+06 ns 
+ Last event time = 1.49345e+06 ns 
+ Last event time = 1.497e+06 ns 
+ Last event time = 1.50059e+06 ns 
+ Last event time = 1.50418e+06 ns 
+ Last event time = 1.50774e+06 ns 
+ Last event time = 1.51133e+06 ns 
+ Last event time = 1.51491e+06 ns 
+ Last event time = 1.5185e+06 ns 
+ Last event time = 1.52208e+06 ns 
+ Last event time = 1.52564e+06 ns 
+ Last event time = 1.52923e+06 ns 
+ Last event time = 1.5328e+06 ns 
+ Last event time = 1.53638e+06 ns 
+ Last event time = 1.53997e+06 ns 
+ Last event time = 1.54354e+06 ns 
+ Last event time = 1.54712e+06 ns 
+ Last event time = 1.5507e+06 ns 
+ Last event time = 1.55429e+06 ns 
+ Last event time = 1.55787e+06 ns 
+ Last event time = 1.56144e+06 ns 
+ Last event time = 1.56504e+06 ns 
+ Last event time = 1.5686e+06 ns 
+ Last event time = 1.57217e+06 ns 
+ Last event time = 1.57579e+06 ns 
+ Last event time = 1.57936e+06 ns 
+ Last event time = 1.58294e+06 ns 
+ Last event time = 1.58651e+06 ns 
+ Last event time = 1.59009e+06 ns 
+ Last event time = 1.59368e+06 ns 
+ Last event time = 1.59725e+06 ns 
+ Last event time = 1.60084e+06 ns 
+ Last event time = 1.60441e+06 ns 
+ Last event time = 1.60794e+06 ns 
+ Last event time = 1.61141e+06 ns 
+ Last event time = 1.61488e+06 ns 
+ Last event time = 1.61833e+06 ns 
+ Last event time = 1.62177e+06 ns 
+ Last event time = 1.62523e+06 ns 
+ Last event time = 1.62869e+06 ns 
+ Last event time = 1.63216e+06 ns 
+ Last event time = 1.63561e+06 ns 
+ Last event time = 1.63907e+06 ns 
+ Last event time = 1.64251e+06 ns 
+ Last event time = 1.64595e+06 ns 
+ Last event time = 1.64944e+06 ns 
+ Last event time = 1.65289e+06 ns 
+ Last event time = 1.65636e+06 ns 
+ Last event time = 1.65978e+06 ns 
+ Last event time = 1.66327e+06 ns 
+ Last event time = 1.66672e+06 ns 
+ Last event time = 1.67017e+06 ns 
+ Last event time = 1.67362e+06 ns 
+ Last event time = 1.67707e+06 ns 
+ Last event time = 1.68053e+06 ns 
+ Last event time = 1.684e+06 ns 
+ Last event time = 1.68742e+06 ns 
+ Last event time = 1.69091e+06 ns 
+ Last event time = 1.69433e+06 ns 
+ Last event time = 1.69779e+06 ns 
+ Last event time = 1.70125e+06 ns 
+ Last event time = 1.70466e+06 ns 
+ Last event time = 1.70812e+06 ns 
+ Last event time = 1.71156e+06 ns 
+ Last event time = 1.71505e+06 ns 
+ Last event time = 1.71848e+06 ns 
+ Last event time = 1.72194e+06 ns 
+ Last event time = 1.7254e+06 ns 
+ Last event time = 1.72884e+06 ns 
+ Last event time = 1.73231e+06 ns 
+ Last event time = 1.73576e+06 ns 
+ Last event time = 1.73923e+06 ns 
+ Last event time = 1.74268e+06 ns 
+ Last event time = 1.74613e+06 ns 
+ Last event time = 1.7496e+06 ns 
+ Last event time = 1.75306e+06 ns 
+ Last event time = 1.7565e+06 ns 
+ Last event time = 1.75998e+06 ns 
+ Last event time = 1.7634e+06 ns 
+ Last event time = 1.7669e+06 ns 
+ Last event time = 1.77035e+06 ns 
+ Last event time = 1.77379e+06 ns 
+ Last event time = 1.77724e+06 ns 
+ Last event time = 1.78072e+06 ns 
+ Last event time = 1.78417e+06 ns 
+ Last event time = 1.78762e+06 ns 
+ Last event time = 1.79104e+06 ns 
+ Last event time = 1.79452e+06 ns 
+ Last event time = 1.79796e+06 ns 
+ Last event time = 1.80139e+06 ns 
+ Last event time = 1.80498e+06 ns 
+ Last event time = 1.80854e+06 ns 
+ Last event time = 1.81213e+06 ns 
+ Last event time = 1.81572e+06 ns 
+ Last event time = 1.81927e+06 ns 
+ Last event time = 1.82287e+06 ns 
+ Last event time = 1.82644e+06 ns 
+ Last event time = 1.83002e+06 ns 
+ Last event time = 1.8336e+06 ns 
+ Last event time = 1.83716e+06 ns 
+ Last event time = 1.84075e+06 ns 
+ Last event time = 1.84433e+06 ns 
+ Last event time = 1.8479e+06 ns 
+ Last event time = 1.85149e+06 ns 
+ Last event time = 1.85506e+06 ns 
+ Last event time = 1.85863e+06 ns 
+ Last event time = 1.86224e+06 ns 
+ Last event time = 1.86581e+06 ns 
+ Last event time = 1.86939e+06 ns 
+ Last event time = 1.87296e+06 ns 
+ Last event time = 1.87654e+06 ns 
+ Last event time = 1.88013e+06 ns 
+ Last event time = 1.88371e+06 ns 
+ Last event time = 1.8873e+06 ns 
+ Last event time = 1.89087e+06 ns 
+ Last event time = 1.89444e+06 ns 
+ Last event time = 1.89802e+06 ns 
+ Last event time = 1.90161e+06 ns 
+ Last event time = 1.90519e+06 ns 
+ Last event time = 1.90877e+06 ns 
+ Last event time = 1.91234e+06 ns 
+ Last event time = 1.91592e+06 ns 
+ Last event time = 1.91949e+06 ns 
+ Last event time = 1.9231e+06 ns 
+ Last event time = 1.92668e+06 ns 
+ Last event time = 1.93024e+06 ns 
+ Last event time = 1.93383e+06 ns 
+ Last event time = 1.93739e+06 ns 
+ Last event time = 1.94098e+06 ns 
+ Last event time = 1.94456e+06 ns 
+ Last event time = 1.94813e+06 ns 
+ Last event time = 1.9517e+06 ns 
+ Last event time = 1.95529e+06 ns 
+ Last event time = 1.95886e+06 ns 
+ Last event time = 1.96247e+06 ns 
+ Last event time = 1.96603e+06 ns 
+ Last event time = 1.96962e+06 ns 
+ Last event time = 1.9732e+06 ns 
+ Last event time = 1.97677e+06 ns 
+ Last event time = 1.98036e+06 ns 
+ Last event time = 1.98394e+06 ns 
+ Last event time = 1.98752e+06 ns 
+ Last event time = 1.9911e+06 ns 
+ Last event time = 1.99468e+06 ns 
+ Last event time = 1.99827e+06 ns 
+ Last event time = 2.00182e+06 ns 
+ Last event time = 2.00543e+06 ns 
+ Last event time = 2.009e+06 ns 
+ Last event time = 2.01257e+06 ns 
+ Last event time = 2.01612e+06 ns 
+ Last event time = 2.01958e+06 ns 
+ Last event time = 2.02305e+06 ns 
+ Last event time = 2.0265e+06 ns 
+ Last event time = 2.02995e+06 ns 
+ Last event time = 2.0334e+06 ns 
+ Last event time = 2.03684e+06 ns 
+ Last event time = 2.04034e+06 ns 
+ Last event time = 2.04378e+06 ns 
+ Last event time = 2.04724e+06 ns 
+ Last event time = 2.05066e+06 ns 
+ Last event time = 2.05414e+06 ns 
+ Last event time = 2.05761e+06 ns 
+ Last event time = 2.06106e+06 ns 
+ Last event time = 2.06449e+06 ns 
+ Last event time = 2.06796e+06 ns 
+ Last event time = 2.0714e+06 ns 
+ Last event time = 2.07489e+06 ns 
+ Last event time = 2.07832e+06 ns 
+ Last event time = 2.0818e+06 ns 
+ Last event time = 2.08523e+06 ns 
+ Last event time = 2.08866e+06 ns 
+ Last event time = 2.09215e+06 ns 
+ Last event time = 2.09559e+06 ns 
+ Last event time = 2.09906e+06 ns 
+ Last event time = 2.10247e+06 ns 
+ Last event time = 2.10597e+06 ns 
+ Last event time = 2.10941e+06 ns 
+ Last event time = 2.11291e+06 ns 
+ Last event time = 2.11651e+06 ns 
+ Last event time = 2.12009e+06 ns 
+ Last event time = 2.12365e+06 ns 
+ Last event time = 2.12726e+06 ns 
+ Last event time = 2.13082e+06 ns 
+ Last event time = 2.13442e+06 ns 
+ Last event time = 2.13791e+06 ns 
+ Last event time = 2.14138e+06 ns 
+ Last event time = 2.14479e+06 ns 
+ Last event time = 2.1483e+06 ns 
+ Last event time = 2.15174e+06 ns 
+ Last event time = 2.1552e+06 ns 
+ Last event time = 2.15864e+06 ns 
+ Last event time = 2.16212e+06 ns 
+ Last event time = 2.16557e+06 ns 
+ Last event time = 2.16902e+06 ns 
+ Last event time = 2.17246e+06 ns 
+ Last event time = 2.17593e+06 ns 
+ Last event time = 2.17938e+06 ns 
+ Last event time = 2.18285e+06 ns 
+ Last event time = 2.18628e+06 ns 
+ Last event time = 2.18975e+06 ns 
+ Last event time = 2.1932e+06 ns 
+ Last event time = 2.19665e+06 ns 
+ Last event time = 2.20011e+06 ns 
+ Last event time = 2.20358e+06 ns 
+ Last event time = 2.20702e+06 ns 
+ Last event time = 2.21046e+06 ns 
+ Last event time = 2.21394e+06 ns 
+ Last event time = 2.2174e+06 ns 
+ Last event time = 2.22085e+06 ns 
+ Last event time = 2.22426e+06 ns 
+ Last event time = 2.22773e+06 ns 
+ Last event time = 2.23118e+06 ns 
+ Last event time = 2.23477e+06 ns 
+ Last event time = 2.23835e+06 ns 
+ Last event time = 2.24192e+06 ns 
+ Last event time = 2.24551e+06 ns 
+ Last event time = 2.24908e+06 ns 
+ Last event time = 2.25268e+06 ns 
+ Last event time = 2.25626e+06 ns 
+ Last event time = 2.25982e+06 ns 
+ Last event time = 2.26342e+06 ns 
+ Last event time = 2.26699e+06 ns 
+ Last event time = 2.2706e+06 ns 
+ Last event time = 2.27417e+06 ns 
+ Last event time = 2.27775e+06 ns 
+ Last event time = 2.28134e+06 ns 
+ Last event time = 2.2849e+06 ns 
+ Last event time = 2.28849e+06 ns 
+ Last event time = 2.29207e+06 ns 
+ Last event time = 2.29566e+06 ns 
+ Last event time = 2.29925e+06 ns 
+ Last event time = 2.30283e+06 ns 
+Information: analysis is done for time window (0ns - 2.30582e+06ns)
+
+1
+#------------------------------------------------------------------------------
+# Reports
+#------------------------------------------------------------------------------
+report_power                              > $report_dir/$Out_report.rpt
+echo "----------------------------------------"
+----------------------------------------
+echo "PrimeTime PX Analysis Finished"
+PrimeTime PX Analysis Finished
+echo "Reports saved in:"
+Reports saved in:
+echo "$report_dir"
+./report
+echo "----------------------------------------"
+----------------------------------------
+#start_gui
+exit
+Information: Defining new variable 'report_dir'. (CMD-041)
+Information: Defining new variable 'FFLIB'. (CMD-041)
+Information: Defining new variable 'Out_report'. (CMD-041)
+Information: Defining new variable 'SSLIB'. (CMD-041)
+Information: Defining new variable 'power_vcd_time_unit'. (CMD-041)
+Information: Defining new variable 'TTLIB'. (CMD-041)
+
+Timing updates: 1 (1 implicit, 0 explicit) (0 incremental, 1 full, 0 logical)
+Noise updates: 0 (0 implicit, 0 explicit) (0 incremental, 0 full)
+Maximum memory usage for this session: 1131.74 MB
+CPU usage for this session: 45 seconds 
+Elapsed time for this session: 45 seconds
+Diagnostics summary: 0 error, 8 warnings, 18 informationals
+
+Thank you for using pt_shell!

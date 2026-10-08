@@ -9,6 +9,8 @@
   <img alt="Formal post-dft" src="https://img.shields.io/badge/Formal%20(post--dft)-382%2F382-2ea44f?style=flat-square">
   <img alt="CDC" src="https://img.shields.io/badge/CDC%20Check-4%20Goals%20%7C%200%20Warnings-2ea44f?style=flat-square">
   <img alt="Formal post-PnR" src="https://img.shields.io/badge/Formal%20(post--PnR)-382%2F382-2ea44f?style=flat-square">
+  <img alt="GLS" src="https://img.shields.io/badge/GLS%20(SDF)-9%2F9%20Passed-2ea44f?style=flat-square">
+  <img alt="Power" src="https://img.shields.io/badge/Power%20(PrimeTime%20PX)-0.57%20mW-0969da?style=flat-square">
   <img alt="STA" src="https://img.shields.io/badge/STA%20(3%20modes)-0%20Violations-2ea44f?style=flat-square">
   <img alt="Physical Design" src="https://img.shields.io/badge/Physical%20Design-DRC%20%7C%20Conn%20%7C%20Antenna%20Clean-2ea44f?style=flat-square">
   <img alt="GDSII" src="https://img.shields.io/badge/GDSII-Exported-2ea44f?style=flat-square">
@@ -36,6 +38,7 @@ flowchart LR
     M --> H["STA<br/>3 modes × 2 corners"]
     H --> J["Physical Verification<br/>DRC / Connectivity / Antenna"]
     J --> K[GDSII Export]
+    K --> N["GLS + Power<br/>SDF sim → PrimeTime PX"]
 
     C -.-> L["CDC Check<br/>SpyGlass CDC"]
     L -.-> D
@@ -44,16 +47,16 @@ flowchart LR
     classDef next fill:#0969da,stroke:#0550ae,color:#ffffff,font-weight:bold;
     classDef pending fill:#e1e4e8,stroke:#8c959f,color:#57606a;
 
-    class A,B,C,D,E,F,G,I,M,H,J,K,L done
+    class A,B,C,D,E,F,G,I,M,H,J,K,N,L done
 ```
 
-> 🟢 **Done** — RTL → Functional Verification → Lint → CDC Check → Synthesis → Formal (post-syn) → DFT → Formal (post-dft) → Place & Route → Formal (post-PnR) → STA → Physical Verification → GDSII export   🏁 **Flow complete**
+> 🟢 **Done** — RTL → Functional Verification → Lint → CDC Check → Synthesis → Formal (post-syn) → DFT → Formal (post-dft) → Place & Route → Formal (post-PnR) → STA → Physical Verification → GDSII export → Gate-Level Simulation → Power Analysis   🏁 **Flow complete**
 
 <details>
 <summary><b>📋 Full status write-up (click to expand)</b></summary>
 <br>
 
-The full RTL — both clock domains, all CDC synchronizers, the system controller (`SYS_CTRL`), and the top-level integration (`Final_System`) — is in place, and a self-checking ModelSim testbench (`tb/top_tb/`) has passed its full suite end-to-end: RegFile read/write, three ALU operations, and both UART error-injection paths (parity/framing) — **9/9 checks passing**. `Final_System` has been synthesized with Design Compiler against all three `scmetro_tsmc_cl013g` PVT corners with **no constraint violations** (worst setup slack +0.08 ns, worst hold slack +0.43 ns). RTL static checks (`lint_reports/`) have also been run with Synopsys SpyGlass; the only reported error and both warnings — the intentional `CLK_GATE.v` ICG latch and the two `ClkDiv.v` generated-clock warnings — have formal, justified waivers on file. A dedicated SpyGlass CDC run formally checked every clock-domain crossing: **19 waivers across 4 independent goals, 0 unresolved warnings**, and one real issue it surfaced — an unregistered `data_valid` in `FSM_RX.sv` feeding a CDC synchronizer enable — has been fixed. The post-synthesis netlist has been formally verified against the RTL with Synopsys Formality: **382/382 compare points equivalent, 0 failing, 0 unverified, 0 aborted**. Full-scan DFT has been inserted (4 balanced chains of 94–95 cells, multiplexed flip-flop style, **99.47% estimated stuck-at coverage**, all post-DFT timing met, +14.7% cell area), and a second Formality run confirms the scan-inserted netlist is still functionally equivalent to the DFT-aware RTL in mission mode: **382/382 compare points equivalent, 0 failing, 0 unverified, 0 aborted**. The scan-inserted netlist was then taken through place & route in Cadence First Encounter (die 240.47 × 160.47 µm, 83% placement density, 3 balanced clock trees, 2-step routing with filler insertion). Multi-mode multi-corner timing analysis (functional / scan-shift / scan-capture, each at the slow and fast corners) shows **no setup or hold violations after routing** (setup WNS +3.299 ns, hold WNS +0.067 ns), and the final layout passes geometry (0 violations), connectivity (0 problems), and antenna (0 violations) verification. A third Formality run proves the routed netlist is still equivalent to the DFT-aware RTL (**382/382 compare points, 0 failing**). One residual max-transition net is recorded under [Implementation Notes](#implementation-notes).
+The full RTL — both clock domains, all CDC synchronizers, the system controller (`SYS_CTRL`), and the top-level integration (`Final_System`) — is in place, and a self-checking ModelSim testbench (`tb/top_tb/`) has passed its full suite end-to-end: RegFile read/write, three ALU operations, and both UART error-injection paths (parity/framing) — **9/9 checks passing**. `Final_System` has been synthesized with Design Compiler against all three `scmetro_tsmc_cl013g` PVT corners with **no constraint violations** (worst setup slack +0.08 ns, worst hold slack +0.43 ns). RTL static checks (`lint_reports/`) have also been run with Synopsys SpyGlass; the only reported error and both warnings — the intentional `CLK_GATE.v` ICG latch and the two `ClkDiv.v` generated-clock warnings — have formal, justified waivers on file. A dedicated SpyGlass CDC run formally checked every clock-domain crossing: **19 waivers across 4 independent goals, 0 unresolved warnings**, and one real issue it surfaced — an unregistered `data_valid` in `FSM_RX.sv` feeding a CDC synchronizer enable — has been fixed. The post-synthesis netlist has been formally verified against the RTL with Synopsys Formality: **382/382 compare points equivalent, 0 failing, 0 unverified, 0 aborted**. Full-scan DFT has been inserted (4 balanced chains of 94–95 cells, multiplexed flip-flop style, **99.47% estimated stuck-at coverage**, all post-DFT timing met, +14.7% cell area), and a second Formality run confirms the scan-inserted netlist is still functionally equivalent to the DFT-aware RTL in mission mode: **382/382 compare points equivalent, 0 failing, 0 unverified, 0 aborted**. The scan-inserted netlist was then taken through place & route in Cadence First Encounter (die 240.47 × 160.47 µm, 83% placement density, 3 balanced clock trees, 2-step routing with filler insertion). Multi-mode multi-corner timing analysis (functional / scan-shift / scan-capture, each at the slow and fast corners) shows **no setup or hold violations after routing** (setup WNS +3.299 ns, hold WNS +0.067 ns), and the final layout passes geometry (0 violations), connectivity (0 problems), and antenna (0 violations) verification. A third Formality run proves the routed netlist is still equivalent to the DFT-aware RTL (**382/382 compare points, 0 failing**). The routed netlist is then re-simulated at gate level with SDF back-annotation (**9/9 tests passed**), and the resulting switching activity drives a PrimeTime PX power analysis (**0.5695 mW** total). One residual max-transition net is recorded under [Implementation Notes](#implementation-notes).
 
 </details>
 
@@ -72,6 +75,7 @@ The full RTL — both clock domains, all CDC synchronizers, the system controlle
 - [Physical Implementation — Place & Route (`pnr/`)](#physical-implementation--place--route-pnr)
 - [Formal Verification — Post-PnR Equivalence](#formal-verification--post-pnr-equivalence-formalitypost-pnr)
 - [Static Timing Analysis — Multi-Mode Multi-Corner](#static-timing-analysis--multi-mode-multi-corner)
+- [Gate-Level Simulation & Power Analysis](#gate-level-simulation--power-analysis-gls)
 - [Implementation Notes](#implementation-notes)
 - [Technology Library — TSMC13](#technology-library--tsmc13)
 - [Status](#status)
@@ -105,6 +109,7 @@ All tools need valid licenses and to be on your `$PATH`. The target library is `
 | 7 | ✅ **Formal (post-dft)** | `Formality/post-dft/scripts/` | `sh run_dft_fm.sh` | `../reports/passing_points.rpt`, `../logs/` |
 | 8 | 🗺️ **Place & Route** | `pnr/` | `encounter`, then `source scripts/<step>.tcl` in the order listed [below](#how-to-run) | `netlists/`, `timingReports/`, `clock_report/`, `drcs report/`, `GDS/`, `Final_System.enc.dat/` |
 | 9 | ✅ **Formal (post-PnR)** | `Formality/post-PnR/scripts/` | `sh run_pnr_fm.sh` | `../reports/passing_points.rpt`, `../logs/` |
+| 10 | ⚡ **GLS + Power** | `GLS/sim/`, then `GLS/pt/` | `vsim -do run.do` (Questa), then `pt_shell -f PT.tcl` | `sim/transcript`, `pt/report/System_pw.rpt`, `pt/pw.log` |
 
 > Each `run_*.sh` wrapper creates its own `reports/`, `log(s)/`, `sdc/`, `sdf/`, and `netlists/` subfolders and pipes the tool's console output straight into a log file with `tee` — so a fresh clone can run any single stage independently and the results land exactly where this README links to them.
 
@@ -120,9 +125,10 @@ flowchart TD
     S6 --> S7["7️⃣ Formal post-dft<br/>Formality/post-dft/"]
     S7 --> S8["8️⃣ Place & Route + STA<br/>pnr/"]
     S8 --> S9["9️⃣ Formal post-PnR<br/>Formality/post-PnR/"]
+    S9 --> S10["🔟 GLS + Power<br/>GLS/"]
 
     classDef step fill:#0969da,stroke:#0550ae,color:#fff,font-weight:bold;
-    class S1,S2,S3,S4,S5,S6,S7,S8,S9 step;
+    class S1,S2,S3,S4,S5,S6,S7,S8,S9,S10 step;
 ```
 
 ## System Overview
@@ -929,6 +935,90 @@ Post-route breakdown across the 1,138 timed paths:
 
 Setup slack barely moves from pre-CTS to post-route (3.40 → 3.30 ns), meaning the 50 MHz datapath is comfortably closed with real clock-tree latency and routed parasitics. Hold was repaired during post-CTS optimization and stays positive after routing. Reports: [`pnr/timingReports/`](pnr/timingReports/) and [`pnr/clock_report/`](pnr/clock_report/).
 
+## Gate-Level Simulation & Power Analysis (`GLS/`)
+
+The post-route netlist is re-simulated with the **same self-checking testbench** used at RTL level, with the SDF delays from place & route back-annotated, and the switching activity recorded from that run is fed to **PrimeTime PX** for a time-based power analysis.
+
+```
+GLS/
+├── netlist/
+│   ├── Final_System_pnr.v      Post-route netlist (identical to pnr/netlists/Final_System_dft.v)
+│   ├── Final_System_pnr.sdf    Delay annotation used for the simulation
+│   └── Final_System_pnr.sdc    Post-route constraints used by PrimeTime
+├── sim/
+│   ├── system_tb.sv            Self-checking testbench, adapted for the DFT ports and a VCD dump
+│   ├── run.do                  Questa script: compile library + netlist + TB, simulate with -sdfmax
+│   ├── wave.do                 Waveform setup
+│   └── transcript              Full simulation log
+└── pt/
+    ├── PT.tcl                  PrimeTime PX script
+    ├── pw.log                  Session log
+    └── report/System_pw.rpt    Time-based power report
+```
+
+> The VCD (`System.vcd`) is not committed — it is several hundred MB — and is regenerated by running `run.do`.
+
+### Gate-level simulation
+
+| | |
+|---|---|
+| Simulator | Mentor **QuestaSim 10.7c** |
+| DUT | `Final_System_dft` post-route netlist, instantiated as `system_tb/DUT` |
+| Timing | `vsim -sdfmax /system_tb/DUT=../netlist/Final_System_pnr.sdf` — SDF back-annotation completed successfully |
+| Mode | Functional: `test_mode = 0`, `SE = 0`, `scan_CLK` idle, `scan_RST` inactive |
+| Clocks | `REF_CLK` 50 MHz (20 ns), `UART_CLK` 3.6864 MHz (271.267 ns) |
+| Stimulus | The 6 RTL-level test scenarios: register write/read, ALU add / subtract / multiply, parity-error injection, framing-error injection |
+| Simulated time | 2,305,826 ns (≈ 2.31 ms) |
+
+**Result: `TEST SUMMARY: PASSED = 9 | FAILED = 0` ✅** — the routed netlist, with real post-route delays, reproduces exactly the behaviour verified at RTL level.
+
+The transcript carries the usual library/netlist warnings from this flow: unconnected output ports on a few arithmetic cells (`vopt-2685` / `vopt-2718`), and SDF notes (`SDF-3438`, `SDF-3262`, and 96 of 30,148 SDF statements with null values). None affect the result: back-annotation completes and every check passes.
+
+### Power analysis (PrimeTime PX)
+
+| | |
+|---|---|
+| Tool | Synopsys PrimeTime PX `O-2018.06-SP1`, `power_analysis_mode = time_based` |
+| Inputs | Post-route netlist + SDC, switching activity from `System.vcd` (`read_vcd -strip_path system_tb/DUT`) |
+| Annotation | **100%** of nets (2,435) and leaf cells (2,220) annotated from the VCD |
+
+| Component | Power | Share |
+|---|---|---|
+| Cell internal | 308.7 µW | 54.2% |
+| Net switching | 251.9 µW | 44.2% |
+| Cell leakage | 8.9 µW | 1.6% |
+| **Total** | **569.5 µW (0.5695 mW)** | 100% |
+
+| Power group | Total power | Share |
+|---|---|---|
+| Clock network (incl. register clock-pin internal power) | 558.3 µW | 98.03% |
+| Combinational | 6.6 µW | 1.16% |
+| Register | 4.6 µW | 0.81% |
+
+Glitching power is 16.7 nW and X-transition power 0.9 nW — both negligible.
+
+**Reading the numbers.** The workload is sparse UART traffic: between frames the datapath is idle, so data activity is tiny while the clock trees (50 MHz `REF_CLK` with 272 sinks, plus the divided UART clocks) toggle every cycle. That is why the clock network accounts for ~98% of the power. A heavier command stream would raise the register and combinational shares.
+
+**Comparison across the flow** (different tools, corners, and activity assumptions — an indication of trend, not a like-for-like benchmark):
+
+| Stage | Tool | Activity | Total power |
+|---|---|---|---|
+| Post-synthesis | Design Compiler (`ss_1p08v_125c`) | Default | 0.255 mW |
+| Post-route | Encounter (`ss_1p08v_125c`) | Default (0.2 on primary inputs) | 0.7185 mW |
+| **Post-route GLS** | **PrimeTime PX** | **Simulated VCD** | **0.5695 mW** |
+
+The SDF is not read in PrimeTime on purpose: the VCD already comes from an SDF-annotated gate-level simulation, so its event timing reflects the post-route delays. The PrimeTime log reports `0 errors, 8 warnings`, the latter being generated-clock-on-hierarchical-pin and clock-gating-check notes.
+
+### How to run
+
+```
+cd GLS/sim
+vsim -c -do run.do      # produces System.vcd and the transcript
+
+cd ../pt
+pt_shell -f PT.tcl      # reads ../sim/System.vcd, writes report/System_pw.rpt
+```
+
 ## Implementation Notes
 
 - **One max-transition net.** After routing, net `SYS_CTRL/n18` (driven by `AOI221XLM`) shows a ~2.24 ns rise transition against a 1.5 ns limit. It produces no timing violation (setup and hold are clean in all three modes) but is a design-rule item.
@@ -968,8 +1058,10 @@ Three PVT (Process/Voltage/Temperature) corners are provided for the standard-ce
 | ✅ Formal (post-dft) | 382/382 passing, 0 failing | [Formal Verification — Post-DFT](#formal-verification--post-dft-equivalence-formalitypost-dft) |
 | ✅ Place & Route | Floorplan → place → CTS → route → fillers; 83% placement density | [Physical Implementation](#physical-implementation--place--route-pnr) |
 | ✅ Formal (post-PnR) | 382/382 passing, 0 failing | [Formal Verification — Post-PnR](#formal-verification--post-pnr-equivalence-formalitypost-pnr) |
+| ✅ GLS (SDF back-annotated) | 9/9 tests passed on the post-route netlist, 2.306 ms simulated | [GLS](#gate-level-simulation--power-analysis-gls) |
+| ✅ Power (PrimeTime PX) | 0.5695 mW from simulated switching activity | [GLS](#gate-level-simulation--power-analysis-gls) |
 | ✅ STA (MMMC) | 0 violations post-route — setup WNS +3.299 ns, hold WNS +0.067 ns | [STA](#static-timing-analysis--multi-mode-multi-corner) |
 | ✅ Physical verification | 0 DRC, 0 connectivity problems, 0 antenna violations | [Physical verification](#physical-verification-encounter) |
 | ✅ GDSII | Exported from Encounter | [`pnr/GDS/`](pnr/GDS/) |
 
-**In short:** the full flow is complete, from RTL to a routed, physically verified layout. All RTL blocks pass the self-checking testbench (9/9), lint and CDC are fully waived/clean, synthesis closes timing at all three PVT corners, and full-scan DFT reaches **99.47%** estimated stuck-at coverage with 4 chains. Synopsys Formality proves equivalence at every netlist hand-off — post-synthesis, post-DFT, and post-route — **382/382 compare points each, 0 failing**. Place & route in Cadence Encounter produced a clock-treed, routed, filler-complete layout with **zero setup/hold violations across three timing modes** (setup WNS +3.299 ns, hold WNS +0.067 ns post-route) and **zero DRC, connectivity, and antenna violations**. See [Implementation Notes](#implementation-notes) for the one residual max-transition net.
+**In short:** the full flow is complete, from RTL to a routed, physically verified layout with simulated power. All RTL blocks pass the self-checking testbench (9/9), lint and CDC are fully waived/clean, synthesis closes timing at all three PVT corners, and full-scan DFT reaches **99.47%** estimated stuck-at coverage with 4 chains. Synopsys Formality proves equivalence at every netlist hand-off — post-synthesis, post-DFT, and post-route — **382/382 compare points each, 0 failing**. Place & route in Cadence Encounter produced a clock-treed, routed, filler-complete layout with **zero setup/hold violations across three timing modes** (setup WNS +3.299 ns, hold WNS +0.067 ns post-route) and **zero DRC, connectivity, and antenna violations**. Gate-level simulation of the routed netlist with SDF back-annotation passes **9/9** tests, and PrimeTime PX on the resulting activity reports **0.5695 mW** total power. See [Implementation Notes](#implementation-notes) for the one residual max-transition net.
