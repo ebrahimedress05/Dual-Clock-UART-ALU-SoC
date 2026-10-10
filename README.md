@@ -950,6 +950,8 @@ GLS/
 │   ├── run.do                  Questa script: compile library + netlist + TB, simulate with -sdfmax
 │   ├── wave.do                 Waveform setup
 │   └── transcript              Full simulation log
+├── report/
+│   └── Post_PnR_GLS_Waveform_Verification_Report_v3.pdf   Annotated waveform captures for each test scenario
 └── pt/
     ├── PT.tcl                  PrimeTime PX script
     ├── pw.log                  Session log
@@ -973,6 +975,22 @@ GLS/
 **Result: `TEST SUMMARY: PASSED = 9 | FAILED = 0` ✅** — the routed netlist, with real post-route delays, reproduces exactly the behaviour verified at RTL level.
 
 The transcript carries the usual library/netlist warnings from this flow: unconnected output ports on a few arithmetic cells (`vopt-2685` / `vopt-2718`), and SDF notes (`SDF-3438`, `SDF-3262`, and 96 of 30,148 SDF statements with null values). None affect the result: back-annotation completes and every check passes.
+
+### Waveform verification report
+
+[`GLS/report/Post_PnR_GLS_Waveform_Verification_Report_v3.pdf`](GLS/report/Post_PnR_GLS_Waveform_Verification_Report_v3.pdf) documents the back-annotated waveforms for each test scenario, with the trigger event isolated and the signal groups laid out as clocks/reset, UART pins, FSM controller, register file, ALU engine, TX flow, and error flags.
+
+| Case | Scenario | What the capture shows | Sim time |
+|---|---|---|---|
+| 1A | Register-file write | `WrEn`, address and `WrData` sampled on the reference-clock edge | ≈ 289 µs |
+| 1B | Register-file read | `RdEn` → `RdData` clock-to-Q on the output bus | ≈ 490 µs |
+| 2 | ALU add (10 + 5 = 15) | `ALU_OUT` = 0x0F when `OUT_VALID` asserts | ≈ 983 µs |
+| 3 | ALU subtract (10 − 5 = 5) | `ALU_OUT` = 0x05 when `OUT_VALID` asserts | ≈ 1,391 µs |
+| 4 | ALU multiply (10 × 5 = 50) | `ALU_OUT` = 0x32 when `OUT_VALID` asserts | ≈ 1,789 µs |
+| 5 | UART parity error | `parity_error` asserts after a corrupted-parity frame | ≈ 2,098 µs |
+| 6 | UART framing error | `stop_error` asserts on a low stop bit | ≈ 2,227 µs |
+
+All seven events fall inside the 2.306 ms simulation that passed 9/9 checks.
 
 ### Power analysis (PrimeTime PX)
 
@@ -1058,7 +1076,7 @@ Three PVT (Process/Voltage/Temperature) corners are provided for the standard-ce
 | ✅ Formal (post-dft) | 382/382 passing, 0 failing | [Formal Verification — Post-DFT](#formal-verification--post-dft-equivalence-formalitypost-dft) |
 | ✅ Place & Route | Floorplan → place → CTS → route → fillers; 83% placement density | [Physical Implementation](#physical-implementation--place--route-pnr) |
 | ✅ Formal (post-PnR) | 382/382 passing, 0 failing | [Formal Verification — Post-PnR](#formal-verification--post-pnr-equivalence-formalitypost-pnr) |
-| ✅ GLS (SDF back-annotated) | 9/9 tests passed on the post-route netlist, 2.306 ms simulated | [GLS](#gate-level-simulation--power-analysis-gls) |
+| ✅ GLS (SDF back-annotated) | 9/9 tests passed on the post-route netlist, 2.306 ms simulated; waveform report included | [GLS](#gate-level-simulation--power-analysis-gls) |
 | ✅ Power (PrimeTime PX) | 0.5695 mW from simulated switching activity | [GLS](#gate-level-simulation--power-analysis-gls) |
 | ✅ STA (MMMC) | 0 violations post-route — setup WNS +3.299 ns, hold WNS +0.067 ns | [STA](#static-timing-analysis--multi-mode-multi-corner) |
 | ✅ Physical verification | 0 DRC, 0 connectivity problems, 0 antenna violations | [Physical verification](#physical-verification-encounter) |
